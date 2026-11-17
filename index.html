@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>db-hub — software for small furniture workshops</title>
+<meta name="description" content="Nine connected apps that take a furniture job from quote, to cabinet design, to nested boards, to the shop floor. One flat price per workshop.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0D1311;--bg2:#111816;--panel:#151D1A;--line:#2C3A35;--line2:#4A5A55;--text:#EAF0ED;--soft:#B7C4BF;--muted:#A3B2AC;--ply:#E9DCBD;--ink:#14100A;--accent:#FF7A1A;--teal:#5EEAD4;--head:'Space Grotesk',system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.55;color:var(--text);background:var(--bg)}
+a{color:var(--teal)}a:hover{color:#99F6E4}
+button{font-family:inherit}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+h1,h2,h3,p{margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:24px;padding-right:24px}
+.h2{font-family:var(--head);font-weight:700;font-size:clamp(30px,3.6vw,46px);letter-spacing:-.025em;line-height:1.08;margin-bottom:12px}
+.lead{font-size:18px;color:var(--soft);max-width:620px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.cta{display:inline-block;text-decoration:none;font-weight:600;padding:15px 26px;border-radius:6px;border:1px solid transparent;text-align:center;transition:filter .15s ease,transform .15s ease}
+.cta:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.cta.primary{background:var(--accent);color:var(--bg)}
+.cta.ghost{background:transparent;color:var(--text);border-color:var(--line2)}
+.cta.light{background:var(--text);color:var(--bg);padding:12px 20px}
+.cta.dark{background:var(--ink);color:#fff}
+
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding-top:20px;padding-bottom:20px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);min-height:44px;font-family:var(--head);font-weight:700;font-size:24px;letter-spacing:-.02em}
+nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px}
+nav a.link{color:var(--text);text-decoration:none;font-weight:500;padding:12px 0}
+
+.hero{background-image:linear-gradient(#18211E 1px,transparent 1px),linear-gradient(90deg,#18211E 1px,transparent 1px);background-size:48px 48px}
+.hero .wrap{display:flex;flex-wrap:wrap;align-items:flex-start;gap:48px;padding-top:56px;padding-bottom:80px}
+.hero-copy{flex:1 1 400px;min-width:0;display:flex;flex-direction:column;gap:24px;padding-top:24px}
+.hero-copy .eyebrow{display:flex;align-items:center;gap:10px;font-size:13px}
+.dot{width:8px;height:8px;border-radius:99px;background:var(--teal);animation:blink 1.6s ease-in-out infinite}
+h1{font-family:var(--head);font-weight:700;font-size:clamp(40px,5.4vw,68px);line-height:1;letter-spacing:-.035em}
+.hero-copy p.sub{font-size:19px;color:var(--soft);max-width:500px}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+.small{font-size:14px;color:var(--muted)}
+.hero-demo{flex:1 1 500px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.pill{min-height:44px;padding:0 16px;border-radius:99px;border:1px solid var(--line2);background:transparent;color:var(--text);font-size:14px;font-weight:600;cursor:pointer}
+.pill[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.sheet{position:relative;overflow:hidden;background:#1B2622;border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:58px;gap:8px}
+.part{background:var(--ply);color:var(--ink);border:0;border-radius:3px;padding:10px 12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:6px;text-align:left;cursor:pointer;transition:transform .18s ease,opacity .25s ease,background .2s ease;animation:drop .7s cubic-bezier(.2,.8,.2,1) backwards}
+.part.flat{flex-direction:row-reverse;align-items:center}
+.part:hover{transform:translateY(-4px)}
+.part[aria-pressed="true"]{background:var(--accent)}
+.part.dim{opacity:.25}
+.part .no{font-size:11px;font-weight:600}
+.part .nm{font-family:var(--head);font-weight:600;font-size:16px;line-height:1.15}
+.scan{position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--accent);opacity:.7;pointer-events:none;animation:scan 7s linear infinite}
+.sheet-meta{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.detail{padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.detail-top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.detail h2{font-family:var(--head);font-weight:600;font-size:24px}
+.detail p{color:var(--soft)}
+.chips{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{font-size:13px;font-weight:500;border:1px solid #3A4944;border-radius:99px;padding:5px 12px}
+
+.band{background:var(--bg2);border-top:1px solid #26322E;border-bottom:1px solid #26322E}
+.values{display:flex;flex-wrap:wrap;gap:32px;padding-top:44px;padding-bottom:44px}
+.values>div{flex:1 1 260px;min-width:0;color:var(--soft)}
+.values h3{font-family:var(--head);font-weight:600;font-size:20px;color:var(--text);margin-bottom:6px}
+
+section.pad{padding-top:88px;padding-bottom:88px}
+.steps{display:flex;flex-wrap:wrap;gap:10px;margin:36px 0 16px}
+.step{flex:1 1 170px;min-width:0;min-height:72px;text-align:left;padding:14px 16px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--text);cursor:pointer;transition:transform .18s ease,background .2s ease}
+.step:hover{transform:translateY(-3px)}
+.step[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.step span{display:block}
+.step .n{font-size:12px;font-weight:600;opacity:.8}
+.step .t{font-family:var(--head);font-weight:600;font-size:20px}
+.step-panel{padding:32px;display:flex;flex-wrap:wrap;gap:32px;align-items:center}
+.step-panel .main{flex:2 1 420px;min-width:0}
+.step-panel .head{font-family:var(--head);font-weight:600;font-size:clamp(22px,2.4vw,30px);line-height:1.2;margin:8px 0 10px}
+.step-panel .main p{color:var(--soft);font-size:17px}
+.step-panel .out{flex:1 1 240px;min-width:0;border-left:2px solid var(--accent);padding-left:20px;font-weight:500}
+.step-panel .out small{display:block;font-size:13px;font-weight:400;color:var(--muted);margin-bottom:4px}
+
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:20px 40px;margin:32px 0 28px}
+.seg{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px}
+.seg button{min-height:44px;padding:0 20px;border:0;border-radius:99px;background:transparent;color:var(--text);font-weight:600;font-size:15px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.people{flex:1 1 320px;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.people label{font-weight:500}
+.people input{flex:1 1 180px;min-width:0;height:44px;accent-color:var(--accent)}
+.people output{font-family:var(--head);font-weight:700;font-size:26px;min-width:40px}
+.plans{display:flex;flex-wrap:wrap;align-items:stretch;gap:16px}
+.plan{flex:1 1 280px;min-width:0;padding:28px;display:flex;flex-direction:column;gap:16px;transition:transform .18s ease}
+.plan:hover{transform:translateY(-3px)}
+.plan .muted{color:var(--muted)}
+.plan.feat{background:var(--ply);border-color:var(--ply);color:var(--ink)}
+.plan.feat .muted{color:#3B3324}
+.plan-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.plan-name{font-family:var(--head);font-weight:600;font-size:22px}
+.badge{font-size:12px;font-weight:600;background:var(--bg);color:var(--text);padding:4px 10px;border-radius:99px}
+.price{display:flex;align-items:baseline;gap:6px}
+.price b{font-family:var(--head);font-weight:700;font-size:52px;letter-spacing:-.03em;line-height:1}
+.pp{margin-top:8px;font-size:15px;font-weight:600}
+.plan ul{margin:0;padding:0 0 0 18px;display:flex;flex-direction:column;gap:8px}
+.plan .cta{margin-top:auto;padding:14px 20px}
+.once{margin-top:16px;padding:24px 28px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px}
+.once>div{flex:1 1 420px;min-width:0;color:var(--soft)}
+.once h3{font-family:var(--head);font-weight:600;font-size:20px;color:var(--text);margin-bottom:4px}
+.once a{font-weight:600;padding:12px 0}
+
+.faq{max-width:860px}
+.faq-list{border-top:1px solid var(--line);margin-top:32px}
+details{border-bottom:1px solid var(--line)}
+summary{list-style:none;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:18px;font-weight:600;cursor:pointer;padding:12px 0}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';font-family:var(--head);font-size:26px;font-weight:500;color:var(--accent)}
+details[open] summary::after{content:'–'}
+details p{padding:0 40px 20px 0;color:var(--soft)}
+
+.final{background:var(--ply);color:var(--ink)}
+.final .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:32px;padding-top:72px;padding-bottom:72px}
+.final .copy{flex:1 1 480px;min-width:0}
+.final p{color:#3B3324;font-size:18px}
+.final .side{display:flex;flex-direction:column;gap:10px;font-size:14px;color:#3B3324}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:14px;color:var(--muted);padding-top:24px;padding-bottom:24px}
+
+@keyframes drop{from{opacity:0;transform:translateY(-28px) scale(.94)}}
+@keyframes scan{from{left:0}to{left:100%}}
+@keyframes blink{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.part,.scan,.dot{animation:none}.part:hover,.step:hover,.plan:hover,.cta:hover{transform:none}}
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <a class="logo" href="#top">
+    <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect x="1" y="1" width="28" height="28" rx="4" fill="#E9DCBD"/><rect x="5" y="5" width="11" height="9" fill="#0D1311"/><rect x="18" y="5" width="7" height="20" fill="#FF7A1A"/><rect x="5" y="16" width="11" height="9" fill="#0D1311"/></svg>
+    db-hub
+  </a>
+  <nav>
+    <a class="link" href="#flow">How it works</a>
+    <a class="link" href="#pricing">Pricing</a>
+    <a class="link" href="#faq">FAQ</a>
+    <a class="cta light" href="#demo">Book a demo</a>
+  </nav>
+</header>
+
+<main>
+<section id="top" class="hero">
+  <div class="wrap">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="dot" aria-hidden="true"></span>Software for small furniture workshops</div>
+      <h1>The whole workshop, cut from one sheet.</h1>
+      <p class="sub">Nine connected apps take a furniture job from quote, to cabinet design, to nested boards, to the shop floor. One login, one flat price for the whole workshop.</p>
+      <div class="row">
+        <a class="cta primary" href="#demo">Book a 30-minute demo</a>
+        <a class="cta ghost" href="#pricing">See pricing</a>
+      </div>
+      <p class="small">5-day free trial on your own projects. Available in English and Lithuanian.</p>
+    </div>
+
+    <div class="hero-demo">
+      <div class="row" id="groups" role="group" aria-label="Show apps for"></div>
+      <div class="sheet" id="sheet"></div>
+      <div class="sheet-meta"><span>Sheet 1 of 1 · 9 parts nested</span><span>Click a part to see what it does</span></div>
+      <div class="card detail" id="detail" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap values">
+    <div><h3>No engineer bottleneck</h3>Any trained employee turns cabinet dimensions into a part list and CNC operations.</div>
+    <div><h3>Type it once</h3>The project you quote is the project you nest, track and deliver. No re-entering parts.</div>
+    <div><h3>Priced per workshop</h3>Everyone signs in with a name and PIN. Adding a worker never adds to the bill.</div>
+  </div>
+</section>
+
+<section id="flow" class="wrap pad">
+  <h2 class="h2">Follow one kitchen through the workshop.</h2>
+  <p class="lead">Five steps, one set of data. Pick a step to see which apps carry the job.</p>
+  <div class="steps" id="steps" role="tablist" aria-label="Job steps"></div>
+  <div class="card step-panel" id="stepPanel" role="tabpanel" aria-live="polite"></div>
+</section>
+
+<section id="pricing" class="band">
+  <div class="wrap pad">
+    <h2 class="h2">One price per workshop. Unlimited people.</h2>
+    <p class="lead">Every plan starts with a 5-day free trial. Prices exclude VAT. Move the slider to your team size and see what it costs per person.</p>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Billing period">
+        <button type="button" id="billM" aria-pressed="true">Monthly</button>
+        <button type="button" id="billY" aria-pressed="false">Yearly · 2 months free</button>
+      </div>
+      <div class="people">
+        <label for="people">People in your workshop</label>
+        <input id="people" type="range" min="2" max="40" step="1" value="8">
+        <output id="peopleOut" for="people">8</output>
+      </div>
+    </div>
+    <div class="plans" id="plans"></div>
+    <div class="card once">
+      <div><h3>Prefer to pay once?</h3>Complete as a one-time licence: €2,490 including the first year of hosting and updates, then €390 a year to keep both.</div>
+      <a href="#demo">Ask about the one-time licence</a>
+    </div>
+    <p class="small" style="margin-top:20px">Guided setup, including import of your materials and price lists: €350 one-time.</p>
+  </div>
+</section>
+
+<section id="faq" class="wrap pad faq">
+  <h2 class="h2">Questions workshops ask first</h2>
+  <div class="faq-list">
+    <details open><summary>Which CNC machines does it work with?</summary><p>[LIST THE MACHINES AND FILE FORMATS YOU SUPPORT TODAY, AND SAY HOW NEW POST-PROCESSORS ARE ADDED]</p></details>
+    <details><summary>Do we need to install anything?</summary><p>No. Everything runs in the browser on the office PC, a workshop tablet or the TV on the wall.</p></details>
+    <details><summary>How many people can use it?</summary><p>Everyone in your workshop, at no extra cost. Office apps stay hidden from shop-floor logins.</p></details>
+    <details><summary>Which languages?</summary><p>English and Lithuanian today, switchable per person. Need another language for your team? Tell us at the demo.</p></details>
+    <details><summary>Where is our data kept?</summary><p>[HOSTING REGION AND BACKUP POLICY]. Each workshop has its own separated data and you can export it at any time.</p></details>
+    <details><summary>Can we try it first?</summary><p>Yes. Every plan starts with a 5-day free trial, so you can run a real project through it before paying.</p></details>
+  </div>
+</section>
+
+<section id="demo" class="final">
+  <div class="wrap">
+    <div class="copy">
+      <h2 class="h2">See one of your own cabinets go from quote to CNC.</h2>
+      <p>Send a drawing, and the 30-minute demo runs on your job, not a sample one.</p>
+    </div>
+    <div class="side">
+      <a class="cta dark" href="mailto:[YOUR EMAIL]">Book a demo</a>
+      <span>[YOUR EMAIL] · [YOUR PHONE]</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="wrap"><span>db-hub · made by Dėdės Baldai</span><span>[COMPANY DETAILS] · Privacy · Terms</span></footer>
+
+<script>
+(function () {
+  'use strict';
+  var LABELS = { cnc: 'Design and CNC', floor: 'Shop floor', office: 'Office' };
+  var APPS = [
+    { id: 'studio', no: '01', name: 'Cabinet Studio', g: 'cnc', col: '1 / 4', row: '1 / 3', desc: 'Set the size, sections and joinery of a cabinet and get a sketch, a part list and the drilling and routing operations for the CNC.', bullets: ['Part list', 'Joinery per cabinet', 'CNC operations'] },
+    { id: 'nesting', no: '03', name: 'Nesting', g: 'cnc', col: '4 / 7', row: '1 / 3', desc: 'Rectangular and true-shape nesting for CNC or saw, with layout history and part labels sent straight to a label printer.', bullets: ['True-shape nesting', 'QR labels', 'Layout history'] },
+    { id: 'shopflow', no: '04', name: 'ShopFlow', g: 'floor', col: '1 / 3', row: '3 / 6', desc: 'Production tracking per project and per part. Workers sign in with a name and PIN, scan a barcode, and the job moves on.', bullets: ['Name and PIN sign-in', 'Barcode scans', 'Parts log'] },
+    { id: 'dxf', no: '02', name: 'DXF Editor', g: 'cnc', col: '3 / 5', row: '3 / 4', flat: true, desc: 'Open a DXF and fix it in the browser: change sizes and proportions, add chamfers, edit or delete shapes. No CAD seat needed.', bullets: ['Resize', 'Chamfers', 'Edit shapes'] },
+    { id: 'offers', no: '07', name: 'Offers', g: 'office', col: '5 / 7', row: '3 / 5', desc: 'Cost and quote calculator built around cabinets: materials, hardware, labour and margin, with a sketch the customer understands.', bullets: ['Cost breakdown', 'Cabinet sketch', 'Saved projects'] },
+    { id: 'plan', no: '05', name: 'Shopfloor plan', g: 'floor', col: '3 / 5', row: '4 / 6', desc: 'A live map of your own floor: machines, stations, who is working where and on which project. Made for the workshop TV.', bullets: ['Your floor layout', 'Who is where', 'TV mode'] },
+    { id: 'crm', no: '08', name: 'CRM', g: 'office', col: '5 / 7', row: '5 / 6', flat: true, desc: 'Clients, pipeline, projects and tasks with an activity log. Hidden from shop-floor logins, visible only to the office.', bullets: ['Pipeline', 'Tasks', 'Activity log'] },
+    { id: 'requests', no: '06', name: 'Requests', g: 'floor', col: '1 / 3', row: '6 / 7', flat: true, desc: 'Holiday and day-off requests filled in by the worker, printed for signature, stored by month and exportable.', bullets: ['Filled by workers', 'Printable', 'Export'] },
+    { id: 'overview', no: '09', name: 'Project Overview', g: 'office', col: '3 / 7', row: '6 / 7', flat: true, desc: 'One plain sentence per project: what is done and what is still missing before delivery. Searchable and ready to forward.', bullets: ['Status in one line', 'Search', 'Two languages'] }
+  ];
+  var GROUPS = [
+    { id: 'all', label: 'All nine' },
+    { id: 'cnc', label: 'Design and CNC', first: 'studio' },
+    { id: 'floor', label: 'Shop floor', first: 'shopflow' },
+    { id: 'office', label: 'Office', first: 'offers' }
+  ];
+  var STEPS = [
+    { title: 'Quote', apps: 'Offers + CRM', head: 'Price the kitchen cabinet by cabinet and send the offer.', text: 'Materials, hardware, labour and margin are calculated from the cabinets you sketch, and the client lands in your pipeline.', out: 'The accepted offer becomes a project.' },
+    { title: 'Design', apps: 'Cabinet Studio + DXF Editor', head: 'Cabinets become parts and CNC operations.', text: 'Pick joinery and hardware per cabinet. Odd shapes from a customer drawing are fixed in the DXF Editor.', out: 'The part list goes straight to nesting.' },
+    { title: 'Nest', apps: 'Nesting', head: 'Parts land on sheets and labels print.', text: 'Boards are optimised for the CNC or the saw, and every part gets a label with a code the next station can scan.', out: 'Sheets and parts appear in production tracking.' },
+    { title: 'Produce', apps: 'ShopFlow + Shopfloor plan', head: 'Every station knows what is next.', text: 'Workers scan parts as they drill, edge and assemble. The floor plan on the TV shows who is where and on which job.', out: 'Progress updates the project status.' },
+    { title: 'Deliver', apps: 'Project Overview', head: 'See what is missing before the van leaves.', text: 'Each project reads as one sentence: what is finished and what still holds it back.', out: 'The office answers the customer without walking to the floor.' }
+  ];
+  var PLANS = [
+    { name: 'Office', tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Start with Office', features: ['Offers', 'CRM', 'Project Overview', 'Requests'] },
+    { name: 'Workshop', tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, features: ['Everything in Office', 'ShopFlow production tracking', 'Shopfloor plan with TV mode', 'Nesting with label printing', 'DXF Editor'] },
+    { name: 'Complete', tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Get Complete', features: ['Everything in Workshop', 'Cabinet Studio', 'CNC operations and program export', 'Priority support'] }
+  ];
+
+  var state = { group: 'all', sel: 'studio', step: 0, yearly: false, people: 8 };
+  var $ = function (id) { return document.getElementById(id); };
+
+  // Build once: groups, sheet parts, steps
+  $('groups').innerHTML = GROUPS.map(function (g) {
+    return '<button type="button" class="pill" data-group="' + g.id + '">' + g.label + '</button>';
+  }).join('');
+  $('sheet').innerHTML = APPS.map(function (a, i) {
+    return '<button type="button" class="part' + (a.flat ? ' flat' : '') + '" data-app="' + a.id + '" style="grid-column:' + a.col + ';grid-row:' + a.row + ';animation-delay:' + (i * 0.07).toFixed(2) + 's"><span class="no">' + a.no + '</span><span class="nm">' + a.name + '</span></button>';
+  }).join('') + '<div class="scan" aria-hidden="true"></div>';
+  $('steps').innerHTML = STEPS.map(function (s, i) {
+    return '<button type="button" class="step" role="tab" data-step="' + i + '"><span class="n">Step ' + (i + 1) + '</span><span class="t">' + s.title + '</span></button>';
+  }).join('');
+
+  function renderHero() {
+    document.querySelectorAll('#groups .pill').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.group === state.group));
+    });
+    document.querySelectorAll('#sheet .part').forEach(function (b) {
+      var a = APPS.filter(function (x) { return x.id === b.dataset.app; })[0];
+      var on = a.id === state.sel;
+      b.setAttribute('aria-pressed', String(on));
+      b.classList.toggle('dim', !(on || state.group === 'all' || a.g === state.group));
+    });
+    var cur = APPS.filter(function (x) { return x.id === state.sel; })[0];
+    $('detail').innerHTML = '<div class="detail-top"><h2>' + cur.name + '</h2><span class="eyebrow">' + LABELS[cur.g] + '</span></div><p>' + cur.desc + '</p><ul class="chips">' + cur.bullets.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul>';
+  }
+
+  function renderSteps() {
+    document.querySelectorAll('#steps .step').forEach(function (b) {
+      b.setAttribute('aria-selected', String(Number(b.dataset.step) === state.step));
+    });
+    var s = STEPS[state.step];
+    $('stepPanel').innerHTML = '<div class="main"><div class="eyebrow">' + s.apps + '</div><div class="head">' + s.head + '</div><p>' + s.text + '</p></div><div class="out"><small>What moves on automatically</small>' + s.out + '</div>';
+  }
+
+  function renderPlans() {
+    $('billM').setAttribute('aria-pressed', String(!state.yearly));
+    $('billY').setAttribute('aria-pressed', String(state.yearly));
+    $('peopleOut').textContent = state.people;
+    $('plans').innerHTML = PLANS.map(function (p) {
+      var monthlyEq = state.yearly ? p.y / 12 : p.m;
+      return '<div class="card plan' + (p.feat ? ' feat' : '') + '">' +
+        '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="badge">Most workshops</span>' : '') + '</div><div class="muted" style="font-size:15px">' + p.tag + '</div></div>' +
+        '<div><div class="price"><b>€' + (state.yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (state.yearly ? '/ year' : '/ month') + '</span></div>' +
+        '<div class="pp">€' + (monthlyEq / state.people).toFixed(2) + ' per person a month</div>' +
+        '<div class="muted" style="font-size:13px">' + (state.yearly ? 'Two months free, billed once a year' : 'Billed monthly, cancel any time') + '</div></div>' +
+        '<ul>' + p.features.map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul>' +
+        '<a class="cta ' + (p.feat ? 'dark' : 'ghost') + '" href="#demo">' + p.cta + '</a></div>';
+    }).join('');
+  }
+
+  $('groups').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-group]'); if (!b) return;
+    var g = GROUPS.filter(function (x) { return x.id === b.dataset.group; })[0];
+    state.group = g.id; if (g.first) state.sel = g.first;
+    renderHero();
+  });
+  $('sheet').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-app]'); if (!b) return;
+    state.sel = b.dataset.app; renderHero();
+  });
+  $('steps').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-step]'); if (!b) return;
+    state.step = Number(b.dataset.step); renderSteps();
+  });
+  $('billM').addEventListener('click', function () { state.yearly = false; renderPlans(); });
+  $('billY').addEventListener('click', function () { state.yearly = true; renderPlans(); });
+  $('people').addEventListener('input', function (e) { state.people = parseInt(e.target.value, 10) || 8; renderPlans(); });
+
+  renderHero(); renderSteps(); renderPlans();
+})();
+</script>
+</body>
+</html>
