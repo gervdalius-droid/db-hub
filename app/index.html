@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>db-hub — your workshop</title>
+<style>
+:root{--bg:#0D1311;--panel:#151D1A;--line:#2C3A35;--line2:#4A5A55;--text:#EAF0ED;--soft:#B7C4BF;--muted:#A3B2AC;--ply:#E9DCBD;--accent:#FF7A1A;--teal:#5EEAD4;--bad:#FCA5A5}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;color:var(--text);background:var(--bg)}
+a{color:var(--teal)}
+h1,h2,p{margin:0}
+h1{font-size:26px;letter-spacing:-.02em}
+h2{font-size:18px}
+button,input,select{font:inherit}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:960px;margin:0 auto;padding:24px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;text-decoration:none;color:var(--text)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px}
+.narrow{max-width:420px;margin:8vh auto 0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft);flex:1 1 180px;min-width:0}
+input,select{min-height:44px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px 12px;width:100%}
+.btn{min-height:44px;padding:0 18px;border-radius:6px;border:1px solid var(--line2);background:transparent;color:var(--text);cursor:pointer;font-weight:600}
+.btn.go{background:var(--accent);border-color:var(--accent);color:#0D1311}
+.btn.small{min-height:36px;padding:0 12px;font-weight:500;font-size:14px}
+.btn:disabled{opacity:.6;cursor:default}
+.tabs{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px}
+.tabs button{flex:1;min-height:40px;border:0;border-radius:99px;background:transparent;color:var(--text);font-weight:600;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.msg{min-height:22px;font-size:14px;color:var(--bad)}
+.msg.ok{color:var(--teal)}
+.muted{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px}
+.big{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-size:12px;border:1px solid var(--line2);border-radius:99px;padding:1px 8px;color:var(--soft)}
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.apps div{background:var(--ply);color:#14100A;border-radius:4px;padding:12px;font-weight:600}
+.apps small{display:block;font-weight:400;opacity:.75}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="logo" href="../">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 30 30"><rect x="1" y="1" width="28" height="28" rx="4" fill="#E9DCBD"/><rect x="5" y="5" width="11" height="9" fill="#0D1311"/><rect x="18" y="5" width="7" height="20" fill="#FF7A1A"/><rect x="5" y="16" width="11" height="9" fill="#0D1311"/></svg>
+      db-hub
+    </a>
+    <div id="who" hidden><span class="muted" id="whoMail"></span> <button class="btn small" id="out" type="button">Sign out</button></div>
+  </div>
+
+  <p class="muted" id="loading">Loading…</p>
+
+  <!-- 1. Signed out -->
+  <section class="card narrow stack" id="vAuth" hidden>
+    <div class="tabs" role="group" aria-label="Sign in or create an account">
+      <button type="button" id="tabIn" aria-pressed="true">Sign in</button>
+      <button type="button" id="tabUp" aria-pressed="false">Create account</button>
+    </div>
+    <form class="stack" id="authForm">
+      <label>Email<input id="email" type="email" autocomplete="username" required></label>
+      <label>Password<input id="pass" type="password" autocomplete="current-password" minlength="8" required></label>
+      <button class="btn go" type="submit" id="authBtn">Sign in</button>
+      <div class="msg" id="authMsg" role="alert"></div>
+      <p class="muted" id="authHint">Invited by your workshop? Create an account with the email the invitation was sent to.</p>
+    </form>
+  </section>
+
+  <!-- 2. Signed in, no workshop yet -->
+  <section class="card narrow stack" id="vNew" hidden>
+    <h1>Set up your workshop</h1>
+    <p class="muted">You get every app free for 5 days. You will be the owner and can add your team next.</p>
+    <form class="stack" id="newForm">
+      <label>Workshop name<input id="wsName" maxlength="80" minlength="2" required placeholder="e.g. Baltic Kitchens"></label>
+      <label>Your name<input id="myName" maxlength="80" required autocomplete="name"></label>
+      <button class="btn go" type="submit" id="newBtn">Create workshop</button>
+      <div class="msg" id="newMsg" role="alert"></div>
+    </form>
+  </section>
+
+  <!-- 3. Workshop home -->
+  <section id="vHome" hidden>
+    <div class="grid">
+      <div class="card stack">
+        <span class="muted">Workshop</span>
+        <div class="big" id="hName"></div>
+        <span class="muted">You are signed in as <b id="hMe"></b> · <span id="hRole"></span></span>
+      </div>
+      <div class="card stack">
+        <span class="muted">Plan</span>
+        <div class="big" id="hPlan"></div>
+        <span class="muted" id="hTrial"></span>
+      </div>
+    </div>
+
+    <div class="card stack" style="margin-bottom:16px">
+      <h2>Your apps</h2>
+      <p class="muted">The apps are being connected to workshop accounts. They will open from here.</p>
+      <div class="apps" id="apps"></div>
+    </div>
+
+    <div class="card stack" id="teamCard" hidden>
+      <h2>Team</h2>
+      <div class="scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="team"></tbody></table></div>
+      <h2 style="margin-top:8px">Invite someone</h2>
+      <p class="muted">They create their own account with this email and land in your workshop. Sign-in by name and PIN for workers without email comes with the apps.</p>
+      <form class="row" id="invForm">
+        <label>Name<input id="invName" maxlength="80" required></label>
+        <label>Email<input id="invEmail" type="email" required></label>
+        <label style="flex:0 1 150px">Role<select id="invRole"><option value="worker">Worker</option><option value="manager">Manager</option><option value="shop">Shared shop screen</option></select></label>
+        <button class="btn go" type="submit">Invite</button>
+      </form>
+      <div class="msg" id="teamMsg" role="alert"></div>
+      <div class="scroll" id="invWrap" hidden><table><thead><tr><th>Invited</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody id="invites"></tbody></table></div>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// Public address and publishable key of the db-hub database. Every table is protected by
+// rules that only show a signed-in person the rows of their own workshop.
+const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publishable_-eLlb35TXBvv_wj-UucrqA_g-nxGWd1');
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ROLES = { admin: 'Owner', manager: 'Manager', worker: 'Worker', shop: 'Shared shop screen' };
+const APPS = ['Cabinet Studio', 'DXF Editor', 'Nesting', 'ShopFlow', 'Shopfloor plan', 'Requests', 'Offers', 'CRM', 'Project Overview'];
+let mode = 'in', me = null, uid = null;
+
+function view(name) { ['vAuth', 'vNew', 'vHome'].forEach((v) => { $(v).hidden = v !== name; }); $('loading').hidden = true; }
+function say(id, text, ok) { const el = $(id); el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
+
+function setMode(m) {
+  mode = m;
+  $('tabIn').setAttribute('aria-pressed', String(m === 'in')); $('tabUp').setAttribute('aria-pressed', String(m === 'up'));
+  $('authBtn').textContent = m === 'in' ? 'Sign in' : 'Create account';
+  $('pass').autocomplete = m === 'in' ? 'current-password' : 'new-password';
+  say('authMsg', '');
+}
+$('tabIn').addEventListener('click', () => setMode('in'));
+$('tabUp').addEventListener('click', () => setMode('up'));
+
+$('authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = $('email').value.trim(), password = $('pass').value;
+  $('authBtn').disabled = true; say('authMsg', '');
+  try {
+    if (mode === 'in') {
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) return say('authMsg', /confirm/i.test(error.message) ? 'Please confirm your email first: open the link we sent you.' : 'Sign-in failed. Check the email and password.');
+    } else {
+      const { data, error } = await db.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } });
+      if (error) return say('authMsg', error.message);
+      if (!data.session) return say('authMsg', 'Almost there: open the confirmation link we sent to ' + email + ', then sign in here.', true);
+    }
+    $('pass').value = '';
+    await start();
+  } finally { $('authBtn').disabled = false; }
+});
+
+$('out').addEventListener('click', async () => { await db.auth.signOut(); start(); });
+
+$('newForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  $('newBtn').disabled = true; say('newMsg', '');
+  const { error } = await db.rpc('create_workshop', { p_name: $('wsName').value, p_display_name: $('myName').value });
+  $('newBtn').disabled = false;
+  if (error) return say('newMsg', error.message);
+  start();
+});
+
+async function start() {
+  const { data: { session } } = await db.auth.getSession();
+  $('who').hidden = !session;
+  if (!session) { me = null; return view('vAuth'); }
+  uid = session.user.id; $('whoMail').textContent = session.user.email;
+  let r = await db.rpc('workshop_me');
+  if (r.error) { view('vNew'); return say('newMsg', 'Could not load your account: ' + r.error.message); }
+  if (!r.data || !r.data.length) {
+    // No workshop yet: join one if this email was invited, otherwise offer to create one.
+    const inv = await db.rpc('accept_invite');
+    if (!inv.error) r = await db.rpc('workshop_me');
+    if (!r.data || !r.data.length) return view('vNew');
+  }
+  me = r.data[0];
+  home();
+}
+
+async function home() {
+  view('vHome');
+  $('hName').textContent = me.workshop_name; $('hMe').textContent = me.display_name; $('hRole').textContent = ROLES[me.role] || me.role;
+  const days = Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5);
+  $('hPlan').textContent = me.plan === 'trial' ? 'Free trial' : me.plan.charAt(0).toUpperCase() + me.plan.slice(1);
+  $('hTrial').textContent = me.plan !== 'trial' ? '' : days > 0 ? days + (days === 1 ? ' day' : ' days') + ' left in your trial' : 'Your trial has ended. Contact us to continue.';
+  $('apps').innerHTML = APPS.map((a) => `<div>${a}<small>coming to your account</small></div>`).join('');
+  $('teamCard').hidden = me.role !== 'admin';
+  if (me.role === 'admin') team();
+}
+
+async function team() {
+  const [M, I] = await Promise.all([
+    db.from('workshop_members').select('user_id, display_name, role, active, created_at').order('created_at'),
+    db.from('workshop_invites').select('id, display_name, email, role, accepted_at').is('accepted_at', null).order('created_at'),
+  ]);
+  if (M.error || I.error) return say('teamMsg', 'Could not load the team: ' + (M.error || I.error).message);
+  $('team').innerHTML = M.data.map((m) => {
+    const self = m.user_id === uid;
+    const role = self ? ROLES[m.role] : `<select data-u="${m.user_id}" data-f="role" aria-label="Role of ${esc(m.display_name)}">${['admin', 'manager', 'worker', 'shop'].map((k) => `<option value="${k}"${k === m.role ? ' selected' : ''}>${ROLES[k]}</option>`).join('')}</select>`;
+    return `<tr><td>${esc(m.display_name)}${self ? ' <span class="tag">you</span>' : ''}</td><td>${role}</td>
+      <td>${m.active ? 'Active' : '<span class="tag">Blocked</span>'}</td>
+      <td>${self ? '' : `<button class="btn small" type="button" data-u="${m.user_id}" data-act="${m.active ? 'block' : 'unblock'}">${m.active ? 'Block' : 'Unblock'}</button>`}</td></tr>`;
+  }).join('');
+  $('invWrap').hidden = !I.data.length;
+  $('invites').innerHTML = I.data.map((i) => `<tr><td>${esc(i.display_name)}</td><td>${esc(i.email)}</td><td>${ROLES[i.role]}</td>
+    <td><button class="btn small" type="button" data-inv="${i.id}">Cancel invite</button></td></tr>`).join('');
+}
+
+$('invForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); say('teamMsg', '');
+  const { error } = await db.from('workshop_invites').insert({ display_name: $('invName').value.trim(), email: $('invEmail').value.trim().toLowerCase(), role: $('invRole').value });
+  if (error) return say('teamMsg', error.code === '23505' ? 'That email is already invited.' : error.message);
+  say('teamMsg', 'Invited. Ask them to create an account at this page with that email.', true);
+  $('invForm').reset(); team();
+});
+$('invites').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-inv]'); if (!b) return;
+  const { error } = await db.from('workshop_invites').delete().eq('id', b.dataset.inv);
+  say('teamMsg', error ? error.message : ''); team();
+});
+$('team').addEventListener('change', async (e) => {
+  const el = e.target.closest('select[data-u]'); if (!el) return;
+  const { error } = await db.from('workshop_members').update({ role: el.value }).eq('user_id', el.dataset.u);
+  say('teamMsg', error ? error.message : 'Saved.', !error); team();
+});
+$('team').addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-act]'); if (!b) return;
+  const { error } = await db.from('workshop_members').update({ active: b.dataset.act === 'unblock' }).eq('user_id', b.dataset.u);
+  say('teamMsg', error ? error.message : 'Saved.', !error); team();
+});
+
+db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') view('vAuth'); });
+start();
+</script>
+</body>
+</html>

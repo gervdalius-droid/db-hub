@@ -39,3 +39,23 @@ Supabase project **DEDES BALDAI** (`preatnukvhwarytlpxpe`):
 - `leads.html` — private page to read leads and demo activity. Sign in with a Supabase
   Auth user whose email is in `admins`.
 - Schema: `supabase/migrations/0001_db_hub_leads_and_demo.sql`.
+
+## Workshop accounts (db-hub as its own product)
+
+The same Supabase project also holds the apps' database, rebuilt so that many workshops
+share it safely:
+
+- `workshops` — one row per customer account (name, plan, trial end).
+- `workshop_members` — each signed-in person belongs to exactly one workshop, with a role
+  (owner/admin, manager, worker, shared shop screen).
+- `workshop_invites` — an owner invites people by email; `accept_invite()` joins them.
+- `create_workshop(name, your_name)` — a new account creates its workshop and becomes owner.
+- Every data table (`workspaces`, `builder_projects`, `fabflow_projects`, `quote_projects`,
+  `crm_items`, …) carries `workshop_id`, filled automatically, and every access rule adds
+  "only rows of my own workshop". Keys are unique per workshop, so app upserts must use
+  `on_conflict=workshop_id,id` (or `workshop_id,name` for nesting projects).
+- Files: bucket `shopflow`, each workshop under its own top folder `<workshop_id>/…`.
+- `app/index.html` — sign up, create a workshop, invite and manage the team.
+
+Not built yet: the nine apps pointed at this database, name + PIN sign-in per workshop,
+notifications, and the shop-floor time log functions.
