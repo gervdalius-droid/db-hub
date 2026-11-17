@@ -160,6 +160,18 @@ section.pad{padding-top:96px;padding-bottom:96px}
 .part .nm{font-family:var(--head);font-weight:600;font-size:16px;line-height:1.1}
 @media (max-width:520px){.part .nm{font-size:13px}.part{padding:8px}.sheet{grid-auto-rows:52px;gap:6px}}
 .scan{position:absolute;top:0;bottom:0;left:0;width:2px;background:var(--accent);opacity:.7;pointer-events:none;animation:scan 7s linear infinite}
+.shot{margin:28px 0 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.shot-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.shot-bar .dots{display:flex;gap:6px}.shot-bar .dots i{width:10px;height:10px;border-radius:99px;background:#3A4944}
+.shot-bar b{font-family:var(--head);font-weight:600}
+.shot-tag{margin-left:auto;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--teal)}
+.shot-btn{display:block;width:100%;padding:0;border:0;background:#E6E8E3;cursor:zoom-in}
+.shot-btn img{display:block;width:100%;height:auto}
+.shot-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;padding:12px 14px;border-top:1px solid var(--line)}
+.zoom{padding:0;border:1px solid var(--line);border-radius:10px;background:var(--panel);max-width:min(96vw,1400px);width:96vw}
+.zoom::backdrop{background:rgba(5,8,7,.85)}
+.zoom img{display:block;width:100%;height:auto}
+.zoom form{padding:10px;display:flex;justify-content:flex-end}
 .detail{padding:26px;display:flex;flex-direction:column;gap:12px;position:sticky;top:96px}
 .detail h3{font-family:var(--head);font-weight:600;font-size:28px;letter-spacing:-.02em}
 .detail p{color:var(--soft)}
@@ -410,7 +422,7 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-s
   <div class="rv">
     <div class="eyebrow">The suite</div>
     <h2 class="h2" style="margin-top:10px">The whole workshop, cut from one sheet.</h2>
-    <p class="lead">Nine apps nested together like parts on a board. Pick a group, or click any app to see what it does.</p>
+    <p class="lead">Nine apps nested together like parts on a board. Click any app to see what it does and what it really looks like.</p>
   </div>
   <div class="apps rv">
     <div>
@@ -419,7 +431,13 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-s
     </div>
     <div class="card detail" id="detail" aria-live="polite"></div>
   </div>
+  <figure class="shot rv" id="shot">
+    <figcaption class="shot-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><b id="shotName"></b><span class="shot-tag">Real screen · sample data</span></figcaption>
+    <button type="button" class="shot-btn" id="shotBtn" aria-label="Enlarge this screenshot"><img id="shotImg" alt="" width="1280" height="800" loading="lazy" decoding="async"></button>
+    <div class="shot-foot"><div class="row" id="shotTabs" role="group" aria-label="Screens"></div><span class="small">These are the apps as they run in our own workshop, filled with invented projects. Click the picture to enlarge.</span></div>
+  </figure>
 </section>
+<dialog class="zoom" id="zoom" aria-label="Screenshot, enlarged"><img id="zoomImg" alt=""><form method="dialog"><button class="btn" autofocus>Close</button></form></dialog>
 
 <section id="flow" class="band">
   <div class="wrap pad">
@@ -519,10 +537,11 @@ footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-s
       <label>Phone (optional)<input name="phone" type="tel" autocomplete="tel"></label>
       <label>People in the workshop<input name="people" type="number" min="1" max="500" value="8"></label>
       <label>Plan<select name="plan" id="fPlan"><option>Workshop</option><option>Office</option><option>Complete</option><option>Complete — one-time licence</option><option>Not sure yet</option></select></label>
-      <label class="full">What should we set up first? (optional)<textarea name="msg" placeholder="e.g. our kitchen quotes, nesting for a Biesse Rover, tracking on two tablets"></textarea></label>
+      <label class="full">What should we set up first? (optional)<textarea name="msg" placeholder="e.g. our kitchen quotes, nesting for our CNC router, tracking on two tablets"></textarea></label>
       <label class="attach full" id="attachRow"><input type="checkbox" name="attach" id="fAttach"><span id="attachTxt">Attach the cabinets I built in the demo</span></label>
-      <div class="full"><button class="cta primary" type="submit">Start my 5-day free trial</button></div>
-      <p class="fine full" id="formMsg">Opens your email app with everything filled in. Nothing is charged during the trial.</p>
+      <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <div class="full"><button class="cta primary" type="submit" id="formBtn">Start my 5-day free trial</button></div>
+      <p class="fine full" id="formMsg" role="status">Nothing is charged during the trial. We keep your details, and the cabinets you built above if you attach them, only to set up your trial and contact you about it.</p>
     </form>
   </div>
 </section>
@@ -538,6 +557,25 @@ document.documentElement.classList.add('js');
   'use strict';
   /* ===== Edit before going live ===== */
   var CONTACT_EMAIL = '[YOUR EMAIL]';
+  // Where trial requests and demo activity are saved (Supabase project "DEDES BALDAI").
+  var INTAKE_URL = 'https://preatnukvhwarytlpxpe.supabase.co/functions/v1/intake';
+  // One id per page view, kept in memory only: no cookies, nothing stored on the visitor's device.
+  var SESSION = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, function () { return (Math.random() * 16 | 0).toString(16); });
+  function send(payload) {
+    payload.referrer = document.referrer || ''; payload.lang = document.documentElement.lang || '';
+    // Sent as plain text so the browser needs no pre-flight request.
+    return fetch(INTAKE_URL, { method: 'POST', body: JSON.stringify(payload), keepalive: true });
+  }
+  var demoStats = null, demoFlags = { csv: false, form: false }, demoTimer = null, demoSent = false;
+  function trackDemo(delay) {
+    if (!touched || !demoStats) return;           // only real visitors who used the demo
+    clearTimeout(demoTimer);
+    demoTimer = setTimeout(function () {
+      demoSent = true;
+      send({ kind: 'demo', session: SESSION, cabinets: demoStats.cabinets, parts: demoStats.parts, sheets: demoStats.sheets,
+        quote: demoStats.quote, summary: lastSummary, csv: demoFlags.csv, form: demoFlags.form }).catch(function () {});
+    }, delay == null ? 4000 : delay);
+  }
 
   var $ = function (id) { return document.getElementById(id); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
@@ -684,7 +722,7 @@ document.documentElement.classList.add('js');
     if (kitchen.length >= 12) { toast('Twelve is plenty for a demo. The real app has no limit.'); return; }
     kitchen.push(JSON.parse(JSON.stringify(draft)));
     toast(cabName(draft) + ' added. Keep going, the board fills up.');
-    render();
+    render(); trackDemo(300);
     if (kitchen.length >= 1) showNudge();
   });
   $('resetBtn').addEventListener('click', function () {
@@ -711,6 +749,7 @@ document.documentElement.classList.add('js');
     a.download = 'db-hub-cut-list.csv'; document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
     toast('Cut list downloaded. In db-hub it goes straight to nesting and labels.');
+    demoFlags.csv = true; trackDemo(300);
     showNudge();
   });
 
@@ -754,6 +793,9 @@ document.documentElement.classList.add('js');
     renderNest(nest);
     lastSummary = cabs.map(function (c, i) { return '#' + (i + 1) + ' ' + cabName(c) + ' × ' + c.h + ' × ' + c.d + ' mm, ' + c.shelves + ' shelves, ' + MATS[c.mat].label; }).join('\n') +
       '\nDemo quote: ' + eur(q.total) + ' excl. VAT, ' + nest.count + ' sheet(s)';
+    demoStats = { cabinets: cabs.map(function (c) { return { type: c.type, mat: c.mat, w: c.w, h: c.h, d: c.d, shelves: c.shelves }; }),
+      parts: parts.length + cabs.length, sheets: nest.count, quote: Math.round(q.total) };
+    trackDemo();
   }
   var lastSummary = '';
   var prevK = {};
@@ -902,6 +944,31 @@ document.documentElement.classList.add('js');
   $('sheet').innerHTML = APPS.map(function (a) {
     return '<button type="button" class="part' + (a.flat ? ' flat' : '') + '" data-app="' + a.id + '" style="grid-column:' + a.col + ';grid-row:' + a.row + '"><span class="no">' + a.no + '</span><span class="nm">' + a.name + '</span></button>';
   }).join('') + '<div class="scan" aria-hidden="true"></div>';
+  var SHOTS = {
+    studio: [['cabinet-studio', '3D preview'], ['cabinet-studio-parts', 'Part list and CNC programs']],
+    nesting: [['nesting', 'Sheet layout']], shopflow: [['shopflow', 'Dashboard']], dxf: [['dxf-editor', 'Drawing']],
+    offers: [['offers', 'Cabinets and cost']], plan: [['shopfloor-plan', 'Floor plan']], crm: [['crm', 'Pipeline (Lithuanian screen)']],
+    requests: [['requests', 'New request']], overview: [['project-overview', 'Status report']]
+  };
+  var shotIx = 0, shotApp = null;
+  function renderShot(app) {
+    if (shotApp !== app.id) { shotApp = app.id; shotIx = 0; }
+    var list = SHOTS[app.id] || [], cur = list[shotIx] || list[0];
+    if (!cur) { $('shot').hidden = true; return; }
+    $('shot').hidden = false;
+    $('shotName').textContent = app.name + ' · ' + cur[1];
+    var img = $('shotImg'); img.src = 'assets/apps/' + cur[0] + '.webp'; img.alt = 'Screenshot of ' + app.name + ': ' + cur[1] + ', with sample data';
+    $('shotTabs').innerHTML = list.length > 1 ? list.map(function (x, i) { return '<button type="button" class="pill" data-shot="' + i + '" aria-pressed="' + (i === shotIx) + '">' + x[1] + '</button>'; }).join('') : '';
+  }
+  $('shotTabs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-shot]'); if (!b) return;
+    shotIx = Number(b.dataset.shot); renderShot(APPS.filter(function (x) { return x.id === shotApp; })[0]);
+  });
+  $('shotBtn').addEventListener('click', function () {
+    var z = $('zoom'), zi = $('zoomImg'); zi.src = $('shotImg').src; zi.alt = $('shotImg').alt;
+    if (z.showModal) z.showModal();
+  });
+  $('zoom').addEventListener('click', function (e) { if (e.target === this) this.close(); });
   function renderApps() {
     $$('#groups .pill').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.group === hs.group)); });
     $$('#sheet .part').forEach(function (b) {
@@ -911,6 +978,7 @@ document.documentElement.classList.add('js');
     });
     var cur = APPS.filter(function (x) { return x.id === hs.sel; })[0];
     $('detail').innerHTML = '<div class="eyebrow">' + cur.no + ' · ' + LABELS[cur.g] + '</div><h3>' + cur.name + '</h3><p>' + cur.desc + '</p><ul class="chips">' + cur.bullets.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul><div class="feeds">Hands its data to <b>' + cur.feeds + '</b></div>';
+    renderShot(cur);
   }
   $('groups').addEventListener('click', function (e) {
     var b = e.target.closest('[data-group]'); if (!b) return;
@@ -1006,13 +1074,26 @@ document.documentElement.classList.add('js');
       if (!ok && !bad) bad = el;
     });
     if (bad) { bad.focus(); $('formMsg').textContent = 'Please fill in your name, workshop and a valid email.'; return; }
-    var body = [
-      'Name: ' + f.name.value, 'Workshop: ' + f.company.value, 'Email: ' + f.email.value,
-      'Phone: ' + (f.phone.value || '-'), 'People: ' + f.people.value, 'Plan: ' + f.plan.value, '',
-      f.msg.value ? 'Set up first:\n' + f.msg.value + '\n' : ''
-    ].join('\n') + (f.attach.checked ? '\nCabinets from the demo:\n' + lastSummary + '\n' : '');
-    location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent('db-hub free trial: ' + f.company.value) + '&body=' + encodeURIComponent(body);
-    $('formMsg').textContent = 'Your email app should open now. If it does not, write to ' + CONTACT_EMAIL + '.';
+    var btn = $('formBtn'), msg = $('formMsg');
+    btn.disabled = true; btn.textContent = 'Sending…';
+    demoFlags.form = true;
+    function fail() {
+      btn.disabled = false; btn.textContent = 'Start my 5-day free trial';
+      msg.textContent = 'That did not send. Please try again in a moment' + (CONTACT_EMAIL.charAt(0) === '[' ? '.' : ', or write to ' + CONTACT_EMAIL + '.');
+    }
+    // Save the demo first when it is attached, so the request can point at it.
+    var pre = (f.attach.checked && demoStats)
+      ? send({ kind: 'demo', session: SESSION, cabinets: demoStats.cabinets, parts: demoStats.parts, sheets: demoStats.sheets, quote: demoStats.quote, summary: lastSummary, csv: demoFlags.csv, form: true }).catch(function () {})
+      : Promise.resolve();
+    pre.then(function () {
+      return send({ kind: 'lead', name: f.name.value, company: f.company.value, email: f.email.value, phone: f.phone.value,
+        people: f.people.value, plan: f.plan.value, message: f.msg.value, website: f.website.value,
+        session: (f.attach.checked || demoSent) ? SESSION : '', attach: f.attach.checked });
+    }).then(function (r) {
+      if (!r.ok) { if (r.status === 429) { btn.disabled = false; btn.textContent = 'Start my 5-day free trial'; msg.textContent = 'We already have several requests from you. We will be in touch shortly.'; return; } return fail(); }
+      f.reset(); btn.textContent = 'Request sent ✓';
+      msg.textContent = 'Thank you. We have your request and will send your workshop login, usually the same working day.';
+    }).catch(fail);
   });
 
   /* ===================== CHROME: header, reveal, counters, dock ===================== */
