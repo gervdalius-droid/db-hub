@@ -6,26 +6,35 @@ Single file, no build step: open `index.html` in a browser.
 
 ## What's on the page
 
-- **Live demo (hero):** visitors size a cabinet (type, decor, W/H/D, shelves) and watch it
-  turn into a sketch, a part list nested on 2800 × 2070 sheets (one decor per sheet),
-  edge banding and a quote. They can stack cabinets into a kitchen, open the doors,
-  see the price breakdown and download the cut list as CSV.
-- Nine-app "sheet", auto-playing job flow, a time-cost calculator, pricing with a
-  team-size slider, FAQ, and a trial request form.
-- Clicking an app in "The suite" shows a real screenshot of it (`assets/apps/`), taken from
-  the workshop apps filled with invented sample data.
+- **Hero:** says what db-hub is, then a live workbench. The visitor sizes a cabinet (type,
+  board, W/H/D, shelves) on the left. On the right four cards update at once, each named
+  after the app that does that job in the real suite: the quote (Offers), the part list
+  (Cabinet Studio), the nested 2800 × 2070 sheets (Nesting), and a part label with
+  station tracking and a one-line project status (ShopFlow, Project Overview).
+  Hovering a part follows it across the drawing, the list, the sheet and its label.
+  "Run the job" plays the shop floor. Cabinets can be stacked into a kitchen and the
+  cut list downloads as CSV.
+- **The nine apps:** listed in the order a job passes through them (Sell, Design, Cut,
+  Build, Deliver, Team). Every app shows what it does and what it replaces; picking one
+  shows a real screenshot (`assets/apps/`, invented sample data), what you get, which
+  app it hands over to and which plans include it.
+- **What changes:** today versus with db-hub, row by row, plus a time-cost calculator.
+- **Pricing** with a team-size slider and the apps in each plan, FAQ, trial request form.
 - The trial form and the live demo save to Supabase (see "Where things land").
 
 ## Before going live
 
-- Set `CONTACT_EMAIL` at the top of the `<script>` in `index.html`.
-- Replace the bracketed placeholders: supported CNC machines, hosting region,
-  phone, company details.
+- Set `CONTACT_EMAIL`, `CONTACT_PHONE` and `COMPANY_LINE` at the top of the `<script>` in
+  `index.html`. While they are empty the page simply leaves them out.
+- Check two FAQ answers against what you really support: "Which CNC machines does it work
+  with?" (written from the .XXL and DXF exports in the apps) and "Where is our data kept?"
+  (the Supabase project region, eu-west-1).
 - Demo prices (`MATS`, `RATES` in the script) are illustrative. Adjust if you like.
+- Privacy and terms pages are not written yet, so the footer does not link to them.
 
 ## Where things land
 
-Supabase project **DEDES BALDAI** (`preatnukvhwarytlpxpe`):
+Supabase project **db-hub** (`preatnukvhwarytlpxpe`):
 
 - `demo_sessions` — one row per visitor who used the live demo: the cabinets they built,
   parts, sheets, demo quote, whether they downloaded the cut list or opened the trial form.
