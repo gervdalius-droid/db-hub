@@ -5,55 +5,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>db-hub — your workshop</title>
+<meta name="theme-color" content="#FFF9F0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%233355F0'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0D1311;--panel:#151D1A;--line:#2C3A35;--line2:#4A5A55;--text:#EAF0ED;--soft:#B7C4BF;--muted:#A3B2AC;--ply:#E9DCBD;--accent:#FF7A1A;--teal:#5EEAD4;--bad:#FCA5A5}
+/* Same look as the db-hub website (assets/site.css): warm paper, white cards, blue for actions. */
+:root{--paper:#FFF9F0;--sheet:#fff;--tray:#F8F1E5;--ink:#1B2140;--ink2:#474E6B;--ink3:#6C7391;--rule:#ECE3D4;--rule2:#D9CEBB;
+  --brand:#3355F0;--brand-dark:#2643CF;--brand-soft:#E6EBFF;--sun:#FFC53D;--sun-soft:#FFF0C7;--ok:#1F9D5B;--bad:#C8341B;
+  --display:'Bricolage Grotesque',system-ui,sans-serif;--body:'Instrument Sans',system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;color:var(--text);background:var(--bg)}
-a{color:var(--teal)}
+body{margin:0;font-family:var(--body);font-size:16px;line-height:1.5;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0 0 auto;height:520px;background:radial-gradient(46% 62% at 12% 0%,var(--sun-soft),transparent 72%),radial-gradient(44% 60% at 90% 0%,var(--brand-soft),transparent 72%);pointer-events:none;z-index:-1}
+a{color:var(--brand-dark)}
 h1,h2,p{margin:0}
-h1{font-size:26px;letter-spacing:-.02em}
-h2{font-size:18px}
-button,input,select{font:inherit}
-:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+h1{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+h2{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 [hidden]{display:none!important}
-.wrap{max-width:960px;margin:0 auto;padding:24px}
-.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:24px}
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:22px;text-decoration:none;color:var(--text)}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:24px}
-.narrow{max-width:420px;margin:6vh auto 0}
+.wrap{max-width:980px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
+#who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:20px;padding:24px;box-shadow:0 1px 2px rgba(27,33,64,.04),0 18px 40px -26px rgba(27,33,64,.28)}
+.narrow{max-width:440px;margin:6vh auto 0}
 .stack{display:flex;flex-direction:column;gap:14px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
-label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft);min-width:0}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink2);min-width:0}
 .row label{flex:1 1 180px}
-input,select{min-height:44px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px 12px;width:100%}
-.btn{min-height:44px;padding:0 18px;border-radius:6px;border:1px solid var(--line2);background:transparent;color:var(--text);cursor:pointer;font-weight:600}
-.btn.go{background:var(--accent);border-color:var(--accent);color:#0D1311}
-.btn.small{min-height:36px;padding:0 12px;font-weight:500;font-size:14px}
+input,select{min-height:46px;background:#FFFDF9;color:var(--ink);border:1px solid var(--rule2);border-radius:10px;padding:8px 12px;width:100%;font-weight:400;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.btn{min-height:46px;padding:0 20px;border-radius:999px;border:1px solid var(--rule2);background:var(--sheet);color:var(--ink);cursor:pointer;font-weight:600;transition:background .15s,border-color .15s,color .15s}
+.btn:hover{border-color:var(--brand);color:var(--brand-dark)}
+.btn.go{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 12px 24px -14px rgba(51,85,240,.9)}
+.btn.go:hover{background:var(--brand-dark);color:#fff}
+.btn.small{min-height:36px;padding:0 14px;font-weight:600;font-size:14px}
 .btn:disabled{opacity:.6;cursor:default}
-.tabs{display:flex;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px}
-.tabs button{flex:1;min-height:40px;border:0;border-radius:99px;background:transparent;color:var(--text);font-weight:600;cursor:pointer}
-.tabs button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
+.tabs{display:flex;background:var(--tray);border:1px solid var(--rule);border-radius:99px;padding:4px}
+.tabs button{flex:1;min-height:40px;border:0;border-radius:99px;background:transparent;color:var(--ink2);font-weight:600;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 3px rgba(27,33,64,.12)}
 .msg{min-height:22px;font-size:14px;color:var(--bad)}
-.msg.ok{color:var(--teal)}
-.muted{color:var(--muted);font-size:14px}
+.msg.ok{color:var(--ok)}
+.muted{color:var(--ink3);font-size:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px}
-.big{font-size:28px;font-weight:700;letter-spacing:-.02em}
+.big{font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;width:100%;min-width:560px}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
-th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 tr:last-child td{border-bottom:0}
-.tag{display:inline-block;font-size:12px;border:1px solid var(--line2);border-radius:99px;padding:1px 8px;color:var(--soft)}
-.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.apps div{background:var(--ply);color:#14100A;border-radius:4px;padding:12px;font-weight:600}
-.apps small{display:block;font-weight:400;opacity:.75}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:99px;padding:2px 9px;background:var(--brand-soft);color:var(--brand-dark)}
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.app{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;padding:16px;border:1px solid var(--rule);border-radius:16px;background:var(--sheet);min-width:0}
+.app b{display:block;font-family:var(--display);font-size:18px;letter-spacing:-.01em;line-height:1.2}
+.app p{font-size:14px;color:var(--ink2);line-height:1.4;margin-top:3px}
+.app small{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:var(--ink3);background:var(--tray);border-radius:99px;padding:2px 9px}
+.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+.ico[data-st="sell"]{background:#FFF0C7;color:#946000}
+.ico[data-st="design"]{background:#E6EBFF;color:#3355F0}
+.ico[data-st="cut"]{background:#FFE4DA;color:#C2431B}
+.ico[data-st="build"]{background:#DDF5E6;color:#1B7F4B}
+.ico[data-st="deliver"]{background:#EFE5FF;color:#6B3FD4}
+.ico[data-st="team"]{background:#FFE3EE;color:#BF2F68}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <a class="logo" href="../">
-      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 30 30"><rect x="1" y="1" width="28" height="28" rx="4" fill="#E9DCBD"/><rect x="5" y="5" width="11" height="9" fill="#0D1311"/><rect x="18" y="5" width="7" height="20" fill="#FF7A1A"/><rect x="5" y="16" width="11" height="9" fill="#0D1311"/></svg>
+      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="5" fill="#3355F0"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
       db-hub
     </a>
     <div id="who" hidden><span class="muted" id="whoMail"></span> <button class="btn small" id="out" type="button">Sign out</button></div>
@@ -126,6 +149,7 @@ tr:last-child td{border-bottom:0}
   </section>
 </div>
 
+<script src="../assets/site.js?v=7"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 // Public address and publishable key of the db-hub database. Every table is protected by
@@ -134,7 +158,13 @@ const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publisha
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ROLES = { admin: 'Owner', manager: 'Manager', worker: 'Worker', shop: 'Shared shop screen' };
-const APPS = ['Cabinet Studio', 'DXF Editor', 'Nesting', 'ShopFlow', 'Shopfloor plan', 'Requests', 'Offers', 'CRM', 'Project Overview'];
+// The nine apps, in the order a job passes through them; shared with the website (assets/site.js).
+const APPS = (window.DBHUB && window.DBHUB.APPS) || [];
+function renderApps() {
+  $('apps').innerHTML = APPS.map((a) => `<div class="app"><span class="ico" data-st="${a.st}"><svg viewBox="0 0 24 24" aria-hidden="true">${a.ico}</svg></span>` +
+    `<span><b>${esc(a.name)}</b><p>${esc(a.short)}</p><small>Coming to your account</small></span></div>`).join('');
+}
+renderApps();
 let mode = 'in', me = null, uid = null;
 
 function view(name) { ['vAuth', 'vNew', 'vHome'].forEach((v) => { $(v).hidden = v !== name; }); $('loading').hidden = true; }
@@ -202,7 +232,6 @@ async function home() {
   const days = Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5);
   $('hPlan').textContent = me.plan === 'trial' ? 'Free trial' : me.plan.charAt(0).toUpperCase() + me.plan.slice(1);
   $('hTrial').textContent = me.plan !== 'trial' ? '' : days > 0 ? days + (days === 1 ? ' day' : ' days') + ' left in your trial' : 'Your trial has ended. Contact us to continue.';
-  $('apps').innerHTML = APPS.map((a) => `<div>${a}<small>coming to your account</small></div>`).join('');
   $('teamCard').hidden = me.role !== 'admin';
   if (me.role === 'admin') team();
 }
