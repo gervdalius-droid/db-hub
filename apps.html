@@ -7,19 +7,19 @@
 <meta name="description" content="What each db-hub app does in a furniture workshop: CRM, Offers, Cabinet Studio, DXF Editor, Nesting, ShopFlow, Shopfloor plan, Project Overview and Requests. Real screens, what each replaces and what you get.">
 <meta property="og:title" content="The nine db-hub apps, in the order a job passes through them">
 <meta property="og:description" content="Real screens of each app, what it replaces in the workshop and what you get from it.">
-<meta name="theme-color" content="#F2F4F0">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%23103A2D'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23F2F4F0'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FF5A1F'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23F2F4F0'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#FFF9F0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%233355F0'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=2">
+<link rel="stylesheet" href="assets/site.css?v=3">
 </head>
 <body>
 
 <header class="top" id="topbar">
   <div class="wrap">
     <a class="logo" href="index.html" aria-label="db-hub home">
-      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="3" fill="#103A2D"/><rect x="5" y="5" width="11" height="9" fill="#F2F4F0"/><rect x="18" y="5" width="7" height="20" fill="#FF5A1F"/><rect x="5" y="16" width="11" height="9" fill="#F2F4F0"/></svg>
+      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="3" fill="#3355F0"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
       db-hub
     </a>
     <nav>
@@ -68,7 +68,7 @@
 
 <footer><div class="wrap"><a class="logo" href="index.html">db-hub</a><nav aria-label="Footer"><a href="index.html#lab">Live demo</a><a href="index.html#pricing">Pricing</a><a href="index.html#faq">FAQ</a></nav><span id="footLine">Made by Dėdės Baldai, a furniture workshop.</span></div></footer>
 
-<script src="assets/site.js?v=2"></script>
+<script src="assets/site.js?v=3"></script>
 <script>
 (function () {
   'use strict';
@@ -82,7 +82,7 @@
   $('exList').innerHTML = STAGES.map(function (s) {
     return '<div class="grp-h" id="g-' + s.id + '"><b>' + s.t + '</b><span>' + s.d + '</span></div>' +
       APPS.filter(function (a) { return a.st === s.id; }).map(function (a) {
-        return '<button type="button" class="app" data-app="' + a.id + '" aria-pressed="false"><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
+        return '<button type="button" class="app" data-app="' + a.id + '" aria-pressed="false"><span class="app-ico" data-st="' + a.st + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
           '<span class="app-t"><b>' + a.name + '</b><span>' + a.one + '</span><em><i>Replaces</i> ' + a.old + '</em></span><span class="chev" aria-hidden="true">→</span></button>';
       }).join('');
   }).join('');

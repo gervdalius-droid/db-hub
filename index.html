@@ -7,19 +7,19 @@
 <meta name="description" content="Nine connected apps for small furniture workshops: quotes, cabinet design, CNC nesting, shop-floor tracking and customer follow-up. Enter a cabinet once and every app works from the same job.">
 <meta property="og:title" content="db-hub — from quote to cut list, without typing anything twice">
 <meta property="og:description" content="Nine connected apps that take a furniture job from quote, to cabinet design, to nested boards, to the shop floor. One flat price per workshop.">
-<meta name="theme-color" content="#F2F4F0">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%23103A2D'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23F2F4F0'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FF5A1F'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23F2F4F0'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#FFF9F0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%233355F0'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=2">
+<link rel="stylesheet" href="assets/site.css?v=3">
 </head>
 <body>
 
 <header class="top" id="topbar">
   <div class="wrap">
     <a class="logo" href="#top" aria-label="db-hub home">
-      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="3" fill="#103A2D"/><rect x="5" y="5" width="11" height="9" fill="#F2F4F0"/><rect x="18" y="5" width="7" height="20" fill="#FF5A1F"/><rect x="5" y="16" width="11" height="9" fill="#F2F4F0"/></svg>
+      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="3" fill="#3355F0"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
       db-hub
     </a>
     <nav>
@@ -271,7 +271,7 @@
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
-<script src="assets/site.js?v=2"></script>
+<script src="assets/site.js?v=3"></script>
 <script>
 (function () {
   'use strict';
@@ -300,9 +300,9 @@
   /* ===================== LIVE DEMO ===================== */
   var T = 18, SHEET_W = 2800, SHEET_H = 2070, TRIM = 10, KERF = 4;
   var MATS = {
-    white: { label: 'White', fill: '#F4F5F1', ink: '#0F1C17', sheet: 58 },
-    oak: { label: 'Oak', fill: '#CFA672', ink: '#0F1C17', sheet: 74 },
-    anth: { label: 'Graphite', fill: '#4A5156', ink: '#F2F4F0', sheet: 69 }
+    white: { label: 'White', fill: '#FAF8F3', ink: '#1B2140', sheet: 58 },
+    oak: { label: 'Oak', fill: '#CFA672', ink: '#1B2140', sheet: 74 },
+    anth: { label: 'Graphite', fill: '#4A5156', ink: '#fff', sheet: 69 }
   };
   var PRESET = { base: { h: 720, d: 560, s: 1 }, wall: { h: 720, d: 320, s: 2 }, tall: { h: 2100, d: 560, s: 4 } };
   var RATES = { edge: 0.9, hinge: 3.2, hdf: 6, cnc: 9, assembly: 14, margin: 0.3 };
@@ -507,7 +507,7 @@
     if (prevK[id] !== v) { el.textContent = v; if (prevK[id] !== undefined) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } prevK[id] = v; }
   }
   function edgeIcon(b) {
-    var on = 'stroke="#FF5A1F" stroke-width="2.4"', s = '<svg class="eb" viewBox="0 0 20 13" aria-hidden="true"><rect x="2" y="2" width="16" height="9" fill="none" stroke="#A9B5AE" stroke-width="1"/>';
+    var on = 'stroke="#3355F0" stroke-width="2.4"', s = '<svg class="eb" viewBox="0 0 20 13" aria-hidden="true"><rect x="2" y="2" width="16" height="9" fill="none" stroke="#D9CEBB" stroke-width="1"/>';
     if (b[0]) s += '<line x1="2" y1="2" x2="18" y2="2" ' + on + '/>';
     if (b[1]) s += '<line x1="2" y1="11" x2="18" y2="11" ' + on + '/>';
     if (b[2]) s += '<line x1="2" y1="2" x2="2" y2="11" ' + on + '/>';
@@ -577,14 +577,14 @@
     if (pl) g.push(poly([pt(-40, 0, -30), pt(w + 30, 0, -30), pt(w + 30, 0, d + 30), pt(-40, 0, d + 30)], 'rgba(15,28,23,.07)', ' class="ns"'));
     // plinth
     if (pl) {
-      g.push(poly([pt(w, 0, 50), pt(w, 0, d), pt(w, pl, d), pt(w, pl, 50)], '#1D2622'));
-      g.push(poly([pt(0, 0, 50), pt(w, 0, 50), pt(w, pl, 50), pt(0, pl, 50)], '#2C3833'));
+      g.push(poly([pt(w, 0, 50), pt(w, 0, d), pt(w, pl, d), pt(w, pl, 50)], '#262B45'));
+      g.push(poly([pt(0, 0, 50), pt(w, 0, 50), pt(w, pl, 50), pt(0, pl, 50)], '#343A5A'));
     }
     // right side
     g.push(poly([pt(w, y0, 0), pt(w, y0, d), pt(w, y1, d), pt(w, y1, 0)], shade(m.fill, -0.13), pid('S2')));
     // top
     if (c.type === 'base') {
-      g.push(poly([pt(T, y1, 0), pt(w - T, y1, 0), pt(w - T, y1, d), pt(T, y1, d)], '#2C3833'));
+      g.push(poly([pt(T, y1, 0), pt(w - T, y1, 0), pt(w - T, y1, d), pt(T, y1, d)], '#343A5A'));
       g.push(poly([pt(T, y1, d - 100), pt(w - T, y1, d - 100), pt(w - T, y1, d), pt(T, y1, d)], shade(m.fill, 0.25), pid('R2')));
       g.push(poly([pt(T, y1, 0), pt(w - T, y1, 0), pt(w - T, y1, 100), pt(T, y1, 100)], shade(m.fill, 0.25), pid('R1')));
     } else {
@@ -616,7 +616,7 @@
       if (th < 0.05) {
         var hh = Math.min(160, c.h / 4), hx0 = left ? hx + dw - 52 : hx - dw + 38;
         var hy = c.type === 'wall' ? da + 60 : c.type === 'tall' ? (da + db) / 2 - hh / 2 : db - 60 - hh;
-        g.push('<rect x="' + hx0 + '" y="' + (-(hy + hh)) + '" width="14" height="' + hh + '" fill="#8C9892" rx="6"/>');
+        g.push('<rect x="' + hx0 + '" y="' + (-(hy + hh)) + '" width="14" height="' + hh + '" fill="#9AA0B5" rx="6"/>');
       }
     }
     // dimension lines
@@ -644,7 +644,7 @@
 
   /* --- nested sheets --- */
   var NS = 'http://www.w3.org/2000/svg', nestNodes = {};
-  $('nest').innerHTML = '<defs><pattern id="hatch" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="56" height="56" fill="#EEF1ED"/><line x1="0" y1="0" x2="0" y2="56" stroke="#CBD3CD" stroke-width="10"/></pattern></defs><g class="sheets"></g>';
+  $('nest').innerHTML = '<defs><pattern id="hatch" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="56" height="56" fill="#F8F1E5"/><line x1="0" y1="0" x2="0" y2="56" stroke="#E6DAC6" stroke-width="10"/></pattern></defs><g class="sheets"></g>';
   function renderNest(nest) {
     var svg = $('nest'), cols = nest.count === 1 ? 1 : nest.count <= 4 ? 2 : 3, rows = Math.ceil(nest.count / cols), G = 150, TOP = 150;
     var vbW = cols * SHEET_W + (cols - 1) * G, vbH = rows * (SHEET_H + TOP) + (rows - 1) * 40;
@@ -653,8 +653,8 @@
     function origin(s) { return [(s % cols) * (SHEET_W + G), Math.floor(s / cols) * (SHEET_H + TOP + 40) + TOP]; }
     for (var s = 0; s < nest.count; s++) {
       var o = origin(s);
-      sh += '<text x="' + o[0] + '" y="' + (o[1] - 42) + '" font-size="' + fsL + '" font-family="IBM Plex Mono,monospace" font-weight="500" fill="#5C6C65">' + (cols < 3 ? 'Sheet ' : '') + (s + 1) + ' · ' + MATS[nest.mats[s]].label + '</text>' +
-        '<rect x="' + o[0] + '" y="' + o[1] + '" width="' + SHEET_W + '" height="' + SHEET_H + '" fill="url(#hatch)" stroke="#0F1C17" stroke-width="1.2" vector-effect="non-scaling-stroke"/>';
+      sh += '<text x="' + o[0] + '" y="' + (o[1] - 42) + '" font-size="' + fsL + '" font-family="Instrument Sans,sans-serif" font-weight="600" fill="#6C7391">' + (cols < 3 ? 'Sheet ' : '') + (s + 1) + ' · ' + MATS[nest.mats[s]].label + '</text>' +
+        '<rect x="' + o[0] + '" y="' + o[1] + '" width="' + SHEET_W + '" height="' + SHEET_H + '" fill="url(#hatch)" stroke="#1B2140" stroke-width="1.2" vector-effect="non-scaling-stroke"/>';
     }
     svg.querySelector('.sheets').innerHTML = sh;
     var seen = {}, fresh = [];
@@ -693,7 +693,7 @@
   function bars(seed) {
     var h = 7, x = 0, out = '';
     for (var i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-    while (x < 72) { h = (h * 1103515245 + 12345) >>> 0; var bw = 1 + (h >>> 28) % 3; out += '<rect x="' + x + '" y="0" width="' + bw + '" height="52" fill="#0F1C17"/>'; h = (h * 1103515245 + 12345) >>> 0; x += bw + 1 + (h >>> 29) % 3; }
+    while (x < 72) { h = (h * 1103515245 + 12345) >>> 0; var bw = 1 + (h >>> 28) % 3; out += '<rect x="' + x + '" y="0" width="' + bw + '" height="52" fill="#1B2140"/>'; h = (h * 1103515245 + 12345) >>> 0; x += bw + 1 + (h >>> 29) % 3; }
     return '<svg viewBox="0 0 74 52" aria-hidden="true">' + out + '</svg>';
   }
   function runPart() { return cur.nest.placed.length ? cur.nest.placed[Math.min(runI, 4 * cur.parts.length - 1) % cur.parts.length].p : null; }
@@ -798,7 +798,7 @@
 
   /* ===================== THE NINE APPS, one line each ===================== */
   $('cards').innerHTML = H.APPS.map(function (a) {
-    return '<a class="card" href="apps.html#' + a.id + '"><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
+    return '<a class="card" href="apps.html#' + a.id + '"><span class="app-ico" data-st="' + a.st + '"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
       '<span class="card-t"><span class="card-n"><b>' + a.name + '</b><small>' + H.stageOf[a.st].t + '</small></span><p>' + a.short + '</p></span></a>';
   }).join('');
 
