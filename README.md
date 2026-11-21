@@ -35,9 +35,9 @@ Two static pages, no build step: open `index.html` in a browser.
 
 - Set `CONTACT_EMAIL`, `CONTACT_PHONE` and `COMPANY_LINE` at the top of `assets/site.js`.
   While they are empty the pages simply leave them out.
-- Check two FAQ answers against what you really support: "Which CNC machines does it work
-  with?" (written from the .XXL and DXF exports in the apps) and "Where is our data kept?"
-  (the Supabase project region, eu-west-1).
+- The FAQ answers on file formats and data location were checked on 2026-11-21 against the
+  apps (Cabinet Studio: .XXL, .xlsm, .csv; Nesting and DXF Editor: DXF) and the Supabase
+  region (eu-west-1, Ireland). Update them if the apps change.
 - Demo prices (`MATS`, `RATES` in the `index.html` script) are illustrative. Adjust if you like.
 - Privacy and terms pages are not written yet, so the footer does not link to them.
 
