@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>db-hub admin</title>
+<meta name="theme-color" content="#FFF9F0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='5' fill='%231B2140'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Same look as the db-hub site and app/index.html. */
+:root{--paper:#FFF9F0;--sheet:#fff;--tray:#F8F1E5;--ink:#1B2140;--ink2:#474E6B;--ink3:#6C7391;--rule:#ECE3D4;--rule2:#D9CEBB;
+  --brand:#3355F0;--brand-dark:#2643CF;--brand-soft:#E6EBFF;--sun:#FFC53D;--sun-soft:#FFF0C7;--ok:#1F7F4B;--ok-soft:#DDF5E6;--bad:#B42E17;--bad-soft:#FFE4DA;
+  --display:'Bricolage Grotesque',system-ui,sans-serif;--body:'Instrument Sans',system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--body);font-size:15px;line-height:1.5;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+a{color:var(--brand-dark)}
+h1,h2,h3,p{margin:0}
+h1{font-family:var(--display);font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+h2{font-family:var(--display);font-size:19px;font-weight:700;letter-spacing:-.01em}
+h3{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:1240px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
+.logo small{font-family:var(--body);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:#fff;border-radius:6px;padding:2px 7px}
+.who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(27,33,64,.04),0 14px 32px -24px rgba(27,33,64,.3)}
+.narrow{max-width:420px;margin:8vh auto 0}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.between{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--ink2);min-width:0}
+.row>label{flex:1 1 160px}
+input,select,textarea{min-height:42px;background:#FFFDF9;border:1px solid var(--rule2);border-radius:9px;padding:7px 11px;width:100%;font-weight:400}
+textarea{min-height:70px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.btn{min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--rule2);background:var(--sheet);cursor:pointer;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--brand);color:var(--brand-dark)}
+.btn.go{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.go:hover{background:var(--brand-dark);color:#fff}
+.btn.warn:hover{border-color:var(--bad);color:var(--bad)}
+.btn.small{min-height:32px;padding:0 12px;font-size:13px}
+.btn:disabled{opacity:.55;cursor:default}
+.msg{min-height:20px;font-size:14px;color:var(--bad)}
+.msg.ok{color:var(--ok)}
+.muted{color:var(--ink3);font-size:13px}
+.nav{display:flex;flex-wrap:wrap;gap:6px;background:var(--tray);border:1px solid var(--rule);border-radius:999px;padding:4px;margin-bottom:18px;width:max-content;max-width:100%}
+.nav button{min-height:38px;padding:0 16px;border:0;border-radius:999px;background:transparent;color:var(--ink2);font-weight:600;cursor:pointer}
+.nav button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 3px rgba(27,33,64,.12)}
+.nav b{display:inline-block;min-width:20px;margin-left:6px;font-size:12px;background:var(--bad);color:#fff;border-radius:99px;padding:0 6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:14px 16px}
+.kpi b{display:block;font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.kpi span{font-size:13px;color:var(--ink3)}
+.kpi.lead{background:var(--ink);border-color:var(--ink);color:#fff}
+.kpi.lead span{color:#C7CCE6}
+.cols{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px}
+@media (max-width:900px){.cols{grid-template-columns:minmax(0,1fr)}}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+.wide{min-width:880px}
+th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink3);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td small{display:block;color:var(--ink3);font-size:12px}
+tr.click{cursor:pointer}
+tr.click:hover td{background:#FFFCF6}
+.num{text-align:right;white-space:nowrap}
+.b{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:2px 9px;white-space:nowrap}
+.b-blue{background:var(--brand-soft);color:var(--brand-dark)}
+.b-green{background:var(--ok-soft);color:var(--ok)}
+.b-red{background:var(--bad-soft);color:var(--bad)}
+.b-amber{background:var(--sun-soft);color:#7A5200}
+.b-grey{background:var(--tray);color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--rule2);background:var(--sheet);cursor:pointer;font-weight:600;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.att{list-style:none;margin:0;padding:0}
+.att li{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--rule)}
+.att li:last-child{border-bottom:0}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:grid;grid-template-columns:92px 22px minmax(0,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.feed li:last-child{border-bottom:0}
+.feed time{color:var(--ink3);font-size:12px;padding-top:2px}
+.dot{width:10px;height:10px;border-radius:99px;margin-top:6px;background:var(--rule2)}
+.dot.signup,.dot.joined{background:var(--brand)}.dot.workshop{background:var(--ink)}.dot.payment{background:var(--ok)}
+.dot.lead{background:var(--sun)}.dot.demo{background:#C9B7F5}.dot.sign_in{background:var(--rule2)}
+.empty{padding:18px 0;color:var(--ink3)}
+dialog{border:1px solid var(--rule);border-radius:18px;padding:0;width:min(880px,96vw);max-height:92vh;background:var(--paper);color:var(--ink);box-shadow:0 30px 80px -30px rgba(27,33,64,.5)}
+dialog::backdrop{background:rgba(27,33,64,.45)}
+.dh{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;background:var(--paper);border-bottom:1px solid var(--rule)}
+.db{padding:18px 20px 22px;display:flex;flex-direction:column;gap:16px}
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.mini div{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:8px 10px}
+.mini b{display:block;font-size:17px}
+.mini span{font-size:12px;color:var(--ink3)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="logo" href="../">
+      <svg aria-hidden="true" width="28" height="28" viewBox="0 0 30 30"><rect width="30" height="30" rx="5" fill="#1B2140"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
+      db-hub <small>Admin</small>
+    </a>
+    <div class="who" id="who" hidden>
+      <span class="muted" id="stamp"></span>
+      <button class="btn small" id="refresh" type="button">Refresh</button>
+      <span class="muted" id="whoMail"></span>
+      <button class="btn small" id="out" type="button">Sign out</button>
+    </div>
+  </div>
+
+  <p class="muted" id="loading">Loading…</p>
+
+  <form class="card narrow stack" id="vAuth" hidden>
+    <h1>Admin sign-in</h1>
+    <label>Email<input id="email" type="email" autocomplete="username" required></label>
+    <label>Password<input id="pass" type="password" autocomplete="current-password" required></label>
+    <button class="btn go" type="submit" id="authBtn">Sign in</button>
+    <div class="msg" id="authMsg" role="alert"></div>
+    <p class="muted">Use your db-hub account. Only emails on the admin list get in.</p>
+  </form>
+
+  <section class="card narrow stack" id="vDenied" hidden>
+    <h1>Not an admin</h1>
+    <p id="deniedText">This account is not on the db-hub admin list.</p>
+  </section>
+
+  <main id="vMain" hidden>
+    <div class="nav" role="group" aria-label="Sections">
+      <button type="button" data-tab="overview" aria-pressed="true">Overview</button>
+      <button type="button" data-tab="workshops" aria-pressed="false">Workshops</button>
+      <button type="button" data-tab="payments" aria-pressed="false">Payments</button>
+      <button type="button" data-tab="leads" aria-pressed="false">Leads &amp; demo</button>
+      <button type="button" data-tab="activity" aria-pressed="false">Activity</button>
+    </div>
+    <div class="msg" id="mainMsg" role="alert"></div>
+
+    <!-- OVERVIEW -->
+    <section data-panel="overview">
+      <div class="kpis" id="kpis"></div>
+      <div class="cols">
+        <div class="card stack">
+          <div class="between"><h2>Needs attention</h2><button class="btn small go" type="button" data-act="new-ws">Add workshop</button></div>
+          <ul class="att" id="attention"></ul>
+        </div>
+        <div class="card stack">
+          <h2>Latest activity</h2>
+          <ul class="feed" id="feedShort"></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKSHOPS -->
+    <section data-panel="workshops" hidden>
+      <div class="card stack">
+        <div class="between">
+          <div class="chips" id="wsChips" role="group" aria-label="Filter workshops"></div>
+          <div class="row" style="flex:0 1 420px">
+            <label style="flex:1 1 200px">Search<input id="wsSearch" type="search" placeholder="Workshop, owner, email…"></label>
+            <button class="btn go" type="button" data-act="new-ws">Add workshop</button>
+          </div>
+        </div>
+        <div class="scroll"><table class="wide">
+          <thead><tr><th>Workshop</th><th>Owner</th><th>State</th><th>Plan</th><th class="num">Price</th><th>Paid until / trial ends</th><th class="num">People</th><th>Last used</th><th class="num">Paid total</th></tr></thead>
+          <tbody id="wsRows"></tbody>
+        </table></div>
+      </div>
+      <div class="card stack" style="margin-top:16px" id="unassignedCard">
+        <h2>Accounts without a workshop</h2>
+        <p class="muted">People who created a db-hub account but never set up or joined a workshop.</p>
+        <div class="scroll"><table><thead><tr><th>Email</th><th>Signed up</th><th>Confirmed</th><th>Last sign-in</th><th></th></tr></thead><tbody id="unRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- PAYMENTS -->
+    <section data-panel="payments" hidden>
+      <div class="kpis" id="payKpis"></div>
+      <div class="card stack">
+        <div class="between">
+          <h2>Payments</h2>
+          <div class="row"><button class="btn" type="button" id="csv">Download CSV</button><button class="btn go" type="button" data-act="new-pay">Record payment</button></div>
+        </div>
+        <p class="muted">Payments are entered by hand (bank transfer, card, cash). Recording one with an end date moves that workshop's "paid until" forward.</p>
+        <div class="scroll"><table class="wide"><thead><tr><th>Paid on</th><th>Workshop</th><th class="num">Amount</th><th>Covers</th><th>Method</th><th>Reference / note</th><th></th></tr></thead><tbody id="payRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- LEADS -->
+    <section data-panel="leads" hidden>
+      <div class="card stack">
+        <h2>Trial requests</h2>
+        <div class="scroll"><table class="wide"><thead><tr><th>When</th><th>Who</th><th>Workshop</th><th>Plan / people</th><th>Message and demo</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody id="leadRows"></tbody></table></div>
+      </div>
+      <div class="card stack" style="margin-top:16px">
+        <h2>Demo activity</h2>
+        <p class="muted">Visitors who used the live demo on the website, newest first.</p>
+        <div class="scroll"><table class="wide"><thead><tr><th>When</th><th>Cabinets</th><th class="num">Parts</th><th class="num">Sheets</th><th class="num">Demo quote</th><th>Did</th><th>Came from</th></tr></thead><tbody id="demoRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- ACTIVITY -->
+    <section data-panel="activity" hidden>
+      <div class="card stack">
+        <h2>Everything that happened</h2>
+        <p class="muted">Sign-ups, new workshops, people joining, payments, trial requests, sign-ins (30 days) and demo use (30 days).</p>
+        <ul class="feed" id="feedAll"></ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Add a workshop -->
+<dialog id="dNew" aria-labelledby="dNewT">
+  <form id="newForm">
+    <div class="dh"><h2 id="dNewT">Add a workshop</h2><button class="btn small" type="button" data-close>Close</button></div>
+    <div class="db">
+      <p class="muted">The owner gets the workshop when they create a db-hub account with this email (or straight away if they already have one). Nothing is emailed yet, so send them the sign-up link yourself: <b id="signupLink"></b></p>
+      <div class="row">
+        <label>Workshop name<input name="name" required minlength="2" maxlength="80"></label>
+        <label>Country<input name="country" maxlength="60"></label>
+      </div>
+      <div class="row">
+        <label>Owner name<input name="owner_name" required maxlength="80"></label>
+        <label>Owner email<input name="owner_email" type="email" required></label>
+        <label>Phone<input name="contact_phone" maxlength="40"></label>
+      </div>
+      <div class="row">
+        <label>Plan<select name="plan"><option value="trial">Trial</option><option value="office">Office</option><option value="workshop">Workshop</option><option value="complete">Complete</option></select></label>
+        <label>Trial days<input name="trial_days" type="number" min="0" max="365" value="5"></label>
+        <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option></select></label>
+        <label>Price € (excl. VAT)<input name="price_eur" type="number" min="0" step="0.01"></label>
+      </div>
+      <label>Notes<textarea name="notes" maxlength="2000"></textarea></label>
+      <input type="hidden" name="lead_id">
+      <div class="between"><div class="msg" id="newMsg" role="alert"></div><button class="btn go" type="submit">Add workshop</button></div>
+    </div>
+  </form>
+</dialog>
+
+<!-- One workshop -->
+<dialog id="dWs" aria-labelledby="dWsT">
+  <div class="dh"><div><h2 id="dWsT"></h2><span class="muted" id="dWsSub"></span></div><button class="btn small" type="button" data-close>Close</button></div>
+  <div class="db">
+    <div class="mini" id="wsMini"></div>
+    <div class="row" id="wsQuick"></div>
+    <form class="stack" id="wsForm">
+      <h3>Account</h3>
+      <div class="row">
+        <label>Workshop name<input name="name" required minlength="2" maxlength="80"></label>
+        <label>Status<select name="status"><option value="active">Active</option><option value="suspended">Suspended (nobody can sign in)</option></select></label>
+      </div>
+      <div class="row">
+        <label>Plan<select name="plan"><option value="trial">Trial</option><option value="office">Office</option><option value="workshop">Workshop</option><option value="complete">Complete</option></select></label>
+        <label>Trial ends<input name="trial_ends_at" type="date"></label>
+        <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option></select></label>
+        <label>Price € (excl. VAT)<input name="price_eur" type="number" min="0" step="0.01"></label>
+        <label>Paid until<input name="paid_until" type="date"></label>
+      </div>
+      <div class="row">
+        <label>Billing email<input name="contact_email" type="email"></label>
+        <label>Phone<input name="contact_phone" maxlength="40"></label>
+        <label>Country<input name="country" maxlength="60"></label>
+      </div>
+      <label>Notes<textarea name="notes" maxlength="2000"></textarea></label>
+      <div class="between"><div class="msg" id="wsMsg" role="alert"></div><button class="btn go" type="submit">Save changes</button></div>
+    </form>
+    <div class="stack"><h3>People</h3><div class="scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Last sign-in</th></tr></thead><tbody id="wsPeople"></tbody></table></div></div>
+    <div class="stack" id="wsInvWrap"><h3>Open invitations</h3><div class="scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Sent</th><th></th></tr></thead><tbody id="wsInv"></tbody></table></div></div>
+    <div class="stack"><div class="between"><h3>Payments</h3><button class="btn small go" type="button" id="wsPay">Record payment</button></div><div class="scroll"><table><thead><tr><th>Paid on</th><th class="num">Amount</th><th>Covers</th><th>Method</th><th>Reference</th></tr></thead><tbody id="wsPays"></tbody></table></div></div>
+  </div>
+</dialog>
+
+<!-- Record a payment -->
+<dialog id="dPay" aria-labelledby="dPayT">
+  <form id="payForm">
+    <div class="dh"><h2 id="dPayT">Record a payment</h2><button class="btn small" type="button" data-close>Close</button></div>
+    <div class="db">
+      <div class="row">
+        <label>Workshop<select name="workshop_id" required></select></label>
+        <label>Amount € (excl. VAT)<input name="amount_eur" type="number" step="0.01" required></label>
+        <label>Paid on<input name="paid_on" type="date" required></label>
+      </div>
+      <div class="row">
+        <label>Covers from<input name="covers_from" type="date"></label>
+        <label>Covers to<input name="covers_to" type="date"></label>
+        <label>Method<select name="method"><option value="bank">Bank transfer</option><option value="card">Card</option><option value="cash">Cash</option><option value="other">Other</option></select></label>
+      </div>
+      <div class="row">
+        <label>Invoice no. / reference<input name="reference" maxlength="80"></label>
+        <label>Note<input name="note" maxlength="300"></label>
+      </div>
+      <p class="muted" id="payHint"></p>
+      <div class="between"><div class="msg" id="payMsg" role="alert"></div><button class="btn go" type="submit">Save payment</button></div>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// Public project address and publishable key. Everything on this page comes from
+// functions that refuse anyone whose email is not in the "admins" table.
+const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publishable_-eLlb35TXBvv_wj-UucrqA_g-nxGWd1');
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const eur = (n) => '€' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const day = (t) => t ? new Date(t).toLocaleDateString('lt-LT') : '—';
+const iso = (d) => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+const today = () => iso(new Date());
+function ago(t) {
+  if (!t) return '—';
+  const s = (Date.now() - new Date(t)) / 1000;
+  if (s < 0) return 'in ' + Math.ceil(-s / 86400) + ' d';
+  if (s < 90) return 'just now';
+  if (s < 3600) return Math.round(s / 60) + ' min ago';
+  if (s < 86400) return Math.round(s / 3600) + ' h ago';
+  if (s < 86400 * 45) return Math.round(s / 86400) + ' d ago';
+  return day(t);
+}
+const PRICES = { office: { monthly: 39, yearly: 390, one_time: null }, workshop: { monthly: 89, yearly: 890, one_time: null }, complete: { monthly: 149, yearly: 1490, one_time: 2490 } };
+const PLANS = { trial: 'Trial', office: 'Office', workshop: 'Workshop', complete: 'Complete' };
+const BILLING = { none: '—', monthly: '/ month', yearly: '/ year', one_time: 'one-time' };
+const STATE = { trial: ['Trial', 'b-blue'], paying: ['Paying', 'b-green'], overdue: ['Overdue', 'b-red'], unpaid: ['Not paid', 'b-red'],
+  trial_ended: ['Trial ended', 'b-amber'], suspended: ['Suspended', 'b-grey'], free: ['Free', 'b-grey'] };
+const ROLES = { admin: 'Owner', manager: 'Manager', worker: 'Worker', shop: 'Shop screen' };
+const METHODS = { bank: 'Bank transfer', card: 'Card', cash: 'Cash', other: 'Other' };
+const badge = (st) => { const s = STATE[st] || [st, 'b-grey']; return `<span class="b ${s[1]}">${s[0]}</span>`; };
+const SIGNUP = new URL('../app/', location.href).href;
+
+let D = null, LEADS = [], DEMOS = [], tab = 'overview', filter = 'all', openWs = null;
+
+function view(name) { ['vAuth', 'vDenied', 'vMain'].forEach((v) => { $(v).hidden = v !== name; }); $('loading').hidden = true; }
+function say(id, text, ok) { const el = $(id); el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
+const ws = (id) => D.workshops.find((w) => w.id === id);
+
+/* ---------- sign-in ---------- */
+$('vAuth').addEventListener('submit', async (e) => {
+  e.preventDefault(); say('authMsg', ''); $('authBtn').disabled = true;
+  const { error } = await db.auth.signInWithPassword({ email: $('email').value.trim(), password: $('pass').value });
+  $('authBtn').disabled = false;
+  if (error) return say('authMsg', 'Sign-in failed. Check the email and password.');
+  $('pass').value = ''; start();
+});
+$('out').addEventListener('click', async () => { await db.auth.signOut(); start(); });
+$('refresh').addEventListener('click', () => load());
+
+async function start() {
+  const { data: { session } } = await db.auth.getSession();
+  $('who').hidden = !session;
+  if (!session) return view('vAuth');
+  $('whoMail').textContent = session.user.email;
+  load();
+}
+
+async function load() {
+  say('mainMsg', '');
+  const r = await db.rpc('admin_overview');
+  if (r.error) {
+    if (r.error.code === '42501' || /admins only/i.test(r.error.message)) {
+      $('deniedText').textContent = 'This account (' + $('whoMail').textContent + ') is not on the db-hub admin list.';
+      return view('vDenied');
+    }
+    view('vMain'); return say('mainMsg', 'Could not load the dashboard: ' + r.error.message);
+  }
+  D = r.data;
+  const [L, M] = await Promise.all([
+    db.from('leads').select('*').order('created_at', { ascending: false }).limit(500),
+    db.from('demo_sessions').select('*').order('updated_at', { ascending: false }).limit(300),
+  ]);
+  LEADS = L.data || []; DEMOS = M.data || [];
+  view('vMain');
+  $('stamp').textContent = 'Updated ' + new Date(D.generated_at).toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' });
+  render();
+  if (openWs) { if (ws(openWs)) fillWs(openWs); else $('dWs').close(); }
+}
+
+/* ---------- tabs ---------- */
+document.querySelector('.nav').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  tab = b.dataset.tab;
+  document.querySelectorAll('.nav [data-tab]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== tab; });
+});
+
+function render() { renderOverview(); renderWorkshops(); renderPayments(); renderLeads(); renderFeed(); }
+// Open a section straight from a link, e.g. admin/#leads.
+const startTab = document.querySelector(`.nav [data-tab="${(location.hash || '').slice(1)}"]`);
+if (startTab) startTab.click();
+
+/* ---------- overview ---------- */
+function renderOverview() {
+  const k = D.kpi;
+  $('kpis').innerHTML = [
+    [eur(k.mrr), 'monthly recurring revenue', 'lead'],
+    [k.paying, 'paying workshops'],
+    [k.trials, 'active trials' + (k.trials_ending_2d ? ' · ' + k.trials_ending_2d + ' ending soon' : '')],
+    [k.overdue, 'overdue or not paid'],
+    [eur(k.revenue_30d), 'paid in the last 30 days'],
+    [eur(k.revenue_year), 'paid this year'],
+    [k.workshops + ' / ' + k.people, 'workshops / active people'],
+    [k.signups_7d + ' / ' + k.demo_7d, 'sign-ups / demo users, 7 days'],
+  ].map(([v, t, c]) => `<div class="kpi ${c || ''}"><b>${esc(v)}</b><span>${esc(t)}</span></div>`).join('');
+
+  const items = [];
+  D.workshops.forEach((w) => {
+    if (w.state === 'trial' && new Date(w.trial_ends_at) - Date.now() < 2 * 864e5)
+      items.push([`<b>${esc(w.name)}</b> trial ends ${ago(w.trial_ends_at)}`, `<button class="btn small" data-ws="${w.id}">Open</button>`]);
+    if (w.state === 'trial_ended') items.push([`<b>${esc(w.name)}</b> trial ended ${day(w.trial_ends_at)}, no plan chosen`, `<button class="btn small" data-ws="${w.id}">Open</button>`]);
+    if (w.state === 'overdue') items.push([`<b>${esc(w.name)}</b> was paid until ${day(w.paid_until)}`, `<button class="btn small" data-pay="${w.id}">Record payment</button>`]);
+    if (w.state === 'unpaid') items.push([`<b>${esc(w.name)}</b> is on ${esc(PLANS[w.plan])} with no payment recorded`, `<button class="btn small" data-pay="${w.id}">Record payment</button>`]);
+    if (!w.owner && w.owner_invite) items.push([`<b>${esc(w.name)}</b>: owner ${esc(w.owner_invite)} has not signed up yet`, `<button class="btn small" data-ws="${w.id}">Open</button>`]);
+  });
+  LEADS.filter((l) => l.status === 'new').forEach((l) => items.push([`New trial request: <b>${esc(l.company)}</b> (${esc(l.name)}) ${ago(l.created_at)}`, `<button class="btn small" data-from-lead="${l.id}">Add workshop</button>`]));
+  D.unassigned.filter((u) => !u.invited).forEach((u) => items.push([`<b>${esc(u.email)}</b> signed up ${ago(u.created_at)} but has no workshop`, `<button class="btn small" data-from-user="${esc(u.email)}">Add workshop</button>`]));
+  $('attention').innerHTML = items.length ? items.map(([t, a]) => `<li><span>${t}</span>${a}</li>`).join('') : '<li class="empty">Nothing needs you right now.</li>';
+  $('feedShort').innerHTML = feedHtml(D.feed.slice(0, 12));
+}
+
+/* ---------- workshops ---------- */
+const FILTERS = [['all', 'All'], ['trial', 'Trial'], ['paying', 'Paying'], ['owed', 'Overdue / not paid'], ['trial_ended', 'Trial ended'], ['suspended', 'Suspended']];
+function renderWorkshops() {
+  const count = (f) => D.workshops.filter((w) => match(w, f)).length;
+  $('wsChips').innerHTML = FILTERS.map(([id, t]) => `<button type="button" class="chip" data-f="${id}" aria-pressed="${id === filter}">${t} · ${count(id)}</button>`).join('');
+  const q = $('wsSearch').value.trim().toLowerCase();
+  const rows = D.workshops.filter((w) => match(w, filter) && (!q || [w.name, w.owner?.name, w.owner?.email, w.owner_invite, w.contact_email, w.country, w.code].join(' ').toLowerCase().includes(q)));
+  $('wsRows').innerHTML = rows.map((w) => `<tr class="click" data-ws="${w.id}" tabindex="0">
+    <td><b>${esc(w.name)}</b><small>${esc(w.country || '')} since ${day(w.created_at)}</small></td>
+    <td>${w.owner ? esc(w.owner.name) + `<small>${esc(w.owner.email)}</small>` : `<span class="muted">invited</span><small>${esc(w.owner_invite || '—')}</small>`}</td>
+    <td>${badge(w.state)}</td>
+    <td>${esc(PLANS[w.plan])}<small>${esc(w.billing === 'none' ? '' : BILLING[w.billing])}</small></td>
+    <td class="num">${w.price_eur != null ? eur(w.price_eur) : '—'}</td>
+    <td>${w.plan === 'trial' ? 'Trial ends ' + day(w.trial_ends_at) : w.paid_until ? day(w.paid_until) : '—'}</td>
+    <td class="num">${w.members}${w.invites ? `<small>+${w.invites} invited</small>` : ''}</td>
+    <td>${ago(w.last_change || w.last_sign_in)}</td>
+    <td class="num">${eur(w.total_paid)}</td></tr>`).join('') || `<tr><td colspan="9" class="empty">${D.workshops.length ? 'No workshop matches.' : 'No workshops yet. Add the first one, or wait for a sign-up.'}</td></tr>`;
+  $('unRows').innerHTML = D.unassigned.map((u) => `<tr><td>${esc(u.email)}</td><td>${day(u.created_at)}</td><td>${u.confirmed ? 'Yes' : 'Not yet'}</td><td>${ago(u.last_sign_in)}</td>
+    <td>${u.invited ? '<span class="muted">invited</span>' : `<button class="btn small" data-from-user="${esc(u.email)}">Add workshop</button>`}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">None.</td></tr>';
+}
+function match(w, f) { return f === 'all' || (f === 'owed' ? ['overdue', 'unpaid'].includes(w.state) : w.state === f); }
+$('wsChips').addEventListener('click', (e) => { const b = e.target.closest('[data-f]'); if (!b) return; filter = b.dataset.f; renderWorkshops(); });
+$('wsSearch').addEventListener('input', renderWorkshops);
+
+/* ---------- payments ---------- */
+function renderPayments() {
+  const k = D.kpi;
+  $('payKpis').innerHTML = [[eur(k.mrr), 'monthly recurring revenue', 'lead'], [eur(k.revenue_30d), 'last 30 days'], [eur(k.revenue_year), 'this year'], [eur(k.revenue_total), 'all time']]
+    .map(([v, t, c]) => `<div class="kpi ${c || ''}"><b>${esc(v)}</b><span>${esc(t)}</span></div>`).join('');
+  $('payRows').innerHTML = D.payments.map((p) => `<tr><td>${day(p.paid_on)}</td><td><a href="#" data-ws="${p.workshop_id}">${esc(p.workshop)}</a></td>
+    <td class="num"><b>${eur(p.amount_eur)}</b></td><td>${p.covers_from || p.covers_to ? day(p.covers_from) + ' – ' + day(p.covers_to) : '—'}</td>
+    <td>${esc(METHODS[p.method])}</td><td>${esc(p.reference || '')}<small>${esc(p.note || '')}</small></td>
+    <td><button class="btn small warn" type="button" data-del-pay="${p.id}">Delete</button></td></tr>`).join('') || '<tr><td colspan="7" class="empty">No payments recorded yet.</td></tr>';
+}
+$('csv').addEventListener('click', () => {
+  const head = ['paid_on', 'workshop', 'amount_eur', 'covers_from', 'covers_to', 'method', 'reference', 'note'];
+  const cell = (v) => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const csv = [head.join(',')].concat(D.payments.map((p) => head.map((h) => cell(p[h])).join(','))).join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
+  a.download = 'db-hub-payments-' + today() + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+
+/* ---------- leads & demo ---------- */
+const LEAD_ST = ['new', 'contacted', 'trial', 'won', 'lost'];
+function renderLeads() {
+  $('leadRows').innerHTML = LEADS.map((l) => `<tr>
+    <td>${day(l.created_at)}<small>${ago(l.created_at)}${l.notified_at ? ' · emailed' : ''}</small></td>
+    <td>${esc(l.name)}<small><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></small><small>${esc(l.phone || '')}</small></td>
+    <td>${esc(l.company)}</td>
+    <td>${esc(l.plan || '—')}<small>${l.people ? esc(l.people) + ' people' : ''}</small></td>
+    <td style="max-width:280px">${esc(l.message || '')}${l.demo_summary ? `<small style="white-space:pre-wrap">${esc(l.demo_summary)}</small>` : (l.demo_session_id ? '<small>used the demo</small>' : '')}</td>
+    <td><select data-lead="${l.id}" data-f="status" aria-label="Status">${LEAD_ST.map((s) => `<option${s === l.status ? ' selected' : ''}>${s}</option>`).join('')}</select></td>
+    <td><textarea data-lead="${l.id}" data-f="notes" rows="2" aria-label="Notes" style="min-width:160px">${esc(l.notes || '')}</textarea></td>
+    <td><div class="stack" style="gap:6px"><button class="btn small" type="button" data-from-lead="${l.id}">Add workshop</button><button class="btn small warn" type="button" data-del-lead="${l.id}">Delete</button></div></td>
+  </tr>`).join('') || '<tr><td colspan="8" class="empty">No trial requests yet.</td></tr>';
+  $('demoRows').innerHTML = DEMOS.map((d) => `<tr><td>${day(d.updated_at)}<small>${ago(d.updated_at)}</small></td>
+    <td>${d.cabinet_count}<small style="white-space:pre-wrap">${esc(d.summary || '')}</small></td><td class="num">${d.parts ?? ''}</td><td class="num">${d.sheets ?? ''}</td>
+    <td class="num">${d.quote_eur != null ? eur(d.quote_eur) : ''}</td>
+    <td>${d.downloaded_cut_list ? '<span class="b b-blue">cut list</span> ' : ''}${d.opened_trial_form ? '<span class="b b-amber">trial form</span>' : ''}</td>
+    <td><small>${esc(d.referrer || 'direct')}</small></td></tr>`).join('') || '<tr><td colspan="7" class="empty">Nobody has used the demo yet.</td></tr>';
+}
+$('leadRows').addEventListener('change', async (e) => {
+  const el = e.target.closest('[data-lead]'); if (!el) return;
+  const { error } = await db.from('leads').update({ [el.dataset.f]: el.value }).eq('id', el.dataset.lead);
+  say('mainMsg', error ? 'Could not save: ' + error.message : '');
+  const l = LEADS.find((x) => x.id === el.dataset.lead); if (l && !error) l[el.dataset.f] = el.value;
+});
+
+/* ---------- activity ---------- */
+function feedHtml(list) {
+  return list.length ? list.map((f) => `<li><time datetime="${esc(f.at)}">${ago(f.at)}</time><span class="dot ${esc(f.kind)}" aria-hidden="true"></span>
+    <span>${f.workshop_id ? `<a href="#" data-ws="${f.workshop_id}">${esc(f.text)}</a>` : esc(f.text)}</span></li>`).join('') : '<li class="empty">Nothing yet.</li>';
+}
+function renderFeed() { $('feedAll').innerHTML = feedHtml(D.feed); }
+
+/* ---------- one workshop ---------- */
+function openWorkshop(id) { openWs = id; fillWs(id); if (!$('dWs').open) $('dWs').showModal(); }
+function fillWs(id) {
+  const w = ws(id); if (!w) return;
+  $('dWsT').textContent = w.name;
+  $('dWsSub').innerHTML = badge(w.state) + ' &nbsp;code ' + esc(w.code) + ' · since ' + day(w.created_at);
+  const u = w.usage || {};
+  $('wsMini').innerHTML = [[w.members, 'people'], [u.cabinet_projects || 0, 'cabinet projects'], [u.nesting_projects || 0, 'nesting projects'], [u.offers || 0, 'offers'],
+    [u.crm_records || 0, 'CRM records'], [ago(w.last_change), 'last change'], [ago(w.last_sign_in), 'last sign-in'], [eur(w.total_paid), 'paid in total']]
+    .map(([v, t]) => `<div><b>${esc(v)}</b><span>${esc(t)}</span></div>`).join('');
+  const q = [];
+  if (w.plan === 'trial') q.push(`<button class="btn small" type="button" data-quick="trial5">Trial +5 days</button>`);
+  q.push(`<button class="btn small" type="button" data-quick="pay">Record payment</button>`);
+  q.push(w.status === 'active' ? `<button class="btn small warn" type="button" data-quick="suspend">Suspend</button>` : `<button class="btn small" type="button" data-quick="reactivate">Reactivate</button>`);
+  $('wsQuick').innerHTML = q.join('');
+  const f = $('wsForm');
+  f.name.value = w.name; f.status.value = w.status; f.plan.value = w.plan; f.billing.value = w.billing;
+  f.trial_ends_at.value = w.trial_ends_at ? iso(w.trial_ends_at) : ''; f.price_eur.value = w.price_eur ?? ''; f.paid_until.value = w.paid_until || '';
+  f.contact_email.value = w.contact_email || ''; f.contact_phone.value = w.contact_phone || ''; f.country.value = w.country || ''; f.notes.value = w.notes || '';
+  say('wsMsg', '');
+  $('wsPeople').innerHTML = D.people.filter((p) => p.workshop_id === id).map((p) => `<tr><td>${esc(p.name)}${p.active ? '' : ' <span class="b b-grey">blocked</span>'}</td>
+    <td>${esc(p.email)}</td><td>${esc(ROLES[p.role] || p.role)}</td><td>${day(p.joined)}</td><td>${ago(p.last_sign_in)}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">Nobody has joined yet.</td></tr>';
+  const inv = D.invites.filter((i) => i.workshop_id === id);
+  $('wsInvWrap').hidden = !inv.length;
+  $('wsInv').innerHTML = inv.map((i) => `<tr><td>${esc(i.name)}</td><td>${esc(i.email)}</td><td>${esc(ROLES[i.role] || i.role)}</td><td>${day(i.created_at)}</td>
+    <td><button class="btn small warn" type="button" data-del-inv="${i.id}">Cancel</button></td></tr>`).join('');
+  $('wsPays').innerHTML = D.payments.filter((p) => p.workshop_id === id).map((p) => `<tr><td>${day(p.paid_on)}</td><td class="num">${eur(p.amount_eur)}</td>
+    <td>${p.covers_from || p.covers_to ? day(p.covers_from) + ' – ' + day(p.covers_to) : '—'}</td><td>${esc(METHODS[p.method])}</td><td>${esc(p.reference || '')}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">No payments yet.</td></tr>';
+}
+$('wsForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, w = ws(openWs);
+  const p = { name: f.name.value, status: f.status.value, plan: f.plan.value, billing: f.billing.value, price_eur: f.price_eur.value,
+    paid_until: f.paid_until.value, contact_email: f.contact_email.value, contact_phone: f.contact_phone.value, country: f.country.value, notes: f.notes.value };
+  if (f.trial_ends_at.value && f.trial_ends_at.value !== iso(w.trial_ends_at)) p.trial_ends_at = new Date(f.trial_ends_at.value + 'T23:59:00').toISOString();
+  if (p.status === 'suspended' && w.status !== 'suspended' && !confirm('Suspend ' + w.name + '? Nobody in this workshop can use the apps until you reactivate it.')) return;
+  await save(p, 'wsMsg');
+});
+$('dWs').addEventListener('change', (e) => { if (['plan', 'billing'].includes(e.target.name)) autoPrice(e.target.form); });
+$('wsQuick').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-quick]'); if (!b) return;
+  const w = ws(openWs);
+  if (b.dataset.quick === 'pay') return openPay(w.id);
+  if (b.dataset.quick === 'trial5') return save({ trial_ends_at: new Date(Math.max(Date.now(), new Date(w.trial_ends_at)) + 5 * 864e5).toISOString() }, 'wsMsg');
+  if (b.dataset.quick === 'suspend') { if (!confirm('Suspend ' + w.name + '? Nobody in this workshop can use the apps until you reactivate it.')) return; return save({ status: 'suspended' }, 'wsMsg'); }
+  if (b.dataset.quick === 'reactivate') return save({ status: 'active' }, 'wsMsg');
+});
+$('wsInv').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-del-inv]'); if (!b || !confirm('Cancel this invitation?')) return;
+  const { error } = await db.rpc('admin_cancel_invite', { p_id: b.dataset.delInv });
+  if (error) return say('wsMsg', error.message);
+  load();
+});
+async function save(p, msgId) {
+  const { error } = await db.rpc('admin_save_workshop', { p_id: openWs, p });
+  if (error) return say(msgId, 'Could not save: ' + error.message);
+  await load(); say(msgId, 'Saved.', true);
+}
+function autoPrice(f) {
+  const plan = f.plan.value, bill = f.billing.value, pr = PRICES[plan] && PRICES[plan][bill];
+  if (pr != null && (!f.price_eur.value || f.price_eur.dataset.auto === '1')) { f.price_eur.value = pr; f.price_eur.dataset.auto = '1'; }
+}
+
+/* ---------- add a workshop ---------- */
+function openNew(pre) {
+  const f = $('newForm'); f.reset(); f.lead_id.value = ''; f.price_eur.dataset.auto = ''; say('newMsg', '');
+  $('signupLink').textContent = SIGNUP;
+  Object.entries(pre || {}).forEach(([k, v]) => { if (f[k] && v != null) f[k].value = v; });
+  $('dNew').showModal(); f.name.focus();
+}
+$('dNew').addEventListener('change', (e) => { if (['plan', 'billing'].includes(e.target.name)) autoPrice(e.target.form); if (e.target.name === 'price_eur') e.target.dataset.auto = ''; });
+$('newForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, p = Object.fromEntries(new FormData(f).entries());
+  const btn = f.querySelector('[type=submit]'); btn.disabled = true; say('newMsg', '');
+  const { data, error } = await db.rpc('admin_create_workshop', { p });
+  btn.disabled = false;
+  if (error) return say('newMsg', error.message);
+  $('dNew').close(); await load();
+  say('mainMsg', data.joined ? 'Workshop added. The owner already had an account and is now in it.' : 'Workshop added. Send the owner the sign-up link: ' + SIGNUP, true);
+});
+
+/* ---------- payments ---------- */
+function openPay(wid) {
+  const f = $('payForm'); f.reset(); say('payMsg', '');
+  f.workshop_id.innerHTML = D.workshops.map((w) => `<option value="${w.id}">${esc(w.name)}</option>`).join('');
+  if (!D.workshops.length) { say('payMsg', 'Add a workshop first.'); }
+  if (wid) f.workshop_id.value = wid;
+  f.paid_on.value = today(); prefillPay(); $('dPay').showModal();
+}
+function prefillPay() {
+  const f = $('payForm'), w = ws(f.workshop_id.value); if (!w) return;
+  const pr = w.price_eur ?? (PRICES[w.plan] && PRICES[w.plan][w.billing]);
+  if (pr != null) f.amount_eur.value = pr;
+  const from = w.paid_until && new Date(w.paid_until) >= new Date(today()) ? new Date(new Date(w.paid_until).getTime() + 864e5) : new Date();
+  f.covers_from.value = iso(from);
+  if (w.billing === 'monthly' || w.billing === 'yearly') {
+    const to = new Date(from); if (w.billing === 'monthly') to.setMonth(to.getMonth() + 1); else to.setFullYear(to.getFullYear() + 1); to.setDate(to.getDate() - 1);
+    f.covers_to.value = iso(to);
+  } else f.covers_to.value = '';
+  $('payHint').textContent = `${w.name}: ${PLANS[w.plan]}, ${w.billing === 'none' ? 'not billed yet' : BILLING[w.billing].replace('/ ', 'per ')}` + (w.paid_until ? `, paid until ${day(w.paid_until)}.` : '.');
+}
+$('payForm').workshop_id.addEventListener('change', prefillPay);
+$('payForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target, p = Object.fromEntries(new FormData(f).entries());
+  const btn = f.querySelector('[type=submit]'); btn.disabled = true; say('payMsg', '');
+  const { error } = await db.rpc('admin_add_payment', { p });
+  btn.disabled = false;
+  if (error) return say('payMsg', error.message);
+  $('dPay').close(); await load(); say('mainMsg', 'Payment saved.', true);
+  if (openWs) say('wsMsg', 'Payment saved.', true);
+});
+
+/* ---------- shared clicks ---------- */
+document.addEventListener('click', async (e) => {
+  const t = e.target;
+  if (t.closest('[data-close]')) return t.closest('dialog').close();
+  const wsEl = t.closest('[data-ws]'); if (wsEl && !t.closest('select,textarea,input')) { e.preventDefault(); return openWorkshop(wsEl.dataset.ws); }
+  const act = t.closest('[data-act]');
+  if (act && act.dataset.act === 'new-ws') return openNew();
+  if (act && act.dataset.act === 'new-pay') return openPay();
+  const pay = t.closest('[data-pay]'); if (pay) return openPay(pay.dataset.pay);
+  const fl = t.closest('[data-from-lead]');
+  if (fl) { const l = LEADS.find((x) => x.id === fl.dataset.fromLead);
+    return openNew({ name: l.company, owner_name: l.name, owner_email: l.email, contact_phone: l.phone, lead_id: l.id,
+      notes: [l.people ? l.people + ' people' : '', l.plan ? 'asked for ' + l.plan : '', l.message || ''].filter(Boolean).join('. '),
+      plan: 'trial', billing: 'none' }); }
+  const fu = t.closest('[data-from-user]'); if (fu) return openNew({ owner_email: fu.dataset.fromUser });
+  const dp = t.closest('[data-del-pay]');
+  if (dp) { if (!confirm('Delete this payment? "Paid until" is not moved back automatically.')) return;
+    const { error } = await db.rpc('admin_delete_payment', { p_id: dp.dataset.delPay }); if (error) return say('mainMsg', error.message); return load(); }
+  const dl = t.closest('[data-del-lead]');
+  if (dl) { if (!confirm('Delete this trial request for good?')) return;
+    const { error } = await db.rpc('admin_delete_lead', { p_id: dl.dataset.delLead }); if (error) return say('mainMsg', error.message); return load(); }
+});
+document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('tr[data-ws]')) openWorkshop(e.target.dataset.ws); });
+$('dWs').addEventListener('close', () => { openWs = null; });
+db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { $('who').hidden = true; view('vAuth'); } });
+start();
+</script>
+</body>
+</html>

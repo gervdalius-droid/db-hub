@@ -54,8 +54,7 @@ Supabase project **db-hub** (`preatnukvhwarytlpxpe`):
   The tables are closed to the public key. It validates, rate-limits, and emails each new
   lead when the secrets `RESEND_API_KEY` and `NOTIFY_EMAIL` are set (optional `NOTIFY_FROM`,
   `ALLOWED_ORIGINS` for a new domain).
-- `leads.html` — private page to read leads and demo activity. Sign in with a Supabase
-  Auth user whose email is in `admins`.
+- `leads.html` — now just forwards to `admin/#leads`.
 - Schema: `supabase/migrations/0001_db_hub_leads_and_demo.sql`.
 
 ## Workshop accounts (db-hub as its own product)
@@ -77,3 +76,29 @@ share it safely:
 
 Not built yet: the nine apps pointed at this database, name + PIN sign-in per workshop,
 notifications, and the shop-floor time log functions.
+
+## Admin dashboard (`admin/`)
+
+Your own control room for db-hub. Sign in with a db-hub account whose email is in the
+`admins` table; everyone else is turned away by the database, not just the page.
+
+- **Overview:** monthly recurring revenue, paying workshops, trials (and those ending in
+  2 days), overdue, money in, sign-ups and demo users, plus a "needs attention" list.
+- **Workshops:** every customer with state (trial, paying, overdue, not paid, trial ended,
+  suspended), owner, plan, price, paid-until, people, last use and total paid. Open one to
+  change plan, billing, price, dates, contact and notes, add 5 trial days, suspend or
+  reactivate it (suspended = nobody in it can sign in), see its people, invitations and
+  payments. "Add workshop" creates a customer and invites its owner by email; if that email
+  already has an account, they are added at once. Accounts that signed up without a
+  workshop are listed too.
+- **Payments:** recorded by hand for now (bank, card, cash). A payment with an end date
+  moves "paid until" forward. CSV export.
+- **Leads & demo:** trial requests (status, notes, turn into a workshop, delete) and demo use.
+- **Activity:** sign-ups, new workshops, joins, payments, trial requests, sign-ins, demo use.
+
+Database: `supabase/migrations/0003_admin_dashboard.sql` (billing columns on `workshops`,
+`payments` table, `admin_*` functions that check `private.is_admin()` first).
+
+Prices pre-filled in the forms: Office €39/€390, Workshop €89/€890, Complete €149/€1,490,
+one-time Complete €2,490 (all excl. VAT). Plans and trial end are shown, not yet enforced
+inside the apps.
