@@ -1,6 +1,6 @@
 # db-hub
 
-Landing page for db-hub, the furniture workshop app suite by Dėdės Baldai.
+Landing page for db-hub, an app suite for furniture workshops.
 
 Two static pages, no build step: open `index.html` in a browser.
 

@@ -1,4 +1,4 @@
--- db-hub website backend (Supabase project "DEDES BALDAI").
+-- db-hub website backend (Supabase project "db-hub").
 -- Applied 2026-11-17. Trial requests (leads) and what visitors build in the live demo.
 -- Nothing is readable or writable with the public key: writes go through the "intake"
 -- edge function, reads are for signed-in people whose email is in public.admins.
