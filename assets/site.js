@@ -95,6 +95,11 @@ window.DBHUB = (function () {
   function onScroll() { topbar.classList.toggle('scrolled', window.scrollY > 8); }
   if (topbar) { window.addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
   if (COMPANY_LINE && $('footLine')) $('footLine').textContent = COMPANY_LINE;
+  // privacy.html names whoever runs the site, once the details above are filled in
+  if ($('ctrl') && (COMPANY_LINE || CONTACT_EMAIL)) {
+    $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs db-hub is responsible for this data.') +
+      (CONTACT_EMAIL ? ' Write to ' + CONTACT_EMAIL + ' about anything on this page.' : '');
+  }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
