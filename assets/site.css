@@ -85,12 +85,11 @@ h1{font-family:var(--display);font-stretch:100%;font-weight:700;font-size:clamp(
 .col-h b{display:inline-grid;place-items:center;width:24px;height:24px;background:var(--brand);color:#fff;font-size:12.5px;border-radius:50%}
 .col-h span{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink3)}
 
-.draw{position:relative;border:1px solid var(--rule);border-radius:var(--r);background-color:#FFFDF9;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:16px 16px;overflow:hidden}
-#sketch polygon,#sketch rect{stroke:var(--ink);stroke-width:1.15;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.draw{position:relative;border:1px solid var(--rule);border-radius:var(--r);background:radial-gradient(120% 90% at 50% 38%,#fff 0%,#F7F2E9 62%,#EFE8DB 100%);overflow:hidden}
+#sketch polygon,#sketch rect{stroke:rgba(27,33,64,.36);stroke-width:.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
 #sketch .ns{stroke:none}
-#sketch .dim line{stroke:var(--brand);stroke-width:1.15;vector-effect:non-scaling-stroke}
-#sketch .dim .ext{stroke:var(--rule2);stroke-width:1}
-#sketch .dim text{fill:var(--brand-dark);font-family:var(--mono);font-weight:600;text-anchor:middle}
+#sketch .dim polyline{fill:none;stroke:#8990A8;stroke-width:1;vector-effect:non-scaling-stroke}
+#sketch .dim text{fill:var(--ink2);font-weight:600;dominant-baseline:middle;paint-order:stroke;stroke:#FAF6EE;stroke-linejoin:round}
 #sketch .hot{fill:var(--sun)}
 .draw .mini{position:absolute;right:10px;top:10px}
 
