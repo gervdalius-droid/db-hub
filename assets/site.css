@@ -199,7 +199,7 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
 .app-ico[data-st="cut"]{background:#FFE4DA;color:#C2431B}
 .app-ico[data-st="build"]{background:#DDF5E6;color:#1B7F4B}
 .app-ico[data-st="deliver"]{background:#EFE5FF;color:#6B3FD4}
-.app-ico[data-st="team"]{background:#FFE3EE;color:#BF2F68}
+.app-ico[data-st="bill"]{background:#FFE3EE;color:#BF2F68}
 .app[aria-pressed="true"] .app-ico{background:var(--brand);color:#fff}
 .app-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
 .app-t b{display:block;font-family:var(--display);font-stretch:100%;font-weight:700;font-size:21px;letter-spacing:-.015em;line-height:1.15}

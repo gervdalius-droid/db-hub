@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The nine apps — db-hub</title>
-<meta name="description" content="What each db-hub app does in a furniture workshop: CRM, Offers, Cabinet Studio, DXF Editor, Nesting, ShopFlow, Shopfloor plan, Project Overview and Requests. Real screens, what each replaces and what you get.">
+<meta name="description" content="What each db-hub app does in a furniture workshop: CRM, Offers, Cabinet Studio, DXF Editor, Nesting, ShopFlow, Shopfloor plan, Project Overview and Invoices. Real screens, what each replaces and what you get.">
 <meta property="og:title" content="The nine db-hub apps, in the order a job passes through them">
 <meta property="og:description" content="Real screens of each app, what it replaces in the workshop and what you get from it.">
 <meta name="theme-color" content="#FFF9F0">
@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=7">
+<link rel="stylesheet" href="assets/site.css?v=8">
 </head>
 <body>
 
@@ -68,7 +68,7 @@
 
 <footer><div class="wrap"><a class="logo" href="index.html">db-hub</a><nav aria-label="Footer"><a href="index.html#lab">Live demo</a><a href="index.html#pricing">Pricing</a><a href="index.html#faq">FAQ</a><a href="privacy.html">Privacy</a></nav><span id="footLine">Built in a working furniture workshop.</span></div></footer>
 
-<script src="assets/site.js?v=7"></script>
+<script src="assets/site.js?v=8"></script>
 <script>
 (function () {
   'use strict';
@@ -109,7 +109,7 @@
     $('facts').innerHTML = '<div class="swapin"><h4>Instead of</h4><p class="old">' + a.was + '</p></div>' +
       '<div class="swapin"><h4>You get</h4><ul>' + a.get.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div>' +
       '<div class="swapin"><h4>' + (a.next ? 'Hands over to' : 'Where it ends up') + '</h4>' +
-      (a.next ? '<button type="button" class="next" data-app="' + a.next[0] + '">' + a.next[1] + ' →</button>' : '<p>' + (id === 'overview' ? 'With your customer, as an answer you can send without leaving your desk.' : 'With the office, signed and filed.') + '</p>') +
+      (a.next ? '<button type="button" class="next" data-app="' + a.next[0] + '">' + a.next[1] + ' →</button>' : '<p>' + 'With your accountant, numbered and paid.' + '</p>') +
       '<h4 style="margin-top:16px">In plans</h4><div class="plans-in">' + PLAN_NAMES.slice(plan).map(function (p) { return '<span class="tag">' + p + '</span>'; }).join('') + '</div></div>';
     renderShot(); placeDetail();
     if (!opts.quiet && history.replaceState) history.replaceState(null, '', '#' + id);   // so the app can be linked to

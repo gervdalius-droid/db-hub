@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=7">
+<link rel="stylesheet" href="assets/site.css?v=8">
 </head>
 <body>
 
@@ -228,7 +228,7 @@
       <h2 class="h2">Questions workshops ask first</h2>
     </div>
     <div class="faq-list rv">
-      <details><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio writes a drilling and routing program for each part in .XXL format, used by SCM machines, and exports the part list as an Excel file (.xlsm) and as .csv. Nesting and the DXF Editor work with DXF files, which most router and saw software can open. If your machine needs another format, tell us when you start the trial.</p></details>
+      <details><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio writes a drilling and routing program for each part in .XXL format, used by SCM machines, and exports the part list as an Excel file (.xlsx) and as .csv. Nesting and the DXF Editor work with DXF files, which most router and saw software can open. If your machine needs another format, tell us when you start the trial.</p></details>
       <details><summary>Do we need to install anything?</summary><p>No. Everything runs in the browser on the office PC, a workshop tablet or the TV on the wall.</p></details>
       <details><summary>How many people can use it?</summary><p>Everyone in your workshop, at no extra cost. Workers sign in with a name and PIN, and office apps stay hidden from shop-floor logins.</p></details>
       <details><summary>Can we bring our own prices and materials?</summary><p>Yes. Quotes and cut lists use your own boards, edge banding, hardware and labour rates. Guided setup can import your existing price lists for you.</p></details>
@@ -271,7 +271,7 @@
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
-<script src="assets/site.js?v=7"></script>
+<script src="assets/site.js?v=8"></script>
 <script>
 (function () {
   'use strict';
@@ -850,7 +850,7 @@
   /* ===================== PRICING ===================== */
   var PLANS = [
     { name: 'Office', tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Try Office free', also: 'Four apps',
-      has: ['Offers', 'CRM', 'Project Overview', 'Requests'] },
+      has: ['Offers', 'CRM', 'Project Overview', 'Invoices'] },
     { name: 'Workshop', tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, also: 'Everything in Office, and',
       has: ['ShopFlow', 'Shopfloor plan', 'Nesting', 'DXF Editor', 'Label printing'] },
     { name: 'Complete', tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Try Complete free', also: 'Everything in Workshop, and',

@@ -23,9 +23,9 @@ window.DBHUB = (function () {
     { id: 'cut', n: 'Step 3', t: 'Cut', d: 'put the parts on boards' },
     { id: 'build', n: 'Step 4', t: 'Build', d: 'run the shop floor' },
     { id: 'deliver', n: 'Step 5', t: 'Deliver', d: 'know what is missing' },
-    { id: 'team', n: 'Always', t: 'Team', d: 'the paperwork around the people' }
+    { id: 'bill', n: 'Step 6', t: 'Bill', d: 'invoice it and get paid' }
   ];
-  var PLAN_OF = { crm: 0, offers: 0, overview: 0, requests: 0, shopflow: 1, plan: 1, nesting: 1, dxf: 1, studio: 2 };
+  var PLAN_OF = { crm: 0, offers: 0, overview: 0, invoices: 0, shopflow: 1, plan: 1, nesting: 1, dxf: 1, studio: 2 };
   var PLAN_NAMES = ['Office', 'Workshop', 'Complete'];
   var APPS = [
     { id: 'crm', st: 'sell', name: 'CRM', ico: '<path d="M3 4h5v16H3zM9.5 4h5v10h-5zM16 4h5v13h-5z"/>',
@@ -67,12 +67,12 @@ window.DBHUB = (function () {
       one: 'Writes one plain sentence per project: what is done and what is still missing.', old: 'calling the workshop before calling the customer back',
       was: 'A customer asks when the kitchen is ready, and the office has to go and find out.',
       get: ['Every open project on one page, late and stuck ones flagged', 'Search by project, client or number', 'Text you can copy and forward, in two languages'],
-      next: null, shots: [['project-overview', 'Status report']] },
-    { id: 'requests', st: 'team', name: 'Requests', ico: '<rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3M8 17h6"/>',
-      one: 'Holiday and day-off requests, filled in by the worker and printed ready to sign.', old: 'paper forms and a folder in the office',
-      was: 'Paper forms, a folder in the office, and a count of who is off next week done by memory.',
-      get: ['Leave and parental day-off requests filled in by the worker', 'An A4 preview that prints exactly as shown', 'A register by month you can export'],
-      next: null, shots: [['requests', 'New request']] }
+      next: ['invoices', 'A finished project is ready to invoice'], shots: [['project-overview', 'Status report']] },
+    { id: 'invoices', st: 'bill', name: 'Invoices', ico: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+      one: 'Writes VAT invoices and waybills for each job and shows who still owes you.', old: 'a Word template and a spreadsheet of unpaid bills',
+      was: 'An invoice copied into a Word template, a waybill written out separately, and a spreadsheet to remember who has not paid.',
+      get: ['VAT invoices and waybills, numbered in your own series', 'Buyer details filled in from the company register as you type', 'Payments and overdue debt on one page, and UBL e-invoices'],
+      next: null, shots: [['invoices', 'Invoice']] }
   ];
   // One line each, for the cards on the home page.
   var SHORT = {
@@ -84,7 +84,7 @@ window.DBHUB = (function () {
     shopflow: 'Tracks every part from cutting to packing.',
     plan: 'A live map of who is working where, on which job.',
     overview: 'One plain sentence per project: what is done, what is missing.',
-    requests: 'Holiday requests filled in, printed and ready to sign.'
+    invoices: 'VAT invoices, waybills and who still owes you.'
   };
   var byId = {}, stageOf = {};
   STAGES.forEach(function (s) { stageOf[s.id] = s; });

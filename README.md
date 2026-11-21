@@ -28,7 +28,7 @@ Two static pages, no build step: open `index.html` in a browser.
 **Apps (`apps.html`)**
 
 - The apps in the order a job passes through them (Sell, Design, Cut, Build, Deliver,
-  Team). Picking one shows a real screenshot (`assets/apps/`, invented sample data), what
+  Bill). Picking one shows a real screenshot (`assets/apps/`, invented sample data), what
   it replaces, what you get, which app it hands over to and which plans include it.
 
 ## Before going live
@@ -36,7 +36,7 @@ Two static pages, no build step: open `index.html` in a browser.
 - Set `CONTACT_EMAIL`, `CONTACT_PHONE` and `COMPANY_LINE` at the top of `assets/site.js`.
   While they are empty the pages simply leave them out.
 - The FAQ answers on file formats and data location were checked on 2026-11-21 against the
-  apps (Cabinet Studio: .XXL, .xlsm, .csv; Nesting and DXF Editor: DXF) and the Supabase
+  apps (Cabinet Studio: .XXL, .xlsx, .csv — checked in the deployed app, not ~/github/builder, which is older; Nesting and DXF Editor: DXF) and the Supabase
   region (eu-west-1, Ireland). Update them if the apps change.
 - Demo prices (`MATS`, `RATES` in the `index.html` script) are illustrative. Adjust if you like.
 - Privacy and terms pages are not written yet, so the footer does not link to them.
