@@ -5,422 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>db-hub — software for small furniture workshops</title>
 <meta name="description" content="Nine connected apps for small furniture workshops: quotes, cabinet design, CNC nesting, shop-floor tracking and customer follow-up. Enter a cabinet once and every app works from the same job.">
-<meta property="og:title" content="db-hub — enter a cabinet once. Quote it, cut it, build it.">
+<meta property="og:title" content="db-hub — from quote to cut list, without typing anything twice">
 <meta property="og:description" content="Nine connected apps that take a furniture job from quote, to cabinet design, to nested boards, to the shop floor. One flat price per workshop.">
 <meta name="theme-color" content="#F2F4F0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%23103A2D'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23F2F4F0'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FF5A1F'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23F2F4F0'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  /* Layout: a drawing sheet. Left-aligned grid, square corners, hairline rules and mono annotations.
-     One white workbench carries the live demo; two forest bands break the page. */
-  --paper:#F2F4F0;--sheet:#fff;--tray:#E9EDE8;--grid:#E3E8E3;
-  --ink:#0F1C17;--ink2:#3B4C45;--ink3:#5C6C65;
-  --rule:#D2D9D3;--rule2:#A9B5AE;
-  --forest:#103A2D;--forest2:#0A271E;--leaf:#1C6A4E;--mint:#DCEAE1;
-  --signal:#FF5A1F;--signal-ink:#B4380B;--signal-soft:#FFE6DA;
-  --display:'Bricolage Grotesque','Arial Narrow',system-ui,sans-serif;
-  --body:'Instrument Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
-  --r:3px;--lift:0 1px 0 rgba(15,28,23,.05),0 24px 48px -28px rgba(15,28,23,.35)
-}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
-body{margin:0;font-family:var(--body);font-size:17px;line-height:1.55;color:var(--ink);background:var(--paper);overflow-x:hidden;-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4,p,ul,ol,dl,dd,figure{margin:0}
-ul,ol{padding:0;list-style:none}
-a{color:inherit}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-img,svg{display:block;max-width:100%}
-:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
-.wrap{max-width:1320px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-.mono{font-family:var(--mono)}
-.eyebrow{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);display:flex;align-items:center;gap:10px}
-.eyebrow::before{content:'';width:22px;height:1px;background:currentColor;box-shadow:0 -3px 0 -0px transparent}
-.h2{font-family:var(--display);font-stretch:88%;font-weight:700;font-size:clamp(32px,4vw,58px);line-height:1.02;letter-spacing:-.03em;text-wrap:balance;margin-top:14px}
-.lead{font-size:19px;color:var(--ink2);max-width:60ch;margin-top:16px}
-.sec{padding-block:clamp(72px,9vw,128px)}
-.sec-h{max-width:900px}
-
-/* buttons */
-.cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:var(--r);border:1px solid transparent;font-weight:600;font-size:16px;text-decoration:none;line-height:1.2;transition:transform .15s,background .15s,border-color .15s,box-shadow .2s}
-.cta:hover{transform:translateY(-1px)}
-.cta.primary{background:var(--signal);color:var(--ink);box-shadow:0 10px 24px -12px rgba(255,90,31,.9)}
-.cta.primary:hover{background:#FF6E3A}
-.cta.line{border-color:var(--ink);background:transparent}
-.cta.line:hover{background:var(--ink);color:var(--paper)}
-.cta.dark{background:var(--ink);color:var(--paper)}
-.cta.dark:hover{background:var(--forest)}
-.cta.sm{min-height:40px;padding:0 16px;font-size:14px}
-.cta .arr{font-family:var(--mono);transition:transform .15s}
-.cta:hover .arr{transform:translateX(3px)}
-.mini{min-height:34px;padding:0 12px;border-radius:var(--r);border:1px solid var(--rule2);background:var(--sheet);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,background .15s}
-.mini:hover{border-color:var(--ink)}
-.mini.go{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.mini.go:hover{background:var(--forest)}
-.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border-radius:2px;background:var(--mint);color:var(--forest);white-space:nowrap}
-
-/* header */
-.top{position:sticky;top:0;z-index:50;background:rgba(242,244,240,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid transparent;transition:border-color .2s}
-.top.scrolled{border-bottom-color:var(--rule)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:66px}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.03em}
-.top nav{display:flex;align-items:center;gap:28px}
-.top nav a.link{text-decoration:none;font-weight:500;font-size:15px;color:var(--ink2);position:relative;padding:6px 0}
-.top nav a.link::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .2s}
-.top nav a.link:hover{color:var(--ink)}
-.top nav a.link:hover::after{transform:scaleX(1)}
-@media (max-width:900px){.top nav a.link{display:none}}
-
-/* hero */
-.hero{position:relative;padding-bottom:clamp(56px,7vw,96px)}
-.hero::before{content:'';position:absolute;inset:0 0 auto;height:620px;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px;-webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent);pointer-events:none}
-.hero-top{position:relative;display:grid;grid-template-columns:minmax(0,7.4fr) minmax(0,4.6fr);gap:32px 56px;align-items:end;padding-block:clamp(36px,5vw,72px) clamp(32px,4vw,52px)}
-@media (max-width:1040px){.hero-top{grid-template-columns:minmax(0,1fr);align-items:start}}
-h1{font-family:var(--display);font-stretch:84%;font-weight:700;font-size:clamp(40px,5.1vw,78px);line-height:.98;letter-spacing:-.035em;margin-top:20px;text-wrap:balance}
-h1 a{text-decoration:none;background:linear-gradient(var(--signal),var(--signal)) 0 92%/100% .09em no-repeat;transition:background-size .2s,color .2s;padding-bottom:.02em}
-h1 a:hover,h1 a.on{background-size:100% 100%;color:var(--ink)}
-.hero-side{display:flex;flex-direction:column;gap:22px;padding-bottom:8px}
-.sub{font-size:19px;color:var(--ink2);max-width:46ch}
-.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.facts{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--mono);font-size:12.5px;color:var(--ink3)}
-.facts li{display:flex;align-items:center;gap:7px}
-.facts li::before{content:'';width:6px;height:6px;background:var(--leaf)}
-
-/* ============ workbench (live demo) ============ */
-.bench{position:relative;background:var(--sheet);border:1px solid var(--ink);border-radius:var(--r);box-shadow:var(--lift)}
-.bench::before,.bench::after{content:'';position:absolute;width:14px;height:14px;border:1px solid var(--ink);pointer-events:none}
-.bench::before{left:-8px;top:-8px;border-right:0;border-bottom:0}
-.bench::after{right:-8px;bottom:-8px;border-left:0;border-top:0}
-.tb{display:flex;flex-wrap:wrap;align-items:stretch;border-bottom:1px solid var(--ink)}
-.tb-main{flex:1 1 380px;display:flex;align-items:center;gap:12px;padding:12px 18px;min-width:0;font-weight:600;font-size:16px}
-.live{flex:none;display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:4px 8px;border-radius:2px}
-.live i{width:7px;height:7px;border-radius:50%;background:var(--signal);animation:blink 1.6s ease-in-out infinite}
-.tb-cells{display:flex;flex-wrap:wrap;flex:0 1 auto}
-.tb-cells div{padding:8px 16px;border-left:1px solid var(--rule);min-width:92px}
-.tb-cells dt{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
-.tb-cells dd{font-family:var(--mono);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
-@media (max-width:760px){.tb-cells{width:100%;border-top:1px solid var(--rule)}.tb-cells div{flex:1 1 0;min-width:0;padding:8px 10px}.tb-cells div:first-child{border-left:0;display:none}}
-.bench-body{display:grid;grid-template-columns:minmax(0,5fr) 40px minmax(0,7fr)}
-@media (max-width:1180px){.bench-body{grid-template-columns:minmax(0,1fr)}}
-.col{padding:16px 18px 18px;min-width:0;display:flex;flex-direction:column;gap:12px}
-.col.out{background:var(--tray);border-radius:0 0 var(--r) 0}
-@media (max-width:560px){.col{padding:14px 12px 16px}}
-.col-h{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
-.col-h b{display:inline-grid;place-items:center;width:22px;height:22px;background:var(--ink);color:var(--paper);font-size:12px;border-radius:2px}
-.col-h span{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink3)}
-
-.draw{position:relative;border:1px solid var(--rule);border-radius:var(--r);background-color:#FAFBF9;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:16px 16px;overflow:hidden}
-#sketch{width:100%;height:424px}
-@media (max-width:560px){#sketch{height:300px}}
-#sketch polygon,#sketch rect{stroke:var(--ink);stroke-width:1.15;vector-effect:non-scaling-stroke;stroke-linejoin:round}
-#sketch .ns{stroke:none}
-#sketch .dim line{stroke:var(--signal);stroke-width:1.15;vector-effect:non-scaling-stroke}
-#sketch .dim .ext{stroke:var(--rule2);stroke-width:1}
-#sketch .dim text{fill:var(--signal-ink);font-family:var(--mono);font-weight:600;text-anchor:middle}
-#sketch .hot{fill:#FFB08F}
-.draw .mini{position:absolute;right:10px;top:10px}
-
-.ctrls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px}
-@media (max-width:520px){.ctrls{grid-template-columns:minmax(0,1fr)}}
-.ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
-.ctl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;font-weight:600;color:var(--ink2)}
-.ctl-h output,.ctl-h b{font-family:var(--mono);font-weight:600;font-size:13.5px;color:var(--ink);font-variant-numeric:tabular-nums}
-.hint{margin-right:auto;font-family:var(--mono);font-size:11px;font-weight:600;background:var(--signal);color:var(--ink);padding:1px 7px;border-radius:2px;animation:bob 1.3s ease-in-out infinite;transition:opacity .3s}
-.hint.gone{opacity:0}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;margin:0;background:transparent;cursor:pointer;--p:50%;--track:var(--rule)}
-input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(to right,var(--ink) var(--p),var(--track) var(--p))}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8px;border-radius:2px;background:var(--signal);border:1.5px solid var(--ink);box-shadow:0 2px 6px -2px rgba(15,28,23,.5);transition:transform .12s}
-input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12)}
-input[type=range]::-moz-range-track{height:4px;border-radius:2px;background:var(--track)}
-input[type=range]::-moz-range-progress{height:4px;border-radius:2px;background:var(--ink)}
-input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:2px;background:var(--signal);border:1.5px solid var(--ink)}
-.seg{display:flex;border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;background:var(--sheet)}
-.seg button{flex:1 1 auto;min-height:34px;padding:0 6px;border:0;border-left:1px solid var(--rule2);background:transparent;font-size:13px;font-weight:600;color:var(--ink2);white-space:nowrap;transition:background .15s,color .15s}
-.seg button:first-child{border-left:0}
-.seg button:hover{background:var(--tray)}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
-.sw{position:relative;overflow:hidden}
-.sw i{width:11px;height:11px;border:1px solid rgba(15,28,23,.45);display:inline-block;margin-right:5px;vertical-align:-1px}
-.in-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.proj{display:flex;flex-wrap:wrap;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:500;border:1px solid var(--rule2);border-radius:2px;padding:3px 4px 3px 8px;background:var(--sheet)}
-.chip i{width:8px;height:8px;display:inline-block;border:1px solid rgba(15,28,23,.4)}
-.chip button{border:0;background:transparent;color:var(--ink3);font-size:15px;line-height:1;padding:1px 5px;border-radius:2px}
-.chip button:hover{color:var(--ink);background:var(--tray)}
-.chip.draft{border-style:dashed;padding-right:8px;color:var(--ink2)}
-
-/* the wire between "you enter" and "db-hub produces" */
-.wire{position:relative;border-left:1px solid var(--rule);background:var(--tray)}
-.wire s{position:absolute;background:var(--ink3)}
-.wire .w3::after,.wire .w4::after{content:'';position:absolute;right:0;top:-3px;border:3.5px solid transparent;border-left:5px solid var(--ink3);border-right:0}
-.wire .w1{left:0;top:50%;width:50%;height:1px}
-.wire .w2{left:50%;top:26%;bottom:26%;width:1px}
-.wire .w3{left:50%;right:0;top:26%;height:1px}
-.wire .w4{left:50%;right:0;bottom:26%;height:1px}
-.wire i{position:absolute;width:7px;height:7px;margin:-3px 0 0 -3px;background:var(--signal);opacity:0;left:0;top:50%}
-.wire.go .pa{animation:pa .7s ease-in-out}
-.wire.go .pb{animation:pb .7s ease-in-out}
-@media (max-width:1180px){.wire{height:40px;border-left:0;border-top:1px solid var(--rule)}.wire s{display:none}.wire::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--rule2)}.wire i{left:50%}.wire.go .pa{animation:pv .6s ease-in-out}.wire.go .pb{animation:none}.col.out{border-radius:0 0 var(--r) var(--r)}}
-
-.docs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:1}
-@media (max-width:640px){.docs{grid-template-columns:minmax(0,1fr)}}
-.doc{container-type:inline-size;position:relative;background:var(--sheet);border:1px solid var(--rule2);border-radius:var(--r);display:flex;flex-direction:column;min-width:0;transition:box-shadow .25s,border-color .25s}
-.doc.on{border-color:var(--signal);box-shadow:0 0 0 3px var(--signal-soft)}
-.doc>header{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--rule)}
-.doc h3{font-size:14.5px;font-weight:600;min-width:0;flex:1}
-.doc .kpi{font-family:var(--mono);font-weight:600;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.doc .kpi.big{font-size:17px}
-@container (max-width:330px){.doc[data-card="labels"] .kpi{display:none}}
-.doc-b{padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;flex:1;min-width:0}
-.doc-note{font-size:12px;color:var(--ink3);line-height:1.4;margin-top:auto}
-.bump{animation:bump .35s ease}
-/* quote */
-.q{width:100%;border-collapse:collapse;font-size:13px}
-.q td{padding:3.5px 0;border-bottom:1px dotted var(--rule2)}
-.q td:last-child{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
-.q tr.tot td{border-bottom:0;border-top:1.5px solid var(--ink);font-weight:700;padding-top:7px;font-size:14px}
-/* part list */
-.pl-wrap{max-height:228px;overflow:auto;border:1px solid var(--rule);border-radius:2px;scrollbar-width:thin}
-.pl{width:100%;border-collapse:collapse;font-size:12.5px}
-.pl th{position:sticky;top:0;background:var(--tray);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;font-weight:500;color:var(--ink3);text-align:left;padding:5px 8px;z-index:1}
-.pl td{padding:4px 8px;border-top:1px solid var(--rule);white-space:nowrap}
-.pl td.nm{width:100%;max-width:0;overflow:hidden;text-overflow:ellipsis}
-.pl td.c,.pl td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.pl td.n{text-align:right}
-.pl th:nth-child(3){text-align:right}
-.pl tr.grp td{background:#F6F8F5;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ink2)}
-.pl tr[data-pid]{cursor:default;transition:background .12s}
-.pl tr.hot td{background:var(--signal-soft)}
-.eb{width:20px;height:13px}
-/* sheets */
-.nest-box{min-height:150px;display:flex;align-items:center}
-#nest{width:100%;height:auto;overflow:visible}
-.np{transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .4s}
-.np rect{stroke:var(--ink);stroke-width:1;vector-effect:non-scaling-stroke;transition:width .5s cubic-bezier(.2,.8,.2,1),height .5s cubic-bezier(.2,.8,.2,1),fill .3s,opacity .3s}
-.np text{font-family:var(--mono);font-weight:600;pointer-events:none}
-.np.new{opacity:0}
-.np.hot rect{stroke:var(--signal);stroke-width:2.5}
-.np.cut rect{opacity:.35;stroke-dasharray:4 3}
-.np.cut text{opacity:.4}
-/* label + tracking */
-.lbl{position:relative;background:#fff;border:1px solid var(--ink);border-radius:2px;padding:8px 10px 7px;font-family:var(--mono);font-size:11px;line-height:1.35;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;box-shadow:3px 3px 0 var(--rule)}
-.lbl .l-top{grid-column:1/-1;display:flex;justify-content:space-between;gap:8px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--rule);padding-bottom:4px;margin-bottom:3px}
-.lbl .l-name{font-family:var(--body);font-weight:700;font-size:16px;line-height:1.15}
-.lbl .l-dim{font-weight:600;font-size:13px}
-.lbl .l-next{color:var(--signal-ink);font-weight:600}
-.lbl svg{grid-column:2;grid-row:2/6;align-self:center;width:74px;height:52px}
-.st{display:grid;gap:5px}
-.st li{display:grid;grid-template-columns:84px minmax(0,1fr) 44px;align-items:center;gap:8px;font-size:12.5px;font-weight:500}
-.st i{height:6px;background:var(--tray);border-radius:1px;overflow:hidden;display:block}
-.st i b{display:block;height:100%;width:0;background:var(--leaf);transition:width .12s linear}
-.st em{font-family:var(--mono);font-style:normal;font-size:11.5px;text-align:right;color:var(--ink3);font-variant-numeric:tabular-nums}
-.st li.done span{color:var(--leaf)}
-.status{font-size:13px;line-height:1.4;border-left:2px solid var(--leaf);padding-left:9px}
-.status small{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
-.bench-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 20px;padding:11px 18px;border-top:1px solid var(--ink);font-size:14px;color:var(--ink2)}
-.bench-foot b{color:var(--ink)}
-.nudge{display:none;align-items:center;gap:12px;flex-wrap:wrap}
-.nudge.on{display:flex;animation:fadeup .4s ease}
-.toast{position:absolute;left:50%;bottom:64px;transform:translate(-50%,16px);opacity:0;background:var(--ink);color:var(--paper);font-weight:500;font-size:14px;padding:10px 16px;border-radius:var(--r);pointer-events:none;transition:opacity .25s,transform .25s;max-width:calc(100% - 32px);text-align:center;z-index:5}
-.toast.on{opacity:1;transform:translate(-50%,0)}
-
-/* ============ apps explorer ============ */
-.path{position:relative;display:flex;gap:0;margin-top:40px;border:1px solid var(--ink);border-radius:var(--r);background:var(--sheet);overflow-x:auto;scrollbar-width:none}
-.path::-webkit-scrollbar{display:none}
-.path button{flex:1 0 auto;min-height:58px;padding:8px 18px;border:0;border-left:1px solid var(--rule);background:transparent;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px;transition:background .2s,color .2s;min-width:118px}
-.path button:first-child{border-left:0}
-.path button small{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);transition:color .2s}
-.path button b{font-family:var(--display);font-stretch:90%;font-size:19px;font-weight:700;letter-spacing:-.01em}
-.path button:hover{background:var(--tray)}
-.path button[aria-pressed="true"]{background:var(--forest);color:var(--paper)}
-.path button[aria-pressed="true"] small{color:#9FC3B2}
-.ex{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:36px;margin-top:28px;align-items:start}
-@media (max-width:980px){.ex{grid-template-columns:minmax(0,1fr)}}
-.ex-list{display:flex;flex-direction:column}
-.grp-h{display:flex;align-items:baseline;gap:10px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);padding:18px 0 8px;border-bottom:1px solid var(--ink)}
-.grp-h:first-child{padding-top:0}
-.grp-h b{color:var(--ink);font-weight:600}
-.app{display:grid;grid-template-columns:40px minmax(0,1fr) 16px;gap:14px;align-items:start;width:100%;text-align:left;padding:14px 12px 14px 0;border:0;border-bottom:1px solid var(--rule);background:transparent;position:relative;transition:background .2s,padding .2s}
-.app::before{content:'';position:absolute;left:-14px;top:-1px;bottom:-1px;width:3px;background:var(--signal);transform:scaleY(0);transition:transform .2s}
-.app:hover{background:rgba(255,255,255,.6)}
-.app[aria-pressed="true"]{background:var(--sheet);padding-left:12px}
-.app[aria-pressed="true"]::before{transform:scaleY(1);left:0}
-.app-ico{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--rule2);border-radius:var(--r);background:var(--sheet);color:var(--forest);transition:background .2s,color .2s,border-color .2s}
-.app[aria-pressed="true"] .app-ico{background:var(--forest);border-color:var(--forest);color:var(--paper)}
-.app-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
-.app-t b{display:block;font-family:var(--display);font-stretch:90%;font-weight:700;font-size:21px;letter-spacing:-.015em;line-height:1.15}
-.app-t span{display:block;font-size:15px;color:var(--ink2);line-height:1.4;margin-top:3px}
-.app-t em{display:block;font-style:normal;font-family:var(--mono);font-size:11.5px;color:var(--ink3);margin-top:6px}
-.app-t em i{font-style:normal;color:var(--signal-ink);font-weight:600;margin-right:4px}
-.app .chev{font-family:var(--mono);color:var(--rule2);align-self:center;transition:transform .2s,color .2s}
-.app[aria-pressed="true"] .chev{color:var(--signal);transform:translateX(3px)}
-.ex-detail{position:sticky;top:90px;min-width:0}
-@media (max-width:980px){.ex-detail{position:static;margin:14px 0 22px}}
-.frame{border:1px solid var(--ink);border-radius:var(--r);background:var(--sheet);box-shadow:var(--lift);overflow:hidden}
-.frame-bar{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid var(--ink);font-size:13.5px;min-width:0}
-.frame-bar .dots{display:flex;gap:5px;flex:none}
-.frame-bar .dots i{width:9px;height:9px;border:1px solid var(--rule2);border-radius:50%}
-.frame-bar b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.frame-bar .tag{margin-left:auto}
-@media (max-width:520px){.frame-bar .tag{display:none}}
-.shot-btn{display:block;width:100%;padding:0;border:0;background:#E6E8E3;cursor:zoom-in;aspect-ratio:1280/800;overflow:hidden}
-.shot-btn img{width:100%;height:100%;object-fit:cover;object-position:top;transition:opacity .25s,transform .5s cubic-bezier(.2,.8,.2,1)}
-.shot-btn img.swap{opacity:0;transform:scale(1.015)}
-.frame-foot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 12px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--ink3)}
-.frame-foot .seg{flex:none}
-.frame-foot .seg button{min-height:30px;padding:0 12px}
-.frame-foot span{margin-left:auto}
-.facts3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:16px;border:1px solid var(--rule2);border-radius:var(--r);background:var(--sheet)}
-@media (max-width:640px){.facts3{grid-template-columns:minmax(0,1fr)}}
-.facts3>div{padding:16px 18px;border-left:1px solid var(--rule);min-width:0}
-.facts3>div:first-child{border-left:0}
-@media (max-width:640px){.facts3>div{border-left:0;border-top:1px solid var(--rule)}.facts3>div:first-child{border-top:0}}
-.facts3 h4{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.09em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px}
-.facts3 p,.facts3 li{font-size:15px;line-height:1.45;color:var(--ink2)}
-.facts3 .old{color:var(--ink);font-weight:500}
-.facts3 ul{display:grid;gap:6px}
-.facts3 li{display:grid;grid-template-columns:14px minmax(0,1fr);gap:8px;color:var(--ink)}
-.facts3 li::before{content:'';width:9px;height:5px;border-left:2px solid var(--leaf);border-bottom:2px solid var(--leaf);transform:rotate(-45deg);margin-top:7px}
-.facts3 .next{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;padding:0;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--signal);text-decoration-thickness:2px;text-underline-offset:3px;font-size:15px;text-align:left}
-.facts3 .plans-in{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
-.swapin{animation:fadeup .3s ease}
-.zoom{padding:0;border:1px solid var(--ink);border-radius:var(--r);background:var(--sheet);max-width:min(96vw,1400px);width:96vw}
-.zoom::backdrop{background:rgba(10,20,16,.82)}
-.zoom img{width:100%;height:auto}
-.zoom form{padding:10px;display:flex;justify-content:flex-end;border-top:1px solid var(--rule)}
-
-/* ============ value band ============ */
-.band{background:var(--forest);color:var(--paper);position:relative}
-.band .eyebrow{color:#9FC3B2}
-.band .lead{color:#C5D8CE}
-.cmp{margin-top:44px;border-top:1px solid rgba(242,244,240,.9)}
-.cmp-h,.cmp-r{display:grid;grid-template-columns:130px minmax(0,3fr) 24px minmax(0,4fr) 150px;gap:8px 20px;align-items:center;padding:16px 0;border-bottom:1px solid rgba(242,244,240,.16)}
-.cmp-h{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9FC3B2;padding:10px 0}
-.cmp-r .what{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#9FC3B2}
-.cmp-r .old{color:#A9BFB4;text-decoration:line-through;text-decoration-color:rgba(255,90,31,.7);text-decoration-thickness:1px}
-.cmp-r .ar{font-family:var(--mono);color:var(--signal)}
-.cmp-r .new{font-size:19px;font-weight:600;line-height:1.3}
-.cmp-r button{justify-self:end;border:1px solid rgba(242,244,240,.35);background:transparent;color:var(--paper);border-radius:2px;font-family:var(--mono);font-size:11.5px;font-weight:500;padding:5px 9px;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}
-.cmp-r button:hover{background:var(--paper);color:var(--forest);border-color:var(--paper)}
-@media (max-width:860px){.cmp-h{display:none}.cmp-r{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px}.cmp-r .what,.cmp-r .old,.cmp-r .new{grid-column:1}.cmp-r .ar{display:none}.cmp-r button{grid-column:2;grid-row:1/4;align-self:center}}
-.roi{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);margin-top:56px;border:1px solid rgba(242,244,240,.9);border-radius:var(--r);overflow:hidden}
-@media (max-width:860px){.roi{grid-template-columns:minmax(0,1fr)}}
-.roi-in{padding:28px;display:flex;flex-direction:column;gap:18px;min-width:0}
-.roi-in h3{font-family:var(--display);font-stretch:90%;font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.roi-in .ctl-h{color:#C5D8CE;font-weight:500;font-size:14px}
-.roi-in .ctl-h b{color:var(--paper)}
-.roi-in input[type=range]{--track:rgba(242,244,240,.22)}
-.roi-in input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(to right,var(--paper) var(--p),var(--track) var(--p))}
-.roi-in input[type=range]::-moz-range-progress{background:var(--paper)}
-.roi-out{padding:28px;background:var(--paper);color:var(--ink);display:flex;flex-direction:column;gap:18px;justify-content:center;min-width:0}
-.roi-out .big{font-family:var(--display);font-stretch:84%;font-weight:700;font-size:clamp(56px,7vw,104px);letter-spacing:-.04em;line-height:.9}
-.roi-out .lbl2{font-size:15px;color:var(--ink2)}
-.roi-out .pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--ink);padding-top:16px}
-.roi-out .pair b{display:block;font-family:var(--display);font-stretch:88%;font-size:34px;letter-spacing:-.02em;line-height:1.1}
-.roi-out .note{font-size:13px;color:var(--ink3)}
-
-/* ============ pricing ============ */
-.controls{display:flex;flex-wrap:wrap;align-items:center;gap:18px 40px;margin:36px 0 24px}
-.seg.big button{min-height:44px;padding:0 18px;font-size:15px}
-.people{flex:1 1 340px;min-width:0;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-weight:600;font-size:15px}
-.people input{flex:1 1 180px;min-width:0}
-.people output{font-family:var(--mono);font-weight:600;font-size:22px;min-width:36px;text-align:right}
-.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--ink);border-radius:var(--r);background:var(--sheet);box-shadow:var(--lift)}
-@media (max-width:920px){.plans{grid-template-columns:minmax(0,1fr)}}
-.plan{padding:26px;display:flex;flex-direction:column;gap:16px;border-left:1px solid var(--rule);min-width:0;position:relative}
-.plan:first-child{border-left:0}
-@media (max-width:920px){.plan{border-left:0;border-top:1px solid var(--rule)}.plan:first-child{border-top:0}}
-.plan.feat{background:var(--forest);color:var(--paper);margin:-10px 0;border-radius:var(--r);border-left:0;box-shadow:0 30px 60px -30px rgba(16,58,45,.7);z-index:1}
-@media (max-width:920px){.plan.feat{margin:0 -1px}}
-.plan-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.plan-name{font-family:var(--display);font-stretch:90%;font-weight:700;font-size:26px;letter-spacing:-.02em}
-.plan .muted{color:var(--ink3);font-size:15px}
-.plan.feat .muted{color:#B5CFC2}
-.plan.feat .tag{background:var(--signal);color:var(--ink)}
-.price{display:flex;align-items:baseline;gap:8px}
-.price b{font-family:var(--display);font-stretch:84%;font-weight:700;font-size:60px;letter-spacing:-.04em;line-height:.95}
-.pp{font-family:var(--mono);font-size:13px;font-weight:600;margin-top:8px}
-.plan-apps{display:grid;gap:0;border-top:1px solid var(--rule);font-size:14.5px}
-.plan.feat .plan-apps{border-top-color:rgba(242,244,240,.25)}
-.plan-apps li{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule)}
-.plan.feat .plan-apps li{border-bottom-color:rgba(242,244,240,.14)}
-.plan-apps li::before{content:'';width:10px;height:6px;border-left:2px solid var(--leaf);border-bottom:2px solid var(--leaf);transform:rotate(-45deg) translateY(-2px);justify-self:center}
-.plan.feat .plan-apps li::before{border-color:var(--signal)}
-.plan-apps li.no{color:#84918A}
-.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.plan.feat .plan-apps li.no{color:rgba(242,244,240,.35)}
-.plan-apps li.no::before{width:8px;height:0;border-left:0;border-bottom:1.5px solid currentColor;transform:none}
-.plan-apps li.extra{font-weight:600}
-.plan .cta{margin-top:auto}
-.plan.feat .cta.dark{background:var(--signal);color:var(--ink)}
-.plan.feat .cta.dark:hover{background:#FF6E3A}
-.once{margin-top:34px;padding:22px 26px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 28px;border:1px dashed var(--rule2);border-radius:var(--r)}
-.once>div{flex:1 1 420px;min-width:0;color:var(--ink2);font-size:16px}
-.once h3{font-family:var(--display);font-stretch:90%;font-weight:700;font-size:21px;color:var(--ink);margin-bottom:2px}
-.small{font-size:14px;color:var(--ink3)}
-
-/* ============ faq ============ */
-.faq-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:32px 56px;align-items:start}
-@media (max-width:900px){.faq-grid{grid-template-columns:minmax(0,1fr)}}
-.faq-list{border-top:1px solid var(--ink)}
-.faq-list details{border-bottom:1px solid var(--rule)}
-.faq-list summary{list-style:none;min-height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:19px;font-weight:600;cursor:pointer;padding:12px 0}
-.faq-list summary::-webkit-details-marker{display:none}
-.faq-list summary::after{content:'+';flex:none;font-family:var(--mono);font-size:22px;font-weight:400;color:var(--signal-ink);transition:transform .2s}
-.faq-list details[open] summary::after{transform:rotate(45deg)}
-.faq-list details p{padding:0 44px 22px 0;color:var(--ink2);max-width:64ch}
-
-/* ============ start ============ */
-.final .wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:40px 64px;align-items:start}
-@media (max-width:920px){.final .wrap{grid-template-columns:minmax(0,1fr)}}
-.final .l{color:#C5D8CE;font-size:19px;margin-top:16px;max-width:44ch}
-.final ol{margin-top:30px;counter-reset:s;display:flex;flex-direction:column;border-top:1px solid rgba(242,244,240,.2)}
-.final ol li{counter-increment:s;display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:baseline;color:#C5D8CE;padding:14px 0;border-bottom:1px solid rgba(242,244,240,.2)}
-.final ol li::before{content:counter(s);font-family:var(--mono);font-weight:600;font-size:13px;color:var(--signal)}
-.final ol b{color:var(--paper);font-weight:600}
-.final .contact{font-size:15px;color:#C5D8CE;margin-top:22px}
-form.start{background:var(--sheet);color:var(--ink);border-radius:var(--r);padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:14px;box-shadow:0 40px 80px -40px rgba(0,0,0,.6)}
-@media (max-width:560px){form.start{grid-template-columns:minmax(0,1fr);padding:20px}}
-form.start .full{grid-column:1/-1}
-form.start label{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:600;min-width:0}
-form.start input,form.start select,form.start textarea{width:100%;min-height:48px;border:1px solid var(--rule2);border-radius:var(--r);background:#FBFCFA;padding:10px 12px;font-size:16px;transition:border-color .15s,box-shadow .15s}
-form.start textarea{min-height:88px;resize:vertical}
-form.start input:focus,form.start select:focus,form.start textarea:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px var(--signal-soft)}
-form.start .attach{flex-direction:row;align-items:center;gap:10px;font-weight:500;background:var(--tray);border-radius:var(--r);padding:10px 12px}
-form.start .attach input{width:20px;min-height:20px;height:20px;flex:none;accent-color:var(--forest)}
-form.start .cta{width:100%;font-size:17px;min-height:56px}
-form.start .fine{font-size:13px;color:var(--ink3)}
-footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;font-size:14px;color:var(--ink3);padding-block:28px}
-footer .logo{font-size:18px;color:var(--ink)}
-
-/* sticky mobile cta */
-.dock{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:60;display:none;gap:8px;padding:8px;border-radius:var(--r);background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--ink);transform:translateY(160%);transition:transform .3s}
-.dock.on{transform:none}
-.dock .cta{flex:1;min-height:46px;padding:0 12px;font-size:15px}
-@media (max-width:760px){.dock{display:flex}footer .wrap{padding-bottom:96px}}
-
-/* reveal */
-.js .rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.2,1)}
-.js .rv.in{opacity:1;transform:none}
-
-@keyframes blink{50%{opacity:.25}}
-@keyframes bob{50%{transform:translateX(4px)}}
-@keyframes bump{40%{transform:scale(1.07)}}
-@keyframes fadeup{from{opacity:0;transform:translateY(8px)}}
-@keyframes pa{0%{left:0;top:50%;opacity:1}35%{left:50%;top:50%}70%{left:50%;top:26%}100%{left:100%;top:26%;opacity:1}}
-@keyframes pb{0%{left:0;top:50%;opacity:1}35%{left:50%;top:50%}70%{left:50%;top:74%}100%{left:100%;top:74%;opacity:1}}
-@keyframes pv{0%{top:0;opacity:1}100%{top:100%;opacity:1}}
-@media (prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .js .rv{opacity:1;transform:none}
-}
-</style>
+<link rel="stylesheet" href="assets/site.css?v=2">
 </head>
 <body>
 
@@ -431,9 +23,7 @@ footer .logo{font-size:18px;color:var(--ink)}
       db-hub
     </a>
     <nav>
-      <a class="link" href="#lab">Live demo</a>
-      <a class="link" href="#apps">The nine apps</a>
-      <a class="link" href="#value">What changes</a>
+      <a class="link keep" href="apps.html">The nine apps</a>
       <a class="link" href="#pricing">Pricing</a>
       <a class="link" href="#faq">FAQ</a>
       <a class="cta primary sm" href="#start">Start free trial</a>
@@ -444,36 +34,23 @@ footer .logo{font-size:18px;color:var(--ink)}
 <main>
 <section id="top" class="hero">
   <div class="wrap hero-top">
-    <div>
-      <p class="eyebrow">Software for small furniture workshops</p>
-      <h1>Enter a cabinet once. Get the <a href="#lab" data-out="quote">quote</a>, the <a href="#lab" data-out="parts">cut&nbsp;list</a>, the <a href="#lab" data-out="sheets">nested sheets</a> and the <a href="#lab" data-out="labels">labels</a>.</h1>
+    <p class="eyebrow">Software for small furniture workshops</p>
+    <h1>From quote to cut list, <br>without typing anything twice.</h1>
+    <p class="sub">db-hub is nine connected apps for quoting, cabinet design, nesting and shop-floor tracking. Enter a cabinet once and every step works from the same numbers.</p>
+    <div class="row">
+      <a class="cta primary" href="#start">Start 5-day free trial <span class="arr" aria-hidden="true">→</span></a>
+      <a class="cta line" href="apps.html">See the nine apps</a>
     </div>
-    <div class="hero-side">
-      <p class="sub">db-hub is nine connected apps for furniture makers: quoting, cabinet design, CNC nesting, shop-floor tracking and customer follow-up. They all work on the same job, so the size typed in the office is the size that reaches the saw.</p>
-      <div class="row">
-        <a class="cta primary" href="#start">Start 5-day free trial <span class="arr" aria-hidden="true">→</span></a>
-        <a class="cta line" href="#apps">See the nine apps</a>
-      </div>
-      <ul class="facts">
-        <li>Runs in the browser</li>
-        <li>Unlimited workers on every plan</li>
-        <li>English and Lithuanian</li>
-      </ul>
-    </div>
+    <ul class="facts">
+      <li>Made by a furniture workshop</li>
+      <li>Runs in the browser</li>
+      <li>Unlimited people on every plan</li>
+    </ul>
   </div>
 
   <div class="wrap">
-    <div class="bench" id="lab" aria-label="Live demo: one cabinet becomes a quote, a part list, nested sheets and labels">
-      <div class="tb">
-        <div class="tb-main"><span class="live"><i></i>Live demo</span><span>Change the cabinet. Four apps do their part.</span></div>
-        <dl class="tb-cells" aria-live="polite">
-          <div><dt>Project</dt><dd>Kitchen demo</dd></div>
-          <div><dt>Cabinets</dt><dd id="tCabs">0</dd></div>
-          <div><dt>Parts</dt><dd id="tParts">0</dd></div>
-          <div><dt>Sheets</dt><dd id="tSheets">0</dd></div>
-          <div><dt>Quote</dt><dd id="tQuote">€0</dd></div>
-        </dl>
-      </div>
+    <div class="bench" id="lab" aria-label="Live demo: one cabinet becomes a quote, a cut list, nested sheets and labels">
+      <div class="bench-head"><span class="live"><i></i>Live demo</span><span>Change the cabinet. The quote, cut list, sheets and labels follow.</span></div>
 
       <div class="bench-body">
         <div class="col in">
@@ -484,18 +61,6 @@ footer .logo{font-size:18px;color:var(--ink)}
           </div>
           <div class="ctrls">
             <div class="ctl">
-              <div class="ctl-h"><span>Cabinet type</span></div>
-              <div class="seg" id="cType" role="group" aria-label="Cabinet type">
-                <button type="button" data-v="base" aria-pressed="true">Base</button>
-                <button type="button" data-v="wall" aria-pressed="false">Wall</button>
-                <button type="button" data-v="tall" aria-pressed="false">Tall</button>
-              </div>
-            </div>
-            <div class="ctl">
-              <div class="ctl-h"><span>Board, 18 mm</span></div>
-              <div class="seg" id="cMat" role="group" aria-label="Board decor"></div>
-            </div>
-            <div class="ctl">
               <div class="ctl-h"><label for="cW">Width</label><span class="hint" id="hint" aria-hidden="true">← drag</span><output id="oW" for="cW">600</output></div>
               <input id="cW" type="range" min="300" max="1200" step="50" value="600">
             </div>
@@ -504,62 +69,77 @@ footer .logo{font-size:18px;color:var(--ink)}
               <input id="cH" type="range" min="300" max="2400" step="10" value="720">
             </div>
             <div class="ctl">
-              <div class="ctl-h"><label for="cD">Depth</label><output id="oD" for="cD">560</output></div>
-              <input id="cD" type="range" min="250" max="650" step="10" value="560">
+              <div class="ctl-h"><span>Board, 18 mm</span></div>
+              <div class="seg" id="cMat" role="group" aria-label="Board decor"></div>
             </div>
-            <div class="ctl">
-              <div class="ctl-h"><label for="cS">Shelves</label><output id="oS" for="cS">1</output></div>
-              <input id="cS" type="range" min="0" max="6" step="1" value="1">
+            <div class="ctl end">
+              <button type="button" class="mini" id="moreBtn" aria-expanded="false" aria-controls="more">More options +</button>
             </div>
           </div>
-          <div class="in-actions">
-            <button type="button" class="mini go" id="addBtn">+ Add to kitchen</button>
-            <button type="button" class="mini" id="resetBtn">Reset</button>
+          <div class="more" id="more" hidden>
+            <div class="ctrls">
+              <div class="ctl">
+                <div class="ctl-h"><span>Cabinet type</span></div>
+                <div class="seg" id="cType" role="group" aria-label="Cabinet type">
+                  <button type="button" data-v="base" aria-pressed="true">Base</button>
+                  <button type="button" data-v="wall" aria-pressed="false">Wall</button>
+                  <button type="button" data-v="tall" aria-pressed="false">Tall</button>
+                </div>
+              </div>
+              <div class="ctl">
+                <div class="ctl-h"><label for="cS">Shelves</label><output id="oS" for="cS">1</output></div>
+                <input id="cS" type="range" min="0" max="6" step="1" value="1">
+              </div>
+              <div class="ctl">
+                <div class="ctl-h"><label for="cD">Depth</label><output id="oD" for="cD">560</output></div>
+                <input id="cD" type="range" min="250" max="650" step="10" value="560">
+              </div>
+              <div class="ctl end">
+                <div class="in-actions">
+                  <button type="button" class="mini go" id="addBtn">+ Add another cabinet</button>
+                  <button type="button" class="mini" id="resetBtn">Reset</button>
+                </div>
+              </div>
+            </div>
+            <div class="proj" id="proj"></div>
           </div>
-          <div class="proj" id="proj"></div>
         </div>
-
-        <div class="wire" id="wire" aria-hidden="true"><s class="w1"></s><s class="w2"></s><s class="w3"></s><s class="w4"></s><i class="pa"></i><i class="pb"></i></div>
 
         <div class="col out">
           <div class="col-h"><b>2</b>db-hub produces the rest<span>nothing typed twice</span></div>
-          <div class="docs">
-            <article class="doc" data-card="quote">
-              <header><span class="tag">Offers</span><h3>The quote</h3><span class="kpi big" id="kPrice">€0</span></header>
-              <div class="doc-b">
-                <table class="q" id="bdTable"></table>
-                <p class="doc-note">Example rates. Your quotes use your own board, hardware and labour prices.</p>
-              </div>
-            </article>
-            <article class="doc" data-card="parts">
-              <header><span class="tag">Cabinet Studio</span><h3>Part list</h3><span class="kpi" id="kParts">0 parts</span></header>
-              <div class="doc-b">
-                <div class="pl-wrap" id="plWrap"><table class="pl"><thead><tr><th>Code</th><th>Part</th><th>L × W</th><th>Edge</th></tr></thead><tbody id="plBody"></tbody></table></div>
-                <div class="row" style="justify-content:space-between;gap:8px"><span class="doc-note" id="plNote" style="margin:0"></span><button type="button" class="mini" id="csvBtn">⤓ Cut list .csv</button></div>
-              </div>
-            </article>
-            <article class="doc" data-card="sheets">
-              <header><span class="tag">Nesting</span><h3>Sheets</h3><span class="kpi" id="kSheets">0</span></header>
-              <div class="doc-b">
-                <div class="nest-box"><svg id="nest" role="img" aria-label="Parts nested on 2800 by 2070 mm boards"></svg></div>
-                <p class="doc-note">Board 2800 × 2070 · trim 10 · kerf 4 · one decor per sheet</p>
-              </div>
-            </article>
-            <article class="doc" data-card="labels">
-              <header><span class="tag">ShopFlow</span><h3>Labels and tracking</h3><span class="kpi" id="kLabels">0 labels</span></header>
-              <div class="doc-b">
-                <div class="lbl" id="lbl"></div>
-                <ol class="st" id="stations"></ol>
-                <div class="row" style="gap:8px"><button type="button" class="mini go" id="runBtn">▶ Run the job</button><span class="doc-note" style="margin:0">Plays the shop floor.</span></div>
-                <p class="status" aria-live="polite"><small>Project Overview says</small><span id="statusLine"></span></p>
-              </div>
-            </article>
+          <div class="tabs" id="tabs" role="group" aria-label="What db-hub produces from the cabinet">
+            <button type="button" data-tab="quote" aria-pressed="true"><small>Quote</small><b id="kPrice">€0</b></button>
+            <button type="button" data-tab="parts" aria-pressed="false"><small>Cut list</small><b id="kParts">0 parts</b></button>
+            <button type="button" data-tab="sheets" aria-pressed="false"><small>Sheets</small><b id="kSheets">0</b></button>
+            <button type="button" data-tab="labels" aria-pressed="false"><small>Labels</small><b id="kLabels">0 labels</b></button>
+          </div>
+          <div class="panel" data-panel="quote">
+            <div class="panel-h"><span class="tag">Offers</span>The quote, line by line</div>
+            <table class="q" id="bdTable"></table>
+            <p class="doc-note">Example rates. Your quotes use your own board, hardware and labour prices.</p>
+          </div>
+          <div class="panel" data-panel="parts" hidden>
+            <div class="panel-h"><span class="tag">Cabinet Studio</span>Every part, with its edge banding</div>
+            <div class="pl-wrap" id="plWrap"><table class="pl"><thead><tr><th>Code</th><th>Part</th><th>L × W</th><th>Edge</th></tr></thead><tbody id="plBody"></tbody></table></div>
+            <div class="row" style="justify-content:space-between;gap:8px;margin-top:auto"><span class="doc-note" id="plNote" style="margin:0"></span><button type="button" class="mini" id="csvBtn">⤓ Cut list .csv</button></div>
+          </div>
+          <div class="panel" data-panel="sheets" hidden>
+            <div class="panel-h"><span class="tag">Nesting</span>The parts laid out on boards</div>
+            <div class="nest-box"><svg id="nest" role="img" aria-label="Parts nested on 2800 by 2070 mm boards"></svg></div>
+            <p class="doc-note" id="nestNote"></p>
+          </div>
+          <div class="panel" data-panel="labels" hidden>
+            <div class="panel-h"><span class="tag">ShopFlow</span>A label per part, tracked through the floor</div>
+            <div class="lbl" id="lbl"></div>
+            <ol class="st" id="stations"></ol>
+            <div class="row" style="gap:8px"><button type="button" class="mini go" id="runBtn">▶ Run the job</button><span class="doc-note" style="margin:0">Plays the shop floor.</span></div>
+            <p class="status" aria-live="polite"><small>Project Overview says</small><span id="statusLine"></span></p>
           </div>
         </div>
       </div>
 
       <div class="bench-foot">
-        <span id="benchNote">A small demo with example prices. Hover a part to follow it from the drawing to the sheet to its label.</span>
+        <span id="benchNote">A small demo with example prices. The real apps use your own materials, rates and machines.</span>
         <div class="nudge" id="nudge"><span>That took <b id="nudgeT">a few seconds</b>. Now try it with your own price list and your own CNC.</span><a class="cta primary sm" href="#start" data-attach="1">Start free trial</a></div>
       </div>
       <div class="toast" id="toast" role="status"></div>
@@ -572,57 +152,50 @@ footer .logo{font-size:18px;color:var(--ink)}
     <div class="sec-h rv">
       <p class="eyebrow">The nine apps</p>
       <h2 class="h2">Nine apps. Each one does one job in the workshop.</h2>
-      <p class="lead">They are listed in the order a job passes through them, from the first phone call to the van. Pick an app to see the real screen, what it replaces and what you get.</p>
+      <p class="lead">They follow a job from the first phone call to the van, and each hands its result to the next.</p>
     </div>
-    <div class="path rv" id="path" role="group" aria-label="Steps of a job"></div>
-    <div class="ex rv" id="ex">
-      <div class="ex-list" id="exList"></div>
-      <div class="ex-detail" id="exDetail" aria-live="polite">
-        <figure class="frame">
-          <figcaption class="frame-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><b id="shotName"></b><span class="tag">Real screen · sample data</span></figcaption>
-          <button type="button" class="shot-btn" id="shotBtn" aria-label="Enlarge this screenshot"><img id="shotImg" alt="" width="1280" height="800" decoding="async"></button>
-          <div class="frame-foot"><div class="seg" id="shotTabs" role="group" aria-label="Screens"></div><span>Click the picture to enlarge</span></div>
-        </figure>
-        <div class="facts3" id="facts"></div>
-      </div>
+    <div class="cards rv" id="cards"></div>
+    <div class="after-cards rv">
+      <span>Real screens, what each app replaces and what you get from it:</span>
+      <a class="cta line sm" href="apps.html">See what each app does <span class="arr" aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
-<dialog class="zoom" id="zoom" aria-label="Screenshot, enlarged"><img id="zoomImg" alt=""><form method="dialog"><button class="mini" autofocus>Close</button></form></dialog>
 
 <section id="value" class="band sec">
   <div class="wrap">
     <div class="sec-h rv">
       <p class="eyebrow">What changes</p>
       <h2 class="h2">Less typing. Fewer walks to the floor.</h2>
-      <p class="lead">Most small workshops run on Excel, paper cut lists and questions shouted across the hall. Here is what each of those turns into.</p>
     </div>
     <div class="cmp rv">
       <div class="cmp-h"><span></span><span>Today</span><span></span><span>With db-hub</span><span></span></div>
-      <div class="cmp-r"><span class="what">A quote</span><span class="old">Rebuilt in Excel for every kitchen</span><span class="ar" aria-hidden="true">→</span><span class="new">Priced cabinet by cabinet from your own material and labour rates</span><button type="button" data-goto="offers">Offers</button></div>
-      <div class="cmp-r"><span class="what">A cut list</span><span class="old">Copied by hand from the drawing</span><span class="ar" aria-hidden="true">→</span><span class="new">Comes out of the cabinet design, with the CNC programs</span><button type="button" data-goto="studio">Cabinet Studio</button></div>
-      <div class="cmp-r"><span class="what">The boards</span><span class="old">Laid out by eye at the saw</span><span class="ar" aria-hidden="true">→</span><span class="new">Nested for you, with a printed label on every part</span><button type="button" data-goto="nesting">Nesting</button></div>
-      <div class="cmp-r"><span class="what">"Is it done?"</span><span class="old">Walk to the floor and ask</span><span class="ar" aria-hidden="true">→</span><span class="new">Each project reads as one sentence: what is done, what is missing</span><button type="button" data-goto="overview">Project Overview</button></div>
-      <div class="cmp-r"><span class="what">A new worker</span><span class="old">Another licence to pay for</span><span class="ar" aria-hidden="true">→</span><span class="new">A name and a PIN. Extra people cost nothing</span><button type="button" data-goto="shopflow">ShopFlow</button></div>
+      <div class="cmp-r"><span class="what">A quote</span><span class="old">Rebuilt in Excel for every kitchen</span><span class="ar" aria-hidden="true">→</span><span class="new">Priced cabinet by cabinet from your own material and labour rates</span><a href="apps.html#offers">Offers</a></div>
+      <div class="cmp-r"><span class="what">A cut list</span><span class="old">Copied by hand from the drawing</span><span class="ar" aria-hidden="true">→</span><span class="new">Comes out of the cabinet design, with the CNC programs</span><a href="apps.html#studio">Cabinet Studio</a></div>
+      <div class="cmp-r"><span class="what">The boards</span><span class="old">Laid out by eye at the saw</span><span class="ar" aria-hidden="true">→</span><span class="new">Nested for you, with a printed label on every part</span><a href="apps.html#nesting">Nesting</a></div>
+      <div class="cmp-r"><span class="what">"Is it done?"</span><span class="old">Walk to the floor and ask</span><span class="ar" aria-hidden="true">→</span><span class="new">Each project reads as one sentence: what is done, what is missing</span><a href="apps.html#overview">Project Overview</a></div>
+      <div class="cmp-r"><span class="what">A new worker</span><span class="old">Another licence to pay for</span><span class="ar" aria-hidden="true">→</span><span class="new">A name and a PIN. Extra people cost nothing</span><a href="apps.html#shopflow">ShopFlow</a></div>
     </div>
 
-    <div class="roi rv" id="roi">
-      <div class="roi-in">
-        <h3>What is the re-typing costing you?</h3>
-        <div class="ctl"><div class="ctl-h"><label for="rJobs">Kitchens or cabinet jobs a month</label><b id="oJobs"></b></div><input id="rJobs" type="range" min="1" max="40" value="8"></div>
-        <div class="ctl"><div class="ctl-h"><label for="rHrs">Office hours per job: quote, cut list, re-entry, status calls</label><b id="oHrs"></b></div><input id="rHrs" type="range" min="1" max="20" value="6"></div>
-        <div class="ctl"><div class="ctl-h"><label for="rRate">Cost of an hour, €</label><b id="oRate"></b></div><input id="rRate" type="range" min="10" max="60" value="25"></div>
-        <div class="ctl"><div class="ctl-h"><label for="rCut">Share of that time you think goes away</label><b id="oCut"></b></div><input id="rCut" type="range" min="10" max="80" step="5" value="40"></div>
-      </div>
-      <div class="roi-out" aria-live="polite">
-        <div><div class="big" id="rHours">0 h</div><div class="lbl2">back every month</div></div>
-        <div class="pair">
-          <div><b id="rEur">€0</b><span class="lbl2">worth of time a month</span></div>
-          <div><b id="rX">0×</b><span class="lbl2">the Workshop plan (€89/mo)</span></div>
+    <details class="roi-d rv">
+      <summary>What is the re-typing costing you? Work it out</summary>
+      <div class="roi" id="roi">
+        <div class="roi-in">
+          <div class="ctl"><div class="ctl-h"><label for="rJobs">Kitchens or cabinet jobs a month</label><b id="oJobs"></b></div><input id="rJobs" type="range" min="1" max="40" value="8"></div>
+          <div class="ctl"><div class="ctl-h"><label for="rHrs">Office hours per job: quote, cut list, re-entry, status calls</label><b id="oHrs"></b></div><input id="rHrs" type="range" min="1" max="20" value="6"></div>
+          <div class="ctl"><div class="ctl-h"><label for="rRate">Cost of an hour, €</label><b id="oRate"></b></div><input id="rRate" type="range" min="10" max="60" value="25"></div>
+          <div class="ctl"><div class="ctl-h"><label for="rCut">Share of that time you think goes away</label><b id="oCut"></b></div><input id="rCut" type="range" min="10" max="80" step="5" value="40"></div>
         </div>
-        <p class="note">This uses only your own guesses. The 5-day trial is how you check them on a real job.</p>
+        <div class="roi-out" aria-live="polite">
+          <div><div class="big" id="rHours">0 h</div><div class="lbl2">back every month</div></div>
+          <div class="pair">
+            <div><b id="rEur">€0</b><span class="lbl2">worth of time a month</span></div>
+            <div><b id="rX">0×</b><span class="lbl2">the Workshop plan (€89/mo)</span></div>
+          </div>
+          <p class="note">This uses only your own guesses. The 5-day trial is how you check them on a real job.</p>
+        </div>
       </div>
-    </div>
+    </details>
   </div>
 </section>
 
@@ -631,17 +204,12 @@ footer .logo{font-size:18px;color:var(--ink)}
     <div class="sec-h rv">
       <p class="eyebrow">Pricing</p>
       <h2 class="h2">One price per workshop. Unlimited people.</h2>
-      <p class="lead">Every plan starts with a 5-day free trial. Prices exclude VAT. Move the slider to your team size to see the cost per person.</p>
+      <p class="lead">Every plan starts with a 5-day free trial. Prices exclude VAT.</p>
     </div>
     <div class="controls rv">
       <div class="seg big" role="group" aria-label="Billing period">
         <button type="button" id="billM" aria-pressed="true">Monthly</button>
         <button type="button" id="billY" aria-pressed="false">Yearly · 2 months free</button>
-      </div>
-      <div class="people">
-        <label for="people">People in your workshop</label>
-        <input id="people" type="range" min="2" max="40" step="1" value="8">
-        <output id="peopleOut" for="people">8</output>
       </div>
     </div>
     <div class="plans rv" id="plans"></div>
@@ -660,7 +228,7 @@ footer .logo{font-size:18px;color:var(--ink)}
       <h2 class="h2">Questions workshops ask first</h2>
     </div>
     <div class="faq-list rv">
-      <details open><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio writes a drilling and routing program for each part in .XXL format, used by SCM machines, and exports the part list as .xlsx and .csv. Nesting and the DXF Editor work with DXF files, which most router and saw software can open. If your machine needs another format, tell us when you start the trial.</p></details>
+      <details><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio writes a drilling and routing program for each part in .XXL format, used by SCM machines, and exports the part list as .xlsx and .csv. Nesting and the DXF Editor work with DXF files, which most router and saw software can open. If your machine needs another format, tell us when you start the trial.</p></details>
       <details><summary>Do we need to install anything?</summary><p>No. Everything runs in the browser on the office PC, a workshop tablet or the TV on the wall.</p></details>
       <details><summary>How many people can use it?</summary><p>Everyone in your workshop, at no extra cost. Workers sign in with a name and PIN, and office apps stay hidden from shop-floor logins.</p></details>
       <details><summary>Can we bring our own prices and materials?</summary><p>Yes. Quotes and cut lists use your own boards, edge banding, hardware and labour rates. Guided setup can import your existing price lists for you.</p></details>
@@ -676,9 +244,9 @@ footer .logo{font-size:18px;color:var(--ink)}
     <div>
       <p class="eyebrow">Free trial</p>
       <h2 class="h2">Run one of your own jobs through it this week.</h2>
-      <p class="l">Tell us a little about your workshop. We set up your trial and send the login, usually the same working day.</p>
+      <p class="l">Leave your name and email. We set up your trial and send the login, usually the same working day.</p>
       <ol>
-        <li><span><b>Send the form.</b> Two minutes. Attach the cabinets you built above if you like.</span></li>
+        <li><span><b>Send the form.</b> Three fields, under a minute.</span></li>
         <li><span><b>Get your workshop login.</b> Add your people with a name and PIN.</span></li>
         <li><span><b>Five days on a real job.</b> Quote it, nest it, track it. Pay only if it earns its place.</span></li>
       </ol>
@@ -687,32 +255,28 @@ footer .logo{font-size:18px;color:var(--ink)}
     <form class="start" id="startForm" novalidate>
       <label>Your name<input id="fName" name="name" autocomplete="name" required></label>
       <label>Workshop<input id="fCompany" name="company" autocomplete="organization" required></label>
-      <label>Email<input id="fEmail" name="email" type="email" autocomplete="email" required></label>
-      <label>Phone (optional)<input id="fPhone" name="phone" type="tel" autocomplete="tel"></label>
-      <label>People in the workshop<input id="fPeople" name="people" type="number" min="1" max="500" value="8"></label>
-      <label>Plan<select name="plan" id="fPlan"><option>Workshop</option><option>Office</option><option>Complete</option><option>Complete — one-time licence</option><option>Not sure yet</option></select></label>
+      <label class="full">Email<input id="fEmail" name="email" type="email" autocomplete="email" required></label>
       <label class="full">What should we set up first? (optional)<textarea id="fMsg" name="msg" placeholder="e.g. our kitchen quotes, nesting for our CNC router, tracking on two tablets"></textarea></label>
-      <label class="attach full" id="attachRow"><input type="checkbox" name="attach" id="fAttach"><span id="attachTxt">Attach the cabinets I built in the demo</span></label>
+      <label class="attach full" id="attachRow" hidden><input type="checkbox" name="attach" id="fAttach"><span id="attachTxt">Attach the cabinets I built in the demo</span></label>
+      <input type="hidden" name="plan" id="fPlan" value="">
       <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
       <div class="full"><button class="cta primary" type="submit" id="formBtn">Start my 5-day free trial</button></div>
-      <p class="fine full" id="formMsg" role="status">Nothing is charged during the trial. We keep your details, and the cabinets you built above if you attach them, only to set up your trial and contact you about it.</p>
+      <p class="fine full" id="formMsg" role="status">Nothing is charged during the trial. We keep your details only to set up your trial and contact you about it.</p>
     </form>
   </div>
 </section>
 </main>
 
-<footer><div class="wrap"><span class="logo">db-hub</span><span id="footLine">Made by Dėdės Baldai, a furniture workshop.</span></div></footer>
+<footer><div class="wrap"><span class="logo">db-hub</span><nav aria-label="Footer"><a href="apps.html">The nine apps</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav><span id="footLine">Made by Dėdės Baldai, a furniture workshop.</span></div></footer>
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
+<script src="assets/site.js?v=2"></script>
 <script>
-document.documentElement.classList.add('js');
 (function () {
   'use strict';
-  /* ===== Edit before going live. Empty values are simply left off the page. ===== */
-  var CONTACT_EMAIL = '';   // e.g. 'hello@yourdomain.com'
-  var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
-  var COMPANY_LINE = '';    // e.g. 'UAB Example · company code 123456789 · Vilnius'
+  var H = window.DBHUB, $ = H.$, $$ = H.$$, reduce = H.reduce, eur = H.eur, plural = H.plural, fillRange = H.fillRange;
+  var CONTACT_EMAIL = H.CONTACT_EMAIL, CONTACT_PHONE = H.CONTACT_PHONE;   // set in assets/site.js
   // Where trial requests and demo activity are saved (Supabase project "db-hub").
   var INTAKE_URL = 'https://preatnukvhwarytlpxpe.supabase.co/functions/v1/intake';
   // One id per page view, kept in memory only: no cookies, nothing stored on the visitor's device.
@@ -733,14 +297,6 @@ document.documentElement.classList.add('js');
     }, delay == null ? 4000 : delay);
   }
 
-  var $ = function (id) { return document.getElementById(id); };
-  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
-  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var eur = function (n) { return '€' + Math.round(n).toLocaleString('en-US'); };
-  var plural = function (n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); };
-  function fillRange(el) { el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%'); }
-  $$('input[type=range]').forEach(function (el) { fillRange(el); el.addEventListener('input', function () { fillRange(el); }); });
-
   /* ===================== LIVE DEMO ===================== */
   var T = 18, SHEET_W = 2800, SHEET_H = 2070, TRIM = 10, KERF = 4;
   var MATS = {
@@ -752,7 +308,7 @@ document.documentElement.classList.add('js');
   var RATES = { edge: 0.9, hinge: 3.2, hdf: 6, cnc: 9, assembly: 14, margin: 0.3 };
   var STATIONS = ['CNC cut', 'Edge band', 'Drill', 'Assemble'];
   function freshDraft() { return { type: 'base', w: 600, h: 720, d: 560, shelves: 1, mat: 'white' }; }
-  function freshKitchen() { return [{ type: 'base', w: 800, h: 720, d: 560, shelves: 1, mat: 'white' }]; }
+  function freshKitchen() { return []; }   // the demo starts with the one cabinet being edited
 
   var draft = freshDraft(), kitchen = freshKitchen();
   var touched = false, t0 = null, nudged = false, lastSummary = '';
@@ -865,7 +421,7 @@ document.documentElement.classList.add('js');
   function firstTouch() {
     if (touched) return;
     touched = true; t0 = Date.now(); stopAuto();
-    $('hint').classList.add('gone');
+    $('hint').classList.add('gone'); $('attachRow').hidden = false;
   }
   function syncInputs() {
     $('cW').value = draft.w; $('cH').value = draft.h; $('cD').value = draft.d; $('cS').value = draft.shelves;
@@ -903,7 +459,7 @@ document.documentElement.classList.add('js');
     firstTouch();
     if (kitchen.length >= 12) { toast('Twelve is plenty for a demo. The real app has no limit.'); return; }
     kitchen.push(JSON.parse(JSON.stringify(draft)));
-    toast(cabName(draft) + ' added. Size the next one, the boards fill up.');
+    toast(cabName(draft) + ' added. Size the next one, the boards fill up.'); setTab('sheets');
     render(); trackDemo(300); showNudge();
   });
   $('resetBtn').addEventListener('click', function () {
@@ -943,11 +499,6 @@ document.documentElement.classList.add('js');
     $('nudgeT').textContent = s ? s + ' seconds' : 'a few seconds';
     $('benchNote').hidden = true; $('nudge').classList.add('on');
   }
-  var pulseAt = 0;
-  function pulse() {
-    var now = Date.now(); if (reduce || now - pulseAt < 750) return; pulseAt = now;
-    var w = $('wire'); w.classList.remove('go'); void w.offsetWidth; w.classList.add('go');
-  }
 
   /* --- render --- */
   var prevK = {};
@@ -973,12 +524,12 @@ document.documentElement.classList.add('js');
     cur = { cabs: cabs, parts: parts, nest: nest, q: q };
     stopRun(true);
 
-    setK('tCabs', String(cabs.length)); setK('tParts', String(total)); setK('tSheets', String(nest.count)); setK('tQuote', eur(q.total));
     setK('kPrice', eur(q.total));
     setK('kParts', plural(parts.length, 'part'));
-    setK('kSheets', plural(nest.count, 'sheet') + ' · ' + Math.round(used) + '%');
+    setK('kSheets', plural(nest.count, 'sheet'));
+    $('nestNote').textContent = 'Board 2800 × 2070 mm · ' + Math.round(used) + '% used · trim 10, kerf 4 · one decor per sheet';
     setK('kLabels', plural(parts.length, 'label'));
-    $('drawCap').textContent = '#' + cabs.length + ' ' + cabName(draft) + ' × ' + draft.h + ' × ' + draft.d + ' mm';
+    $('drawCap').textContent = (cabs.length > 1 ? '#' + cabs.length + ' ' : '') + cabName(draft) + ' × ' + draft.h + ' × ' + draft.d + ' mm';
     $('bdTable').innerHTML = q.rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + eur(r[1]) + '</td></tr>'; }).join('') +
       '<tr class="tot"><td>Total, excl. VAT</td><td>' + eur(q.total) + '</td></tr>';
     $('plBody').innerHTML = cabs.map(function (c, ci) {
@@ -992,7 +543,7 @@ document.documentElement.classList.add('js');
       return '<span class="chip"><i style="background:' + MATS[c.mat].fill + '"></i>#' + (i + 1) + ' ' + cabName(c) + '<button type="button" data-rm="' + i + '" aria-label="Remove ' + cabName(c) + '">×</button></span>';
     }).join('') + '<span class="chip draft"><i style="background:' + MATS[draft.mat].fill + '"></i>#' + cabs.length + ' ' + cabName(draft) + ' · editing</span>';
     $('attachTxt').textContent = 'Attach the ' + plural(cabs.length, 'cabinet') + ' I built in the demo (' + eur(q.total) + ')';
-    renderSketch(); renderNest(nest); renderRun(); applyHot(); pulse();
+    renderSketch(); renderNest(nest); renderRun(); applyHot();
     lastSummary = cabs.map(function (c, i) { return '#' + (i + 1) + ' ' + cabName(c) + ' × ' + c.h + ' × ' + c.d + ' mm, ' + c.shelves + ' shelves, ' + MATS[c.mat].label; }).join('\n') +
       '\nDemo quote: ' + eur(q.total) + ' excl. VAT, ' + nest.count + ' sheet(s)';
     demoStats = { cabinets: cabs.map(function (c) { return { type: c.type, mat: c.mat, w: c.w, h: c.h, d: c.d, shelves: c.shelves }; }),
@@ -1207,13 +758,21 @@ document.documentElement.classList.add('js');
     el.addEventListener('pointerleave', function () { setHot(null); });
     el.addEventListener('click', function (e) { var n = e.target.closest('[data-pid]'); if (n) { firstTouch(); setHot(n.getAttribute('data-pid'), p[1]); } });
   });
-  // hero headline words light up the card they talk about
-  $$('h1 [data-out]').forEach(function (a) {
-    var card = document.querySelector('.doc[data-card="' + a.dataset.out + '"]');
-    function on(v) { card.classList.toggle('on', v); }
-    a.addEventListener('pointerenter', function () { on(true); }); a.addEventListener('pointerleave', function () { on(false); });
-    a.addEventListener('focus', function () { on(true); }); a.addEventListener('blur', function () { on(false); });
-    a.addEventListener('click', function () { on(true); setTimeout(function () { on(false); }, 2200); });
+
+  /* --- one output on screen at a time; the four totals stay visible in the tabs --- */
+  function setTab(t) {
+    $$('#tabs button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.tab === t)); });
+    $$('#lab [data-panel]').forEach(function (p) { p.hidden = p.dataset.panel !== t; });
+  }
+  $('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tab]'); if (!b) return;
+    firstTouch(); setTab(b.dataset.tab);
+  });
+  $('moreBtn').addEventListener('click', function () {
+    var open = $('more').hidden;
+    $('more').hidden = !open; this.setAttribute('aria-expanded', String(open));
+    this.textContent = open ? 'Fewer options −' : 'More options +';
+    ['cD', 'cS'].forEach(function (id) { fillRange($(id)); });
   });
 
   /* --- one short auto-demo until the visitor touches something --- */
@@ -1237,140 +796,11 @@ document.documentElement.classList.add('js');
   setTimeout(startAuto, 2200);
   var rsT; window.addEventListener('resize', function () { clearTimeout(rsT); rsT = setTimeout(renderSketch, 120); });
 
-  /* ===================== THE NINE APPS ===================== */
-  var STAGES = [
-    { id: 'sell', n: 'Step 1', t: 'Sell', d: 'win the job and price it' },
-    { id: 'design', n: 'Step 2', t: 'Design', d: 'turn it into parts' },
-    { id: 'cut', n: 'Step 3', t: 'Cut', d: 'put the parts on boards' },
-    { id: 'build', n: 'Step 4', t: 'Build', d: 'run the shop floor' },
-    { id: 'deliver', n: 'Step 5', t: 'Deliver', d: 'know what is missing' },
-    { id: 'team', n: 'Always', t: 'Team', d: 'the paperwork around the people' }
-  ];
-  var PLAN_OF = { crm: 0, offers: 0, overview: 0, requests: 0, shopflow: 1, plan: 1, nesting: 1, dxf: 1, studio: 2 };
-  var PLAN_NAMES = ['Office', 'Workshop', 'Complete'];
-  var APPS = [
-    { id: 'crm', st: 'sell', name: 'CRM', ico: '<path d="M3 4h5v16H3zM9.5 4h5v10h-5zM16 4h5v13h-5z"/>',
-      one: 'Keeps every enquiry, client and follow-up in one pipeline.', old: 'leads in a notebook, a phone and an inbox',
-      was: 'Enquiries scattered across a notebook, a phone and an inbox, and a follow-up that somebody forgets.',
-      get: ['A pipeline you drag deals across, with the value of each stage', 'The next step and its date on every deal', 'An activity log per client, hidden from shop-floor logins'],
-      next: ['offers', 'A won deal opens as a quote in Offers'], shots: [['crm', 'Pipeline (Lithuanian screen)']] },
-    { id: 'offers', st: 'sell', name: 'Offers', ico: '<path d="M6 3h9l4 4v14H6z"/><path d="M15.5 12.2a3 3 0 1 0 0 4.6M9.5 13.5h4M9.5 15.5h3.4"/>',
-      one: 'Prices a job cabinet by cabinet from your own material, hardware and labour rates.', old: 'the Excel quote sheet only one person understands',
-      was: 'A spreadsheet rebuilt for every kitchen, where one wrong cell changes the price and nobody notices.',
-      get: ['Cost and quote price side by side, with your margin and VAT', 'A cabinet sketch the customer understands', 'Saved projects you can reopen and requote in minutes'],
-      next: ['studio', 'The accepted cabinets go on to Cabinet Studio'], shots: [['offers', 'Cabinets and cost']] },
-    { id: 'studio', st: 'design', name: 'Cabinet Studio', ico: '<path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/>',
-      one: 'Turns cabinet sizes into a 3D model, a part list and CNC programs.', old: 'drawing each cabinet in CAD, then typing the cut list',
-      was: 'Every cabinet drawn in CAD, then the parts typed out again for the saw and again for the CNC.',
-      get: ['A 3D preview with joinery, sections and hardware', 'The part list with sizes and edge banding, ready for nesting', 'A drilling and routing program for every part'],
-      next: ['nesting', 'The part list goes straight to Nesting'], shots: [['cabinet-studio', '3D preview'], ['cabinet-studio-parts', 'Part list and CNC programs']] },
-    { id: 'dxf', st: 'design', name: 'DXF Editor', ico: '<path d="M5 17V9a4 4 0 0 1 4-4h8"/><rect x="3" y="17" width="4" height="4"/><rect x="17" y="3" width="4" height="4"/>',
-      one: 'Opens a DXF in the browser so you can fix sizes, holes and shapes without a CAD seat.', old: 'a CAD licence kept for small fixes',
-      was: 'A customer drawing that is almost right, and a CAD licence kept only to nudge it.',
-      get: ['Resize, re-proportion, chamfer and round corners', 'Every hole listed by diameter, selectable in one click', 'Layers kept clean for the CNC, saved back as DXF'],
-      next: ['nesting', 'The corrected shape goes to Nesting'], shots: [['dxf-editor', 'Drawing']] },
-    { id: 'nesting', st: 'cut', name: 'Nesting', ico: '<rect x="3" y="4" width="18" height="16"/><path d="M3 12h10M13 4v16M13 9h8M17 9v11"/>',
-      one: 'Lays the parts out on your boards for the CNC or the saw, and prints a label for every part.', old: 'laying out boards by eye and writing on parts with a pencil',
-      was: 'Boards laid out by eye, an extra sheet ordered to be safe, and part names written on in pencil.',
-      get: ['Rectangular and true-shape nesting, with sheets, efficiency and waste shown before you cut', 'A QR label for every part, sent to the label printer', 'Layout history, so a repeat job is one click'],
-      next: ['shopflow', 'Sheets and labelled parts appear in ShopFlow'], shots: [['nesting', 'Sheet layout']] },
-    { id: 'shopflow', st: 'build', name: 'ShopFlow', ico: '<path d="M4 8V5h3M20 8V5h-3M4 16v3h3M20 16v3h-3M8 9v6M11 9v6M13.5 9v6M16 9v6"/>',
-      one: 'Tracks every order and part through cutting, edging, drilling, assembly and packing.', old: 'the whiteboard and the walk to the floor to ask',
-      was: 'A whiteboard nobody updates, and a walk to the floor every time a customer calls.',
-      get: ['Workers sign in with a name and PIN and scan a label; the part moves on', 'A dashboard of what is due, overdue, blocked or short on material', 'Who did what and when, for every order'],
-      next: ['overview', 'Progress feeds Project Overview and the Shopfloor plan'], shots: [['shopflow', 'Dashboard']] },
-    { id: 'plan', st: 'build', name: 'Shopfloor plan', ico: '<rect x="3" y="4" width="18" height="16"/><path d="M3 11h7v9M14 4v6h7"/><circle cx="16.5" cy="15.5" r="1.5"/>',
-      one: 'A live map of your own floor: machines, benches, who is working where and on which job.', old: 'guessing who is on what',
-      was: 'Nobody sure who is on which machine, or which job is waiting for the edge bander.',
-      get: ['Your floor drawn to scale with your machines', 'People placed on a machine or bench with one tap', 'TV mode for the screen on the workshop wall'],
-      next: ['overview', 'Shown on the workshop TV'], shots: [['shopfloor-plan', 'Floor plan']] },
-    { id: 'overview', st: 'deliver', name: 'Project Overview', ico: '<path d="M4 6l1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17M11 6.5h9M11 12.5h9M11 18.5h6"/>',
-      one: 'Writes one plain sentence per project: what is done and what is still missing.', old: 'calling the workshop before calling the customer back',
-      was: 'A customer asks when the kitchen is ready, and the office has to go and find out.',
-      get: ['Every open project on one page, late and stuck ones flagged', 'Search by project, client or number', 'Text you can copy and forward, in two languages'],
-      next: null, shots: [['project-overview', 'Status report']] },
-    { id: 'requests', st: 'team', name: 'Requests', ico: '<rect x="3" y="5" width="18" height="16"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3M8 17h6"/>',
-      one: 'Holiday and day-off requests, filled in by the worker and printed ready to sign.', old: 'paper forms and a folder in the office',
-      was: 'Paper forms, a folder in the office, and a count of who is off next week done by memory.',
-      get: ['Leave and parental day-off requests filled in by the worker', 'An A4 preview that prints exactly as shown', 'A register by month you can export'],
-      next: null, shots: [['requests', 'New request']] }
-  ];
-  var byId = {}; APPS.forEach(function (a) { byId[a.id] = a; });
-  var sel = 'studio', shotIx = 0, narrow = window.matchMedia ? matchMedia('(max-width: 980px)') : { matches: false };
-
-  $('path').innerHTML = STAGES.map(function (s) {
-    return '<button type="button" data-stage="' + s.id + '"><small>' + s.n + '</small><b>' + s.t + '</b></button>';
+  /* ===================== THE NINE APPS, one line each ===================== */
+  $('cards').innerHTML = H.APPS.map(function (a) {
+    return '<a class="card" href="apps.html#' + a.id + '"><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
+      '<span class="card-t"><span class="card-n"><b>' + a.name + '</b><small>' + H.stageOf[a.st].t + '</small></span><p>' + a.short + '</p></span></a>';
   }).join('');
-  $('exList').innerHTML = STAGES.map(function (s) {
-    return '<div class="grp-h" id="g-' + s.id + '"><b>' + s.t + '</b><span>' + s.d + '</span></div>' +
-      APPS.filter(function (a) { return a.st === s.id; }).map(function (a) {
-        return '<button type="button" class="app" data-app="' + a.id + '" aria-pressed="false"><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
-          '<span class="app-t"><b>' + a.name + '</b><span>' + a.one + '</span><em><i>Replaces</i> ' + a.old + '</em></span><span class="chev" aria-hidden="true">→</span></button>';
-      }).join('');
-  }).join('');
-
-  function renderShot() {
-    var a = byId[sel], s = a.shots[shotIx] || a.shots[0], img = $('shotImg'), src = 'assets/apps/' + s[0] + '.webp';
-    $('shotName').textContent = a.name + ' · ' + s[1];
-    if (img.getAttribute('src') !== src) {
-      img.classList.add('swap');
-      var next = new Image();
-      next.onload = next.onerror = function () { img.src = src; img.alt = 'Screenshot of ' + a.name + ': ' + s[1] + ', with sample data'; img.classList.remove('swap'); };
-      next.src = src;
-    }
-    $('shotTabs').hidden = a.shots.length < 2;
-    $('shotTabs').innerHTML = a.shots.map(function (x, i) { return '<button type="button" data-shot="' + i + '" aria-pressed="' + (i === shotIx) + '">' + x[1] + '</button>'; }).join('');
-  }
-  function selectApp(id, opts) {
-    opts = opts || {};
-    if (id !== sel) shotIx = 0;
-    sel = id; var a = byId[id];
-    $$('#exList .app').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.app === id)); });
-    $$('#path button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.stage === a.st)); });
-    var plan = PLAN_OF[id];
-    $('facts').innerHTML = '<div class="swapin"><h4>Instead of</h4><p class="old">' + a.was + '</p></div>' +
-      '<div class="swapin"><h4>You get</h4><ul>' + a.get.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div>' +
-      '<div class="swapin"><h4>' + (a.next ? 'Hands over to' : 'Where it ends up') + '</h4>' +
-      (a.next ? '<button type="button" class="next" data-app="' + a.next[0] + '">' + a.next[1] + ' →</button>' : '<p>' + (id === 'overview' ? 'With your customer, as an answer you can send without leaving your desk.' : 'With the office, signed and filed.') + '</p>') +
-      '<h4 style="margin-top:16px">In plans</h4><div class="plans-in">' + PLAN_NAMES.slice(plan).map(function (p) { return '<span class="tag">' + p + '</span>'; }).join('') + '</div></div>';
-    renderShot(); placeDetail();
-    if (opts.scroll) {
-      var item = $('exList').querySelector('[data-app="' + id + '"]');
-      (narrow.matches ? item : $('apps')).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-    }
-  }
-  function placeDetail() {
-    var d = $('exDetail'), item = $('exList').querySelector('[data-app="' + sel + '"]');
-    if (narrow.matches) { if (item.nextSibling !== d) item.after(d); }
-    else if (d.parentNode !== $('ex')) $('ex').appendChild(d);
-  }
-  if (narrow.addEventListener) narrow.addEventListener('change', placeDetail);
-  $('exList').addEventListener('click', function (e) {
-    var b = e.target.closest('.app'); if (!b) return;
-    var before = b.getBoundingClientRect().top;
-    selectApp(b.dataset.app);
-    if (narrow.matches) window.scrollBy(0, b.getBoundingClientRect().top - before);   // keep the tapped row under the finger
-  });
-  $('path').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-stage]'); if (!b) return;
-    var first = APPS.filter(function (a) { return a.st === b.dataset.stage; })[0];
-    selectApp(first.id, { scroll: narrow.matches });
-  });
-  $('facts').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-app]'); if (b) selectApp(b.dataset.app, { scroll: narrow.matches });
-  });
-  $('shotTabs').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-shot]'); if (!b) return; shotIx = Number(b.dataset.shot); renderShot();
-  });
-  $('shotBtn').addEventListener('click', function () {
-    var z = $('zoom'), zi = $('zoomImg'); zi.src = $('shotImg').src; zi.alt = $('shotImg').alt;
-    if (z.showModal) z.showModal();
-  });
-  $('zoom').addEventListener('click', function (e) { if (e.target === this) this.close(); });
-  document.addEventListener('click', function (e) {
-    var b = e.target.closest('[data-goto]'); if (b) selectApp(b.dataset.goto, { scroll: true });
-  });
-  selectApp(sel);
 
   /* ===================== ROI ===================== */
   function renderRoi() {
@@ -1386,39 +816,34 @@ document.documentElement.classList.add('js');
 
   /* ===================== PRICING ===================== */
   var PLANS = [
-    { name: 'Office', tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Try Office free', extra: [] },
-    { name: 'Workshop', tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, extra: ['Label printing'] },
-    { name: 'Complete', tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Try Complete free', extra: ['CNC program export', 'Priority support'] }
+    { name: 'Office', tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Try Office free', also: 'Four apps',
+      has: ['Offers', 'CRM', 'Project Overview', 'Requests'] },
+    { name: 'Workshop', tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, also: 'Everything in Office, and',
+      has: ['ShopFlow', 'Shopfloor plan', 'Nesting', 'DXF Editor', 'Label printing'] },
+    { name: 'Complete', tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Try Complete free', also: 'Everything in Workshop, and',
+      has: ['Cabinet Studio', 'CNC program export', 'Priority support'] }
   ];
-  var PLAN_ORDER = ['offers', 'crm', 'overview', 'requests', 'shopflow', 'plan', 'nesting', 'dxf', 'studio'];
-  var ps = { yearly: false, people: 8 };
+  var yearly = false;
   function renderPlans() {
-    $('billM').setAttribute('aria-pressed', String(!ps.yearly));
-    $('billY').setAttribute('aria-pressed', String(ps.yearly));
-    $('peopleOut').textContent = ps.people;
-    $('plans').innerHTML = PLANS.map(function (p, pi) {
-      var monthlyEq = ps.yearly ? p.y / 12 : p.m;
-      var n = PLAN_ORDER.filter(function (id) { return PLAN_OF[id] <= pi; }).length;
+    $('billM').setAttribute('aria-pressed', String(!yearly));
+    $('billY').setAttribute('aria-pressed', String(yearly));
+    $('plans').innerHTML = PLANS.map(function (p) {
       return '<div class="plan' + (p.feat ? ' feat' : '') + '">' +
         '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Most workshops</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
-        '<div><div class="price"><b>€' + (ps.yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (ps.yearly ? '/ year' : '/ month') + '</span></div>' +
-        '<div class="pp">€' + (monthlyEq / ps.people).toFixed(2) + ' per person a month</div>' +
-        '<div class="muted" style="font-size:13px">' + (ps.yearly ? 'Two months free, billed once a year' : 'Billed monthly, cancel any time') + '</div></div>' +
-        '<ul class="plan-apps" aria-label="' + n + ' of 9 apps">' + PLAN_ORDER.map(function (id) {
-          var has = PLAN_OF[id] <= pi; return '<li' + (has ? '' : ' class="no"') + '>' + byId[id].name + (has ? '' : '<span class="vh"> (not included)</span>') + '</li>';
-        }).join('') + p.extra.map(function (x) { return '<li class="extra">' + x + '</li>'; }).join('') + '</ul>' +
+        '<div><div class="price"><b>€' + (yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (yearly ? '/ year' : '/ month') + '</span></div>' +
+        '<div class="muted" style="font-size:13px;margin-top:6px">' + (yearly ? 'Two months free, billed once a year' : 'Billed monthly, cancel any time') + '</div></div>' +
+        '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>' +
         '<a class="cta ' + (p.feat ? 'dark' : 'line') + '" href="#start" data-plan="' + p.name + '">' + p.cta + '</a></div>';
     }).join('');
   }
-  $('billM').addEventListener('click', function () { ps.yearly = false; renderPlans(); });
-  $('billY').addEventListener('click', function () { ps.yearly = true; renderPlans(); });
-  $('people').addEventListener('input', function (e) { ps.people = parseInt(e.target.value, 10) || 8; renderPlans(); });
+  $('billM').addEventListener('click', function () { yearly = false; renderPlans(); });
+  $('billY').addEventListener('click', function () { yearly = true; renderPlans(); });
   renderPlans();
 
   /* ===================== START FORM ===================== */
   document.addEventListener('click', function (e) {
     var a = e.target.closest('[data-plan]');
-    if (a) { $('fPlan').value = a.dataset.plan; var f = $('startForm'); if (f.people) f.people.value = ps.people; }
+    if (a) $('fPlan').value = a.dataset.plan;
     if (e.target.closest('[data-attach]')) $('fAttach').checked = true;
   });
   (function () {
@@ -1428,7 +853,6 @@ document.documentElement.classList.add('js');
       if (CONTACT_EMAIL) { var a = document.createElement('a'); a.href = 'mailto:' + CONTACT_EMAIL; a.textContent = CONTACT_EMAIL; a.style.color = 'inherit'; a.style.fontWeight = '600'; c.appendChild(a); }
       if (CONTACT_PHONE) c.appendChild(document.createTextNode((CONTACT_EMAIL ? ' · ' : '') + CONTACT_PHONE));
     }
-    if (COMPANY_LINE) $('footLine').textContent = COMPANY_LINE;
   })();
   $('startForm').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -1451,8 +875,8 @@ document.documentElement.classList.add('js');
       ? send({ kind: 'demo', session: SESSION, cabinets: demoStats.cabinets, parts: demoStats.parts, sheets: demoStats.sheets, quote: demoStats.quote, summary: lastSummary, csv: demoFlags.csv, form: true }).catch(function () {})
       : Promise.resolve();
     pre.then(function () {
-      return send({ kind: 'lead', name: f.name.value, company: f.company.value, email: f.email.value, phone: f.phone.value,
-        people: f.people.value, plan: f.plan.value, message: f.msg.value, website: f.website.value,
+      return send({ kind: 'lead', name: f.name.value, company: f.company.value, email: f.email.value, phone: '',
+        people: null, plan: f.plan.value, message: f.msg.value, website: f.website.value,
         session: (f.attach.checked || demoSent) ? SESSION : '', attach: f.attach.checked });
     }).then(function (r) {
       if (!r.ok) { if (r.status === 429) { btn.disabled = false; btn.textContent = 'Start my 5-day free trial'; msg.textContent = 'We already have several requests from you. We will be in touch shortly.'; return; } return fail(); }
@@ -1461,22 +885,10 @@ document.documentElement.classList.add('js');
     }).catch(fail);
   });
 
-  /* ===================== CHROME: header, reveal, dock ===================== */
-  var topbar = $('topbar'), dock = $('dock');
-  function onScroll() {
-    var y = window.scrollY;
-    topbar.classList.toggle('scrolled', y > 8);
-    dock.classList.toggle('on', y > 700 && $('start').getBoundingClientRect().top > window.innerHeight);
-  }
-  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { threshold: 0.08 });
-    $$('.rv').forEach(function (el) { io.observe(el); });
-  } else {
-    $$('.rv').forEach(function (el) { el.classList.add('in'); });
-  }
+  /* ===================== MOBILE DOCK ===================== */
+  var dock = $('dock');
+  function onDock() { dock.classList.toggle('on', window.scrollY > 700 && $('start').getBoundingClientRect().top > window.innerHeight); }
+  window.addEventListener('scroll', onDock, { passive: true }); onDock();
 })();
 </script>
 </body>

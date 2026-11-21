@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The nine apps — db-hub</title>
+<meta name="description" content="What each db-hub app does in a furniture workshop: CRM, Offers, Cabinet Studio, DXF Editor, Nesting, ShopFlow, Shopfloor plan, Project Overview and Requests. Real screens, what each replaces and what you get.">
+<meta property="og:title" content="The nine db-hub apps, in the order a job passes through them">
+<meta property="og:description" content="Real screens of each app, what it replaces in the workshop and what you get from it.">
+<meta name="theme-color" content="#F2F4F0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%23103A2D'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23F2F4F0'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FF5A1F'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23F2F4F0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css?v=2">
+</head>
+<body>
+
+<header class="top" id="topbar">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="db-hub home">
+      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="3" fill="#103A2D"/><rect x="5" y="5" width="11" height="9" fill="#F2F4F0"/><rect x="18" y="5" width="7" height="20" fill="#FF5A1F"/><rect x="5" y="16" width="11" height="9" fill="#F2F4F0"/></svg>
+      db-hub
+    </a>
+    <nav>
+      <a class="link keep" href="apps.html" aria-current="page">The nine apps</a>
+      <a class="link" href="index.html#pricing">Pricing</a>
+      <a class="link" href="index.html#faq">FAQ</a>
+      <a class="cta primary sm" href="index.html#start">Start free trial</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero page-apps" id="apps">
+  <div class="wrap">
+    <div class="page-h sec-h">
+      <p class="eyebrow">The nine apps</p>
+      <h1 class="h2">What each app does in the workshop.</h1>
+      <p class="lead">They are listed in the order a job passes through them, from the first phone call to the van. Pick an app to see the real screen, what it replaces and what you get.</p>
+    </div>
+    <div class="path" id="path" role="group" aria-label="Steps of a job"></div>
+    <div class="ex" id="ex">
+      <div class="ex-list" id="exList"></div>
+      <div class="ex-detail" id="exDetail" aria-live="polite">
+        <figure class="frame">
+          <figcaption class="frame-bar"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><b id="shotName"></b><span class="tag">Real screen · sample data</span></figcaption>
+          <button type="button" class="shot-btn" id="shotBtn" aria-label="Enlarge this screenshot"><img id="shotImg" alt="" width="1280" height="800" decoding="async"></button>
+          <div class="frame-foot"><div class="seg" id="shotTabs" role="group" aria-label="Screens"></div><span>Click the picture to enlarge</span></div>
+        </figure>
+        <div class="facts3" id="facts"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<dialog class="zoom" id="zoom" aria-label="Screenshot, enlarged"><img id="zoomImg" alt=""><form method="dialog"><button class="mini" autofocus>Close</button></form></dialog>
+
+<section class="band sec cta-band">
+  <div class="wrap">
+    <h2 class="h2">Run one of your own jobs through it this week.</h2>
+    <div class="row">
+      <a class="cta primary" href="index.html#start">Start 5-day free trial <span class="arr" aria-hidden="true">→</span></a>
+      <a class="cta line" href="index.html#pricing">See pricing</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><a class="logo" href="index.html">db-hub</a><nav aria-label="Footer"><a href="index.html#lab">Live demo</a><a href="index.html#pricing">Pricing</a><a href="index.html#faq">FAQ</a></nav><span id="footLine">Made by Dėdės Baldai, a furniture workshop.</span></div></footer>
+
+<script src="assets/site.js?v=2"></script>
+<script>
+(function () {
+  'use strict';
+  var H = window.DBHUB, $ = H.$, $$ = H.$$, reduce = H.reduce;
+  var STAGES = H.STAGES, APPS = H.APPS, PLAN_OF = H.PLAN_OF, PLAN_NAMES = H.PLAN_NAMES, byId = H.byId;
+  var sel = 'studio', shotIx = 0, narrow = window.matchMedia ? matchMedia('(max-width: 980px)') : { matches: false };
+
+  $('path').innerHTML = STAGES.map(function (s) {
+    return '<button type="button" data-stage="' + s.id + '"><small>' + s.n + '</small><b>' + s.t + '</b></button>';
+  }).join('');
+  $('exList').innerHTML = STAGES.map(function (s) {
+    return '<div class="grp-h" id="g-' + s.id + '"><b>' + s.t + '</b><span>' + s.d + '</span></div>' +
+      APPS.filter(function (a) { return a.st === s.id; }).map(function (a) {
+        return '<button type="button" class="app" data-app="' + a.id + '" aria-pressed="false"><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
+          '<span class="app-t"><b>' + a.name + '</b><span>' + a.one + '</span><em><i>Replaces</i> ' + a.old + '</em></span><span class="chev" aria-hidden="true">→</span></button>';
+      }).join('');
+  }).join('');
+
+  function renderShot() {
+    var a = byId[sel], s = a.shots[shotIx] || a.shots[0], img = $('shotImg'), src = 'assets/apps/' + s[0] + '.webp';
+    $('shotName').textContent = a.name + ' · ' + s[1];
+    if (img.getAttribute('src') !== src) {
+      img.classList.add('swap');
+      var next = new Image();
+      next.onload = next.onerror = function () { img.src = src; img.alt = 'Screenshot of ' + a.name + ': ' + s[1] + ', with sample data'; img.classList.remove('swap'); };
+      next.src = src;
+    }
+    $('shotTabs').hidden = a.shots.length < 2;
+    $('shotTabs').innerHTML = a.shots.map(function (x, i) { return '<button type="button" data-shot="' + i + '" aria-pressed="' + (i === shotIx) + '">' + x[1] + '</button>'; }).join('');
+  }
+  function selectApp(id, opts) {
+    opts = opts || {};
+    if (id !== sel) shotIx = 0;
+    sel = id; var a = byId[id];
+    $$('#exList .app').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.app === id)); });
+    $$('#path button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.stage === a.st)); });
+    var plan = PLAN_OF[id];
+    $('facts').innerHTML = '<div class="swapin"><h4>Instead of</h4><p class="old">' + a.was + '</p></div>' +
+      '<div class="swapin"><h4>You get</h4><ul>' + a.get.map(function (t) { return '<li>' + t + '</li>'; }).join('') + '</ul></div>' +
+      '<div class="swapin"><h4>' + (a.next ? 'Hands over to' : 'Where it ends up') + '</h4>' +
+      (a.next ? '<button type="button" class="next" data-app="' + a.next[0] + '">' + a.next[1] + ' →</button>' : '<p>' + (id === 'overview' ? 'With your customer, as an answer you can send without leaving your desk.' : 'With the office, signed and filed.') + '</p>') +
+      '<h4 style="margin-top:16px">In plans</h4><div class="plans-in">' + PLAN_NAMES.slice(plan).map(function (p) { return '<span class="tag">' + p + '</span>'; }).join('') + '</div></div>';
+    renderShot(); placeDetail();
+    if (!opts.quiet && history.replaceState) history.replaceState(null, '', '#' + id);   // so the app can be linked to
+    if (opts.scroll) {
+      var item = $('exList').querySelector('[data-app="' + id + '"]');
+      (narrow.matches ? item : $('apps')).scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+  }
+  function placeDetail() {
+    var d = $('exDetail'), item = $('exList').querySelector('[data-app="' + sel + '"]');
+    if (narrow.matches) { if (item.nextSibling !== d) item.after(d); }
+    else if (d.parentNode !== $('ex')) $('ex').appendChild(d);
+  }
+  if (narrow.addEventListener) narrow.addEventListener('change', placeDetail);
+  $('exList').addEventListener('click', function (e) {
+    var b = e.target.closest('.app'); if (!b) return;
+    var before = b.getBoundingClientRect().top;
+    selectApp(b.dataset.app);
+    if (narrow.matches) window.scrollBy(0, b.getBoundingClientRect().top - before);   // keep the tapped row under the finger
+  });
+  $('path').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-stage]'); if (!b) return;
+    var first = APPS.filter(function (a) { return a.st === b.dataset.stage; })[0];
+    selectApp(first.id, { scroll: narrow.matches });
+  });
+  $('facts').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-app]'); if (b) selectApp(b.dataset.app, { scroll: narrow.matches });
+  });
+  $('shotTabs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-shot]'); if (!b) return; shotIx = Number(b.dataset.shot); renderShot();
+  });
+  $('shotBtn').addEventListener('click', function () {
+    var z = $('zoom'), zi = $('zoomImg'); zi.src = $('shotImg').src; zi.alt = $('shotImg').alt;
+    if (z.showModal) z.showModal();
+  });
+  $('zoom').addEventListener('click', function (e) { if (e.target === this) this.close(); });
+  // apps.html#nesting opens that app
+  function fromHash() {
+    var id = location.hash.slice(1);
+    if (byId[id] && id !== sel) selectApp(id, { scroll: narrow.matches, quiet: true });
+  }
+  window.addEventListener('hashchange', fromHash);
+  var first = location.hash.slice(1);
+  selectApp(byId[first] ? first : sel, { quiet: true });
+  if (byId[first] && narrow.matches) requestAnimationFrame(function () {
+    $('exList').querySelector('[data-app="' + first + '"]').scrollIntoView({ block: 'start' });
+  });
+})();
+</script>
+</body>
+</html>

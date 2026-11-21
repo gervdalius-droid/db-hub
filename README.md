@@ -2,34 +2,43 @@
 
 Landing page for db-hub, the furniture workshop app suite by Dėdės Baldai.
 
-Single file, no build step: open `index.html` in a browser.
+Two static pages, no build step: open `index.html` in a browser.
 
-## What's on the page
+- `index.html` — the home page, kept short.
+- `apps.html` — what each of the nine apps does, in detail.
+- `assets/site.css`, `assets/site.js` — styles, the list of apps and the header, shared by both.
 
-- **Hero:** says what db-hub is, then a live workbench. The visitor sizes a cabinet (type,
-  board, W/H/D, shelves) on the left. On the right four cards update at once, each named
-  after the app that does that job in the real suite: the quote (Offers), the part list
-  (Cabinet Studio), the nested 2800 × 2070 sheets (Nesting), and a part label with
-  station tracking and a one-line project status (ShopFlow, Project Overview).
-  Hovering a part follows it across the drawing, the list, the sheet and its label.
-  "Run the job" plays the shop floor. Cabinets can be stacked into a kitchen and the
-  cut list downloads as CSV.
-- **The nine apps:** listed in the order a job passes through them (Sell, Design, Cut,
-  Build, Deliver, Team). Every app shows what it does and what it replaces; picking one
-  shows a real screenshot (`assets/apps/`, invented sample data), what you get, which
-  app it hands over to and which plans include it.
-- **What changes:** today versus with db-hub, row by row, plus a time-cost calculator.
-- **Pricing** with a team-size slider and the apps in each plan, FAQ, trial request form.
+## What's on the pages
+
+**Home (`index.html`)**
+
+- **Hero:** one headline, one sentence, one button, then a live demo. The visitor sizes a
+  cabinet on the left (width, height, board; type, depth, shelves and extra cabinets sit
+  behind "More options"). On the right four tabs carry the live totals and show one
+  output at a time, each named after the app that does that job: the quote (Offers), the
+  cut list (Cabinet Studio), the nested 2800 × 2070 sheets (Nesting), and a part label
+  with station tracking and a one-line project status (ShopFlow, Project Overview).
+- **The nine apps:** nine one-line cards in job order. Each links to its section of
+  `apps.html` (for example `apps.html#nesting`).
+- **What changes:** today versus with db-hub, row by row. The time-cost calculator is
+  folded away under it.
+- **Pricing** (three plans, monthly or yearly), FAQ, and a three-field trial request form.
 - The trial form and the live demo save to Supabase (see "Where things land").
+
+**Apps (`apps.html`)**
+
+- The apps in the order a job passes through them (Sell, Design, Cut, Build, Deliver,
+  Team). Picking one shows a real screenshot (`assets/apps/`, invented sample data), what
+  it replaces, what you get, which app it hands over to and which plans include it.
 
 ## Before going live
 
-- Set `CONTACT_EMAIL`, `CONTACT_PHONE` and `COMPANY_LINE` at the top of the `<script>` in
-  `index.html`. While they are empty the page simply leaves them out.
+- Set `CONTACT_EMAIL`, `CONTACT_PHONE` and `COMPANY_LINE` at the top of `assets/site.js`.
+  While they are empty the pages simply leave them out.
 - Check two FAQ answers against what you really support: "Which CNC machines does it work
   with?" (written from the .XXL and DXF exports in the apps) and "Where is our data kept?"
   (the Supabase project region, eu-west-1).
-- Demo prices (`MATS`, `RATES` in the script) are illustrative. Adjust if you like.
+- Demo prices (`MATS`, `RATES` in the `index.html` script) are illustrative. Adjust if you like.
 - Privacy and terms pages are not written yet, so the footer does not link to them.
 
 ## Where things land
