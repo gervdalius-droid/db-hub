@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=4">
+<link rel="stylesheet" href="assets/site.css?v=5">
 </head>
 <body>
 
@@ -271,7 +271,7 @@
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
-<script src="assets/site.js?v=4"></script>
+<script src="assets/site.js?v=5"></script>
 <script>
 (function () {
   'use strict';
@@ -542,7 +542,7 @@
     $('proj').innerHTML = kitchen.map(function (c, i) {
       return '<span class="chip"><i style="background:' + MATS[c.mat].fill + '"></i>#' + (i + 1) + ' ' + cabName(c) + '<button type="button" data-rm="' + i + '" aria-label="Remove ' + cabName(c) + '">×</button></span>';
     }).join('') + '<span class="chip draft"><i style="background:' + MATS[draft.mat].fill + '"></i>#' + cabs.length + ' ' + cabName(draft) + ' · editing</span>';
-    $('attachTxt').textContent = 'Attach the ' + plural(cabs.length, 'cabinet') + ' I built in the demo (' + eur(q.total) + ')';
+    $('attachTxt').textContent = 'Attach the ' + (cabs.length === 1 ? 'cabinet' : plural(cabs.length, 'cabinet')) + ' I built in the demo (' + eur(q.total) + ')';
     renderSketch(); renderNest(nest); renderRun(); applyHot();
     lastSummary = cabs.map(function (c, i) { return '#' + (i + 1) + ' ' + cabName(c) + ' × ' + c.h + ' × ' + c.d + ' mm, ' + c.shelves + ' shelves, ' + MATS[c.mat].label; }).join('\n') +
       '\nDemo quote: ' + eur(q.total) + ' excl. VAT, ' + nest.count + ' sheet(s)';
@@ -908,12 +908,13 @@
       ? send({ kind: 'demo', session: SESSION, cabinets: demoStats.cabinets, parts: demoStats.parts, sheets: demoStats.sheets, quote: demoStats.quote, summary: lastSummary, csv: demoFlags.csv, form: true }).catch(function () {})
       : Promise.resolve();
     pre.then(function () {
-      return send({ kind: 'lead', name: f.name.value, company: f.company.value, email: f.email.value, phone: '',
-        people: null, plan: f.plan.value, message: f.msg.value, website: f.website.value,
+      // No phone or team size on this form: they are left out, so the request stores them as empty.
+      return send({ kind: 'lead', name: f.name.value, company: f.company.value, email: f.email.value,
+        plan: f.plan.value, message: f.msg.value, website: f.website.value,
         session: (f.attach.checked || demoSent) ? SESSION : '', attach: f.attach.checked });
     }).then(function (r) {
       if (!r.ok) { if (r.status === 429) { btn.disabled = false; btn.textContent = 'Start my 5-day free trial'; msg.textContent = 'We already have several requests from you. We will be in touch shortly.'; return; } return fail(); }
-      f.reset(); btn.textContent = 'Request sent ✓';
+      f.reset(); $('fPlan').value = ''; btn.textContent = 'Request sent ✓';   // reset() keeps a hidden field's value
       msg.textContent = 'Thank you. We have your request and will send your workshop login, usually the same working day.';
     }).catch(fail);
   });

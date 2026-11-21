@@ -27,7 +27,6 @@ button{cursor:pointer}
 img,svg{display:block;max-width:100%}
 :focus-visible{outline:2px solid var(--brand);outline-offset:3px}
 .wrap{max-width:1320px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
-.mono{font-family:var(--mono)}
 .eyebrow{font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-dark);display:flex;align-items:center;gap:10px}
 .eyebrow::before{content:'';width:22px;height:1px;background:currentColor;box-shadow:0 -3px 0 -0px transparent}
 .h2{font-family:var(--display);font-stretch:100%;font-weight:700;font-size:clamp(32px,4vw,58px);line-height:1.05;letter-spacing:-.022em;text-wrap:balance;margin-top:14px}
@@ -288,7 +287,6 @@ input[type=range]::-moz-range-thumb{width:17px;height:17px;border-radius:50%;bac
 .plan.feat .tag{background:var(--sun);color:var(--ink)}
 .price{display:flex;align-items:baseline;gap:8px}
 .price b{font-family:var(--display);font-stretch:100%;font-weight:700;font-size:60px;letter-spacing:-.04em;line-height:.95}
-.pp{font-family:var(--mono);font-size:13px;font-weight:600;margin-top:8px}
 .plan-apps{display:grid;gap:0;border-top:1px solid var(--rule);font-size:14.5px}
 .plan.feat .plan-apps{border-top-color:rgba(255,255,255,.25)}
 .plan-apps li{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule)}
@@ -439,6 +437,8 @@ h1.h2{font-stretch:100%;font-size:clamp(32px,4.2vw,58px);line-height:1.05;letter
 .top nav a.link[aria-current]{color:var(--ink)}
 .top nav a.link[aria-current]::after{transform:scaleX(1)}
 @media (max-width:900px){.top nav a.link.keep{display:inline-block}.top nav{gap:16px}}
+.logo,.top nav a{white-space:nowrap}
+@media (max-width:460px){.top nav a.link.keep{display:none}}   /* phones: logo and the trial button only; the hero links to the apps */
 footer nav{display:flex;flex-wrap:wrap;gap:6px 20px}
 footer nav a{text-decoration:none;color:var(--ink2)}
 footer nav a:hover{color:var(--ink);text-decoration:underline}
