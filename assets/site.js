@@ -6,7 +6,7 @@ window.DBHUB = (function () {
   /* ===== Edit before going live. Empty values are simply left off the pages. ===== */
   var CONTACT_EMAIL = 'info@dedesbaldai.lt';
   var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
-  var COMPANY_LINE = '';    // e.g. 'UAB Example · company code 123456789 · Vilnius'
+  var COMPANY_LINE = 'MB SUVESIU';
 
   var $ = function (id) { return document.getElementById(id); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
