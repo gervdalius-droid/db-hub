@@ -4,7 +4,7 @@ document.documentElement.classList.add('js');
 window.DBHUB = (function () {
   'use strict';
   /* ===== Edit before going live. Empty values are simply left off the pages. ===== */
-  var CONTACT_EMAIL = '';   // e.g. 'hello@yourdomain.com'
+  var CONTACT_EMAIL = 'info@dedesbaldai.lt';
   var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
   var COMPANY_LINE = '';    // e.g. 'UAB Example · company code 123456789 · Vilnius'
 
