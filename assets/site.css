@@ -455,3 +455,5 @@ footer nav a:hover{color:var(--ink);text-decoration:underline}
 .legal-body li::before{content:'';position:absolute;left:3px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--sun-dark)}
 .legal-body .small{margin-top:28px}
 form.start .fine a{color:inherit}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.seg button:disabled:hover{background:transparent}
