@@ -624,57 +624,92 @@
     return a.y1 <= b.y0;
   }
   function renderSketch() {
-    var c = draft, m = MATS[c.mat], fm = MATS[c.fmat], w = c.w, d = c.d, leg = c.type === 'wall' ? 0 : 100, y0 = leg, y1 = leg + c.h;
-    var ci = kitchen.length, g = [], B = [], i, j;
-    function pid(code) { return code ? ' data-pid="' + ci + '-' + code + '"' : ''; }
-    function box(x0, x1, ya, yb, z0, z1, code, sh) { B.push({ x0: x0, x1: x1, y0: ya, y1: yb, z0: z0, z1: z1, code: code, sh: sh || {} }); }
-
-    // the carcass as boards
-    box(0, T, y0, y1, 0, d, 'S1', { r: -0.2 });                       // left side: its inside face is the one you see
-    box(w - T, w, y0, y1, 0, d, 'S2');
-    box(T, w - T, y0, y0 + T, 0, d - 3, 'B', { t: -0.03 });
-    box(T, w - T, y0, y1, d - 3, d, '', { f: -0.1 });                 // HDF back
-    if (c.type === 'base') { box(T, w - T, y1 - T, y1, 0, 100, 'R1'); box(T, w - T, y1 - T, y1, d - 103, d - 3, 'R2'); }
-    else box(T, w - T, y1 - T, y1, 0, d - 3, 'T');
-    var DR = hasDrawers(c), extMax = Math.min(d * 0.62, 380);
-    if (!DR) {
-      var gap = (c.h - 2 * T) / (c.shelves + 1);
-      for (i = 1; i <= c.shelves; i++) { var ys = y0 + T + gap * i + T / 2; box(T + 1, w - T - 1, ys - T, ys, 20, d - 3, 'H' + i, { t: 0.02 }); }
-    } else {
-      // drawers: a front on a drawer box with metal sides, pulled out together
-      var nd = c.drawers, fh = (c.h - 4 - (nd - 1) * 3) / nd, ext = doorT * extMax, bd = d - 60, METAL = '#C5CAD3';
-      for (i = 0; i < nd; i++) {
-        var yk = y0 + 2 + i * (fh + 3), bh = Math.min(boxHeight(fh), fh - 30), zf = -ext - 2;
-        box(T + 6, T + 18, yk + 18, yk + 18 + bh, zf + 2, zf + 2 + bd, '', { col: METAL });
-        box(w - T - 18, w - T - 6, yk + 18, yk + 18 + bh, zf + 2, zf + 2 + bd, '', { col: METAL });
-        box(T + 18, w - T - 18, yk + 18, yk + 30, zf + 2, zf + 2 + bd, 'DB' + (i + 1), { t: 0.1 });
-        box(T + 18, w - T - 18, yk + 18, yk + 18 + bh * 0.92, zf + bd - 14, zf + 2 + bd, 'DK' + (i + 1));
-        box(2, w - 2, yk, yk + fh, zf - T, zf, 'F' + (i + 1), { col: fm.fill, handle: true });
+    // The whole kitchen: floor cabinets side by side, wall cabinets above them (skipping tall ones),
+    // all backs against the same wall. The cabinet being edited is the last one and gets the dimensions.
+    var cabs = kitchen.concat([draft]), ed = cabs.length - 1, WALL_Y = 1450;
+    var Dz = Math.max.apply(null, cabs.map(function (c) { return c.d; }));
+    var place = [], fx = 0, talls = [];
+    cabs.forEach(function (c, ci) {
+      if (c.type === 'wall') return;
+      place[ci] = { ox: fx, oy: 0, oz: Dz - c.d };
+      if (c.type === 'tall') talls.push([fx, fx + c.w]);
+      fx += c.w;
+    });
+    var wx = 0;
+    cabs.forEach(function (c, ci) {
+      if (c.type !== 'wall') return;
+      for (var moved = true; moved;) {
+        moved = false;
+        talls.forEach(function (t) { if (wx < t[1] && wx + c.w > t[0]) { wx = t[1]; moved = true; } });
       }
-    }
+      place[ci] = { ox: wx, oy: WALL_Y, oz: Dz - c.d };
+      wx += c.w;
+    });
 
-    // doors: a board hinged on its outer edge
-    var n = doorCount(c), dw = (w - 4 - (n - 1) * 3) / n, da = y0 + 2, db = y1 - 2;
-    function door(k, frac) {
-      var left = k === 0, a = (left ? DOOR_L : DOOR_R) * frac, hx = left ? 2 : w - 2, sg = left ? 1 : -1;
+    var g = [], B = [], Dr = [], Lg = [], pts = [], i, j, extMax = 0;
+    function door(c, k, frac) {
+      var n = doorCount(c), dw = (c.w - 4 - (n - 1) * 3) / n;
+      var left = k === 0, a = (left ? DOOR_L : DOOR_R) * frac, hx = left ? 2 : c.w - 2, sg = left ? 1 : -1;
       var ux = sg * Math.cos(a), uz = -Math.sin(a), nx = -sg * Math.sin(a), nz = -Math.cos(a);
-      return { u: [ux, uz], n: [nx, nz],
+      return { u: [ux, uz], n: [nx, nz], dw: dw,
         P: [[hx, -2], [hx + dw * ux, -2 + dw * uz], [hx + dw * ux + T * nx, -2 + dw * uz + T * nz], [hx + T * nx, -2 + T * nz]] };
     }
 
-    // what the view has to hold, with the doors fully open so the picture stays still while they swing
-    var pts = [];
-    [[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d], [0, y1, 0], [w, y1, 0], [w, y1, d], [0, y1, d]].forEach(function (q) { pts.push(pr(q[0], q[1], q[2])); });
-    for (j = 0; j < n; j++) door(j, 1).P.forEach(function (q) { pts.push(pr(q[0], da, q[1])); pts.push(pr(q[0], db, q[1])); });
-    if (DR) [0, w].forEach(function (x) { [y0, y1].forEach(function (y) { pts.push(pr(x, y, -extMax - 2 - T)); }); });
+    cabs.forEach(function (c, ci) {
+      var P = place[ci], fm = MATS[c.fmat], w = c.w, d = c.d, leg = c.type === 'wall' ? 0 : 100, y0 = leg, y1 = leg + c.h, list = [];
+      function box(x0, x1, ya, yb, z0, z1, code, sh) {
+        list.push({ x0: x0 + P.ox, x1: x1 + P.ox, y0: ya + P.oy, y1: yb + P.oy, z0: z0 + P.oz, z1: z1 + P.oz, code: code, sh: sh || {}, ci: ci, m: MATS[c.mat] });
+      }
+      box(0, T, y0, y1, 0, d, 'S1', { r: -0.2 });                       // left side: its inside face is the one you see
+      box(w - T, w, y0, y1, 0, d, 'S2');
+      box(T, w - T, y0, y0 + T, 0, d - 3, 'B', { t: -0.03 });
+      box(T, w - T, y0, y1, d - 3, d, '', { f: -0.1 });                 // HDF back
+      if (c.type === 'base') { box(T, w - T, y1 - T, y1, 0, 100, 'R1'); box(T, w - T, y1 - T, y1, d - 103, d - 3, 'R2'); }
+      else box(T, w - T, y1 - T, y1, 0, d - 3, 'T');
+      var DR = hasDrawers(c), ex = Math.min(d * 0.62, 380);
+      if (!DR) {
+        var gap = (c.h - 2 * T) / (c.shelves + 1);
+        for (i = 1; i <= c.shelves; i++) { var ys = y0 + T + gap * i + T / 2; box(T + 1, w - T - 1, ys - T, ys, 20, d - 3, 'H' + i, { t: 0.02 }); }
+      } else {
+        // drawers: a front on a drawer box with metal sides, pulled out together
+        var nd = c.drawers, fh = (c.h - 4 - (nd - 1) * 3) / nd, ext = doorT * ex, bd = d - 60, METAL = '#C5CAD3';
+        for (i = 0; i < nd; i++) {
+          var yk = y0 + 2 + i * (fh + 3), bh = Math.min(boxHeight(fh), fh - 30), zf = -ext - 2;
+          box(T + 6, T + 18, yk + 18, yk + 18 + bh, zf + 2, zf + 2 + bd, '', { col: METAL });
+          box(w - T - 18, w - T - 6, yk + 18, yk + 18 + bh, zf + 2, zf + 2 + bd, '', { col: METAL });
+          box(T + 18, w - T - 18, yk + 18, yk + 30, zf + 2, zf + 2 + bd, 'DB' + (i + 1), { t: 0.1 });
+          box(T + 18, w - T - 18, yk + 18, yk + 18 + bh * 0.92, zf + bd - 14, zf + 2 + bd, 'DK' + (i + 1));
+          box(2, w - 2, yk, yk + fh, zf - T, zf, 'F' + (i + 1), { col: fm.fill, handle: true });
+        }
+        extMax = Math.max(extMax, ex);
+        [0, w].forEach(function (x) { [y0, y1].forEach(function (y) { pts.push(pr(x + P.ox, y + P.oy, -ex - 2 - T + P.oz)); }); });
+      }
+      // boards of one cabinet, furthest first
+      var order = [];
+      while (list.length) {
+        for (i = 0; i < list.length; i++) if (!list.some(function (o, k) { return k !== i && paintedBefore(o, list[i]); })) break;
+        order.push(list.splice(i < list.length ? i : 0, 1)[0]);
+      }
+      B.push({ x0: P.ox, x1: P.ox + w, y0: P.oy + y0, y1: P.oy + y1, z0: P.oz, z1: P.oz + d, boards: order });
+      var n = doorCount(c);
+      for (j = 0; j < n; j++) Dr.push({ c: c, ci: ci, P: P, k: j, da: y0 + 2, db: y1 - 2 });
+      if (leg) Lg.push({ P: P, w: w, d: d, leg: leg });
+      // what the view has to hold, with doors fully open so the picture stays still while they swing
+      [[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d], [0, y1, 0], [w, y1, 0], [w, y1, d], [0, y1, d]].forEach(function (q) { pts.push(pr(q[0] + P.ox, q[1] + P.oy, q[2] + P.oz)); });
+      for (j = 0; j < n; j++) door(c, j, 1).P.forEach(function (q) { pts.push(pr(q[0] + P.ox, y0 + 2 + P.oy, q[1] + P.oz)); pts.push(pr(q[0] + P.ox, y1 - 2 + P.oy, q[1] + P.oz)); });
+    });
+
+    // the edited cabinet carries the dimension lines
+    var c = draft, PE = place[ed], w = c.w, d = c.d, y0 = c.type === 'wall' ? 0 : 100, y1 = y0 + c.h;
+    function pe(x, y, z) { return pr(x + PE.ox, y + PE.oy, z + PE.oz); }
     var bx0 = Infinity, bx1 = -Infinity, by0 = Infinity, by1 = -Infinity;
     pts.forEach(function (p) { bx0 = Math.min(bx0, p[0]); bx1 = Math.max(bx1, p[0]); by0 = Math.min(by0, p[1]); by1 = Math.max(by1, p[1]); });
     var sk = $('sketch'), cw = sk.clientWidth || 460, ch = sk.clientHeight || 340;
-    var yf = c.type === 'wall' ? y0 : 0, u = 4, vb, off, ox;
+    var yf = c.type === 'wall' ? y0 : 0, u = 4, vb, off, dox;
     for (i = 0; i < 3; i++) {                                         // u = drawing units per screen pixel
-      off = 30 * u; ox = 40 * u;
-      var x0 = bx0 - 16 * u, x1 = Math.max(bx1, pr(w, 0, d)[0] + off + 32 * u, pr(w + ox, yf, d)[0] + 62 * u) + 12 * u;
-      var ya = Math.min(by0, pr(0, y1 + off, d)[1] - 12 * u) - 12 * u, yb = Math.max(by1, pr(w + ox, yf, 0)[1] + 8 * u) + 16 * u;
+      off = 30 * u; dox = 40 * u;
+      var x0 = bx0 - 16 * u, x1 = Math.max(bx1, pe(w, 0, d)[0] + off + 32 * u, pe(w + dox, yf, d)[0] + 62 * u) + 12 * u;
+      var ya = Math.min(by0, pe(0, y1 + off, d)[1] - (cabs.length > 1 ? 30 : 12) * u) - 12 * u, yb = Math.max(by1, pe(w + dox, yf, 0)[1] + 8 * u) + 16 * u;
       var vw = Math.max(x1 - x0, 1700), vh = Math.max(yb - ya, 1250);
       vb = [x0 - (vw - (x1 - x0)) / 2, yb - vh, vw, vh];
       u = 1 / Math.min(cw / vw, ch / vh);
@@ -683,65 +718,79 @@
     g.push('<defs><linearGradient id="legG" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#454956"/><stop offset=".4" stop-color="#22242C"/><stop offset="1" stop-color="#0F1014"/></linearGradient>' +
       '<filter id="soft" x="-40%" y="-90%" width="180%" height="280%"><feGaussianBlur stdDeviation="30"/></filter></defs>');
 
-    // shadow on the floor, then the legs
-    if (leg) {
-      g.push(poly([pt(-70, 0, -30), pt(w + 10, 0, -30), pt(w + 10, 0, d + 70), pt(-70, 0, d + 70)], 'rgba(27,33,64,.2)', ' class="ns" filter="url(#soft)"'));
-      [[55, d - 60], [w - 55, d - 60], [55, 70], [w - 55, 70]].forEach(function (L) {
-        var top = pr(L[0], leg, L[1]), bot = pr(L[0], 0, L[1]), r = 19, fr = 27, fh = 10;
+    // shadows on the floor, then the legs
+    Lg.forEach(function (L) {
+      var o = L.P;
+      g.push(poly([pt(o.ox - 70, 0, o.oz - 30), pt(o.ox + L.w + 10, 0, o.oz - 30), pt(o.ox + L.w + 10, 0, o.oz + L.d + 70), pt(o.ox - 70, 0, o.oz + L.d + 70)], 'rgba(27,33,64,.2)', ' class="ns" filter="url(#soft)"'));
+    });
+    Lg.forEach(function (L) {
+      var o = L.P;
+      [[55, L.d - 60], [L.w - 55, L.d - 60], [55, 70], [L.w - 55, 70]].forEach(function (q) {
+        var top = pr(q[0] + o.ox, L.leg, q[1] + o.oz), bot = pr(q[0] + o.ox, 0, q[1] + o.oz), r = 19, fr = 27, fh = 10;
         g.push('<ellipse cx="' + bot[0] + '" cy="' + bot[1] + '" rx="' + fr + '" ry="' + fr * SP + '" fill="#0F1014"/>' +
           '<rect class="ns" x="' + (bot[0] - fr) + '" y="' + (bot[1] - fh) + '" width="' + 2 * fr + '" height="' + fh + '" fill="url(#legG)"/>' +
           '<ellipse cx="' + bot[0] + '" cy="' + (bot[1] - fh) + '" rx="' + fr + '" ry="' + fr * SP + '" fill="#2C2F3A"/>' +
           '<rect class="ns" x="' + (bot[0] - r) + '" y="' + top[1] + '" width="' + 2 * r + '" height="' + (bot[1] - fh - top[1]) + '" fill="url(#legG)"/>');
       });
-    }
+    });
 
-    // boards, furthest first
-    var rest = B.slice(), order = [];
+    // cabinets furthest first, and inside each one its boards furthest first
+    var rest = B.slice(), corder = [];
     while (rest.length) {
       for (i = 0; i < rest.length; i++) if (!rest.some(function (o, k) { return k !== i && paintedBefore(o, rest[i]); })) break;
-      order.push(rest.splice(i < rest.length ? i : 0, 1)[0]);
+      corder.push(rest.splice(i < rest.length ? i : 0, 1)[0]);
     }
-    order.forEach(function (b) {
-      var p = pid(b.code), s = b.sh, col = s.col || m.fill;
-      g.push(poly([pt(b.x0, b.y1, b.z0), pt(b.x1, b.y1, b.z0), pt(b.x1, b.y1, b.z1), pt(b.x0, b.y1, b.z1)], shade(col, s.t == null ? 0.32 : s.t), p));
-      g.push(poly([pt(b.x1, b.y0, b.z0), pt(b.x1, b.y0, b.z1), pt(b.x1, b.y1, b.z1), pt(b.x1, b.y1, b.z0)], shade(col, s.r == null ? -0.14 : s.r), p));
-      g.push(poly([pt(b.x0, b.y0, b.z0), pt(b.x1, b.y0, b.z0), pt(b.x1, b.y1, b.z0), pt(b.x0, b.y1, b.z0)], shade(col, s.f == null ? 0.05 : s.f), p));
-      if (s.handle) {                                                 // bar handle near the top of a drawer front
-        var hw = Math.min(80, (b.x1 - b.x0) / 4), hx = (b.x0 + b.x1) / 2, hy = b.y1 - Math.min(46, (b.y1 - b.y0) / 3), hz = b.z0 - 7;
-        g.push(poly([pt(hx - hw, hy - 12, hz), pt(hx + hw, hy - 12, hz), pt(hx + hw, hy, hz), pt(hx - hw, hy, hz)], '#9AA0B5'));
-        g.push(poly([pt(hx - hw, hy, hz), pt(hx + hw, hy, hz), pt(hx + hw, hy, b.z0), pt(hx - hw, hy, b.z0)], '#C3C7D3'));
-      }
+    corder.forEach(function (cb) {
+      cb.boards.forEach(function (b) {
+        var p = b.code ? ' data-pid="' + b.ci + '-' + b.code + '"' : '', s = b.sh, col = s.col || b.m.fill;
+        g.push(poly([pt(b.x0, b.y1, b.z0), pt(b.x1, b.y1, b.z0), pt(b.x1, b.y1, b.z1), pt(b.x0, b.y1, b.z1)], shade(col, s.t == null ? 0.32 : s.t), p));
+        g.push(poly([pt(b.x1, b.y0, b.z0), pt(b.x1, b.y0, b.z1), pt(b.x1, b.y1, b.z1), pt(b.x1, b.y1, b.z0)], shade(col, s.r == null ? -0.14 : s.r), p));
+        g.push(poly([pt(b.x0, b.y0, b.z0), pt(b.x1, b.y0, b.z0), pt(b.x1, b.y1, b.z0), pt(b.x0, b.y1, b.z0)], shade(col, s.f == null ? 0.05 : s.f), p));
+        if (s.handle) {                                               // bar handle near the top of a drawer front
+          var hw = Math.min(80, (b.x1 - b.x0) / 4), hx = (b.x0 + b.x1) / 2, hy = b.y1 - Math.min(46, (b.y1 - b.y0) / 3), hz = b.z0 - 7;
+          g.push(poly([pt(hx - hw, hy - 12, hz), pt(hx + hw, hy - 12, hz), pt(hx + hw, hy, hz), pt(hx - hw, hy, hz)], '#9AA0B5'));
+          g.push(poly([pt(hx - hw, hy, hz), pt(hx + hw, hy, hz), pt(hx + hw, hy, b.z0), pt(hx - hw, hy, b.z0)], '#C3C7D3'));
+        }
+      });
     });
 
     // dimension lines, drawn before the doors so an open door passes in front of them
     var fs = 11.5 * u, gp = 7 * u, D = [], L = [];
     function line(q) { D.push('<polyline points="' + q.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + '"/>'); }
-    function label(p, txt, anchor) { L.push('<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '" font-size="' + fs.toFixed(1) + '" stroke-width="' + (5 * u).toFixed(1) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + txt + ' mm</text>'); }
+    function label(p, txt, anchor) { L.push('<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '" font-size="' + fs.toFixed(1) + '" stroke-width="' + (5 * u).toFixed(1) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + txt + '</text>'); }
     function mid(a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; }
-    var a1 = pr(0, y1 + off, d), a2 = pr(w, y1 + off, d);                                    // width, above the back edge
-    line([pr(0, y1 + gp, d), a1, a2, pr(w, y1 + gp, d)]); label(mid(a1, a2), c.w, 'middle');
-    var h0 = pr(w, y0, d), h1 = pr(w, y1, d);                                                // height, beside the back corner
-    line([[h0[0] + gp, h0[1]], [h0[0] + off, h0[1]], [h1[0] + off, h1[1]], [h1[0] + gp, h1[1]]]); label([h0[0] + off, (h0[1] + h1[1]) / 2], c.h, 'middle');
-    var d0 = pr(w + ox, yf, 0), d1 = pr(w + ox, yf, d);                                      // depth, on the floor beside it
-    line([pr(w + gp, yf, 0), d0, d1, pr(w + gp, yf, d)]); label([d1[0] + 7 * u, d1[1]], c.d, 'start');   // at the far end, clear of an open door
+    var a1 = pe(0, y1 + off, d), a2 = pe(w, y1 + off, d);                                    // width, above the back edge
+    line([pe(0, y1 + gp, d), a1, a2, pe(w, y1 + gp, d)]); label(mid(a1, a2), c.w + ' mm', 'middle');
+    var h0 = pe(w, y0, d), h1 = pe(w, y1, d);                                                // height, beside the back corner
+    line([[h0[0] + gp, h0[1]], [h0[0] + off, h0[1]], [h1[0] + off, h1[1]], [h1[0] + gp, h1[1]]]); label([h0[0] + off, (h0[1] + h1[1]) / 2], c.h + ' mm', 'middle');
+    var d0 = pe(w + dox, yf, 0), d1 = pe(w + dox, yf, d);                                    // depth, on the floor beside it
+    line([pe(w + gp, yf, 0), d0, d1, pe(w + gp, yf, d)]); label([d1[0] + 7 * u, d1[1]], c.d + ' mm', 'start');   // at the far end, clear of an open door
+    // with more than one cabinet, a number over each so they match the cut list
+    if (cabs.length > 1) cabs.forEach(function (cc, ci) {
+      if (ci === ed) return;
+      var o = place[ci], top = (cc.type === 'wall' ? 0 : 100) + cc.h, p = pr(o.ox + cc.w / 2, o.oy + top + 14 * u, o.oz + cc.d / 2);
+      label(p, '#' + (ci + 1), 'middle');
+    });
     g.push('<g class="dim">' + D.join('') + L.join('') + '</g>');
 
-    // doors last: they stand in front of the carcass
-    for (j = 0; j < n; j++) {
-      var dr = door(j, doorT), P = dr.P, p = pid('D' + (j + 1));
-      [[P[0], P[1], -dr.n[0], -dr.n[1]], [P[1], P[2], dr.u[0], dr.u[1]], [P[2], P[3], dr.n[0], dr.n[1]], [P[3], P[0], -dr.u[0], -dr.u[1]]].forEach(function (f) {
+    // doors last: they stand in front of the carcasses
+    Dr.forEach(function (J) {
+      var cc = J.c, o = J.P, dr = door(cc, J.k, doorT), Q = dr.P, fm = MATS[cc.fmat], p = ' data-pid="' + J.ci + '-D' + (J.k + 1) + '"';
+      var X = function (q) { return q[0] + o.ox; }, Z = function (q) { return q[1] + o.oz; }, da = J.da + o.oy, db = J.db + o.oy;
+      [[Q[0], Q[1], -dr.n[0], -dr.n[1]], [Q[1], Q[2], dr.u[0], dr.u[1]], [Q[2], Q[3], dr.n[0], dr.n[1]], [Q[3], Q[0], -dr.u[0], -dr.u[1]]].forEach(function (f) {
         if (f[3] * CT - f[2] * ST >= 0) return;                         // this face looks away from us
-        g.push(poly([pt(f[0][0], da, f[0][1]), pt(f[1][0], da, f[1][1]), pt(f[1][0], db, f[1][1]), pt(f[0][0], db, f[0][1])], shade(fm.fill, wallShade(f[2], f[3])), p));
+        g.push(poly([pt(X(f[0]), da, Z(f[0])), pt(X(f[1]), da, Z(f[1])), pt(X(f[1]), db, Z(f[1])), pt(X(f[0]), db, Z(f[0]))], shade(fm.fill, wallShade(f[2], f[3])), p));
       });
-      g.push(poly(P.map(function (q) { return pt(q[0], db, q[1]); }), shade(fm.fill, 0.32), p));
+      g.push(poly(Q.map(function (q) { return pt(X(q), db, Z(q)); }), shade(fm.fill, 0.32), p));
       if (dr.n[1] * CT - dr.n[0] * ST < 0) {                            // handle, on the outside face
-        var hh = Math.min(160, c.h / 4), hy = c.type === 'wall' ? da + 60 : c.type === 'tall' ? (da + db) / 2 - hh / 2 : db - 60 - hh;
-        var q = function (s) { return [P[3][0] + s * dr.u[0] + 6 * dr.n[0], P[3][1] + s * dr.u[1] + 6 * dr.n[1]]; }, qa = q(dw - 54), qb = q(dw - 40);
-        g.push(poly([pt(qa[0], hy, qa[1]), pt(qb[0], hy, qb[1]), pt(qb[0], hy + hh, qb[1]), pt(qa[0], hy + hh, qa[1])], '#9AA0B5'));
+        var hh = Math.min(160, cc.h / 4), hy = cc.type === 'wall' ? da + 60 : cc.type === 'tall' ? (da + db) / 2 - hh / 2 : db - 60 - hh;
+        var q = function (s) { return [Q[3][0] + s * dr.u[0] + 6 * dr.n[0], Q[3][1] + s * dr.u[1] + 6 * dr.n[1]]; }, qa = q(dr.dw - 54), qb = q(dr.dw - 40);
+        g.push(poly([pt(X(qa), hy, Z(qa)), pt(X(qb), hy, Z(qb)), pt(X(qb), hy + hh, Z(qb)), pt(X(qa), hy + hh, Z(qa))], '#9AA0B5'));
       }
-    }
+    });
 
     sk.setAttribute('viewBox', vb.map(function (v) { return v.toFixed(1); }).join(' '));
+    sk.setAttribute('aria-label', cabs.length > 1 ? 'Drawing of the kitchen: ' + plural(cabs.length, 'cabinet') + ', the last one is being edited' : 'Drawing of the cabinet you are editing');
     sk.innerHTML = g.join('');
     if (hot) $$('#sketch [data-pid="' + hot + '"]').forEach(function (el) { el.classList.add('hot'); });
   }
