@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=IBM+Plex+Mono:wght@400;500;600&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css?v=11">
+<link rel="stylesheet" href="assets/site.css?v=12">
 </head>
 <body>
 
@@ -321,9 +321,14 @@
   var STATIONS = ['CNC cut', 'Edge band', 'Drill', 'Assemble'];
   // front: 'doors' or 'drawers' (drawers only on base cabinets); fmat: board of the doors or drawer fronts
   function freshDraft() { return { type: 'base', w: 600, h: 720, d: 560, shelves: 1, mat: 'white', fmat: 'anth', front: 'drawers', drawers: 3 }; }
-  function freshKitchen() { return []; }   // the demo starts with the one cabinet being edited
+  function freshKitchen() { return [freshDraft()]; }   // the demo starts with one cabinet
 
-  var draft = freshDraft(), kitchen = freshKitchen();
+  // kitchen = every cabinet, in order; sel = the one being edited; draft = kitchen[sel]
+  var kitchen = freshKitchen(), sel = 0, draft = kitchen[0];
+  function select(i) {
+    sel = Math.max(0, Math.min(kitchen.length - 1, i)); draft = kitchen[sel];
+    syncInputs(); render();
+  }
   var touched = false, t0 = null, nudged = false, lastSummary = '';
   var doorT = 0, doorGoal = 0, doorRaf = null;   // 0 = doors shut, 1 = fully open
   var cur = null;                       // last computed { cabs, parts, nest, q }
@@ -510,19 +515,22 @@
     firstTouch();
     if (kitchen.length >= 12) { toast('Twelve is plenty for a demo. The real app has no limit.'); return; }
     kitchen.push(JSON.parse(JSON.stringify(draft)));
-    toast(cabName(draft) + ' added. Size the next one, the boards fill up.'); setTab('sheets');
-    render(); trackDemo(300); showNudge();
+    toast(cabName(draft) + ' added as #' + kitchen.length + '. Click any cabinet to change it.'); setTab('sheets');
+    select(kitchen.length - 1); trackDemo(300); showNudge();
   });
   $('resetBtn').addEventListener('click', function () {
-    kitchen = freshKitchen(); draft = freshDraft(); syncInputs(); render();
+    kitchen = freshKitchen(); select(0);
   });
   $('proj').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-rm]'); if (!b) return;
-    firstTouch(); kitchen.splice(Number(b.dataset.rm), 1); render();
+    var s = e.target.closest('[data-sel]');
+    if (s) { firstTouch(); select(Number(s.dataset.sel)); return; }
+    var b = e.target.closest('[data-rm]'); if (!b || kitchen.length < 2) return;
+    var i = Number(b.dataset.rm);
+    firstTouch(); kitchen.splice(i, 1); select(i < sel ? sel - 1 : sel);
   });
   $('csvBtn').addEventListener('click', function () {
     firstTouch();
-    var cabs = kitchen.concat([draft]);
+    var cabs = kitchen;
     var lines = [['Cabinet', 'Part', 'Code', 'Length mm', 'Width mm', 'Thickness mm', 'Qty', 'Decor', 'Edge m']];
     cabs.forEach(function (c, ci) {
       partsOf(c, ci).forEach(function (p) {
@@ -566,7 +574,7 @@
     return s + '</svg>';
   }
   function render() {
-    var cabs = kitchen.concat([draft]), parts = [];
+    var cabs = kitchen, parts = [];
     $('oW').textContent = draft.w; $('oH').textContent = draft.h; $('oD').textContent = draft.d; $('oS').textContent = hasDrawers(draft) ? '–' : draft.shelves;
     cabs.forEach(function (c, ci) { parts = parts.concat(partsOf(c, ci)); });
     var nest = nestByDecor(parts, cabs), q = quote(cabs, nest, parts);
@@ -580,7 +588,7 @@
     setK('kSheets', plural(nest.count, 'sheet'));
     $('nestNote').textContent = 'Board 2800 × 2070 mm · ' + Math.round(used) + '% used · trim 10, kerf 4 · one decor per sheet';
     setK('kLabels', plural(parts.length, 'label'));
-    $('drawCap').textContent = (cabs.length > 1 ? '#' + cabs.length + ' ' : '') + cabName(draft) + ' × ' + draft.h + ' × ' + draft.d + ' mm';
+    $('drawCap').textContent = (cabs.length > 1 ? 'Editing #' + (sel + 1) + ' ' : '') + cabName(draft) + ' × ' + draft.h + ' × ' + draft.d + ' mm';
     $('bdTable').innerHTML = q.rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + eur(r[1]) + '</td></tr>'; }).join('') +
       '<tr class="tot"><td>Total, excl. VAT</td><td>' + eur(q.total) + '</td></tr>';
     $('plBody').innerHTML = cabs.map(function (c, ci) {
@@ -591,8 +599,11 @@
     }).join('');
     $('plNote').textContent = '+ ' + plural(cabs.length, 'HDF back') + ', 3 mm';
     $('proj').innerHTML = kitchen.map(function (c, i) {
-      return '<span class="chip"><i style="background:' + MATS[c.fmat].fill + '"></i>#' + (i + 1) + ' ' + cabName(c) + '<button type="button" data-rm="' + i + '" aria-label="Remove ' + cabName(c) + '">×</button></span>';
-    }).join('') + '<span class="chip draft"><i style="background:' + MATS[draft.fmat].fill + '"></i>#' + cabs.length + ' ' + cabName(draft) + ' · editing</span>';
+      var on = i === sel, nm = '#' + (i + 1) + ' ' + cabName(c);
+      return '<span class="chip' + (on ? ' draft' : '') + '"><button type="button" class="pick" data-sel="' + i + '" aria-pressed="' + on + '"' + (on ? '' : ' aria-label="Edit ' + nm + '"') + '>' +
+        '<i style="background:' + MATS[c.fmat].fill + '"></i>' + nm + (on ? ' · editing' : '') + '</button>' +
+        (kitchen.length > 1 ? '<button type="button" data-rm="' + i + '" aria-label="Remove ' + nm + '">×</button>' : '') + '</span>';
+    }).join('');
     $('attachTxt').textContent = 'Attach the ' + (cabs.length === 1 ? 'cabinet' : plural(cabs.length, 'cabinet')) + ' I built in the demo (' + eur(q.total) + ')';
     renderSketch(); renderNest(nest); renderRun(); applyHot();
     lastSummary = cabs.map(function (c, i) { return '#' + (i + 1) + ' ' + cabName(c) + ' × ' + c.h + ' × ' + c.d + ' mm, ' + (hasDrawers(c) ? plural(c.drawers, 'drawer') : plural(c.shelves, 'shelf').replace('shelfs', 'shelves')) + ', ' + MATS[c.mat].label + ' carcass, ' + MATS[c.fmat].label + ' fronts'; }).join('\n') +
@@ -625,8 +636,8 @@
   }
   function renderSketch() {
     // The whole kitchen: floor cabinets side by side, wall cabinets above them (skipping tall ones),
-    // all backs against the same wall. The cabinet being edited is the last one and gets the dimensions.
-    var cabs = kitchen.concat([draft]), ed = cabs.length - 1, WALL_Y = 1450;
+    // all backs against the same wall. The cabinet being edited gets the dimensions.
+    var cabs = kitchen, ed = sel, WALL_Y = 1450;
     var Dz = Math.max.apply(null, cabs.map(function (c) { return c.d; }));
     var place = [], fx = 0, talls = [];
     cabs.forEach(function (c, ci) {
@@ -790,7 +801,7 @@
     });
 
     sk.setAttribute('viewBox', vb.map(function (v) { return v.toFixed(1); }).join(' '));
-    sk.setAttribute('aria-label', cabs.length > 1 ? 'Drawing of the kitchen: ' + plural(cabs.length, 'cabinet') + ', the last one is being edited' : 'Drawing of the cabinet you are editing');
+    sk.setAttribute('aria-label', cabs.length > 1 ? 'Drawing of the kitchen: ' + plural(cabs.length, 'cabinet') + ', number ' + (sel + 1) + ' is being edited' : 'Drawing of the cabinet you are editing');
     sk.innerHTML = g.join('');
     if (hot) $$('#sketch [data-pid="' + hot + '"]').forEach(function (el) { el.classList.add('hot'); });
   }
@@ -853,7 +864,7 @@
   function renderLabel() {
     var N = cur.parts.length, p = null;
     if (hot) p = cur.parts.filter(function (x) { return x.id === hot; })[0];
-    if (!p) p = runI > 0 ? runPart() : cur.parts.filter(function (x) { return x.cab === cur.cabs.length - 1 && x.kind === 'door'; })[0] || cur.parts[0];
+    if (!p) p = runI > 0 ? runPart() : cur.parts.filter(function (x) { return x.cab === sel && x.kind === 'door'; })[0] || cur.parts[0];
     var c = cur.cabs[p.cab], st = Math.min(3, Math.floor(runI / N)), pl = cur.nest.placed.filter(function (x) { return x.p.id === p.id; })[0];
     var edges = p.band.reduce(function (s, v) { return s + v; }, 0);
     $('lbl').innerHTML = '<div class="l-top"><span>Kitchen demo</span><span>#' + (p.cab + 1) + ' ' + cabName(c) + '</span></div>' +
@@ -909,7 +920,13 @@
     var el = $(p[0]);
     el.addEventListener('pointerover', function (e) { var n = e.target.closest('[data-pid]'); if (n) setHot(n.getAttribute('data-pid'), p[1]); });
     el.addEventListener('pointerleave', function () { setHot(null); });
-    el.addEventListener('click', function (e) { var n = e.target.closest('[data-pid]'); if (n) { firstTouch(); setHot(n.getAttribute('data-pid'), p[1]); } });
+    el.addEventListener('click', function (e) {
+      var n = e.target.closest('[data-pid]'); if (!n) return;
+      firstTouch();
+      var ci = parseInt(n.getAttribute('data-pid'), 10);
+      if (p[1] === 'sketch' && ci !== sel) { setHot(null); select(ci); return; }   // clicking another cabinet edits it
+      setHot(n.getAttribute('data-pid'), p[1]);
+    });
   });
 
   /* --- one output on screen at a time; the four totals stay visible in the tabs --- */
