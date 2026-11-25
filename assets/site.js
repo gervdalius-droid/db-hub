@@ -1,5 +1,6 @@
-/* Shared by index.html and apps.html: contact details, small helpers, the list of apps,
-   the sticky header and the scroll reveal. */
+/* worxmax site, shared by index.html, apps.html, privacy.html and app/: contact details,
+   small helpers, the list of apps (the nine catalogue articles), the sticky header, the
+   thumb-index rail and the scroll reveal. */
 document.documentElement.classList.add('js');
 window.DBHUB = (function () {
   'use strict';
@@ -88,7 +89,8 @@ window.DBHUB = (function () {
   };
   var byId = {}, stageOf = {};
   STAGES.forEach(function (s) { stageOf[s.id] = s; });
-  APPS.forEach(function (a) { byId[a.id] = a; a.short = SHORT[a.id]; });
+  // Catalogue article numbers, in the order a job passes through the apps.
+  APPS.forEach(function (a, i) { byId[a.id] = a; a.short = SHORT[a.id]; a.art = 'WX-0' + (i + 1); });
 
   /* ===================== CHROME: header, footer line, reveal ===================== */
   var topbar = $('topbar');
@@ -97,8 +99,20 @@ window.DBHUB = (function () {
   if (COMPANY_LINE && $('footLine')) $('footLine').textContent = COMPANY_LINE;
   // privacy.html names whoever runs the site, once the details above are filled in
   if ($('ctrl') && (COMPANY_LINE || CONTACT_EMAIL)) {
-    $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs db-hub is responsible for this data.') +
+    $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs worxmax is responsible for this data.') +
       (CONTACT_EMAIL ? ' Write to ' + CONTACT_EMAIL + ' about anything on this page.' : '');
+  }
+  // Thumb-index rail: the tab of the chapter in view turns yellow.
+  var tabs = $$('.rail a');
+  if (tabs.length && 'IntersectionObserver' in window) {
+    var chapters = tabs.map(function (a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean), seen = {};
+    var ro = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { seen[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
+      var best = null;
+      chapters.forEach(function (c) { if ((seen[c.id] || 0) > 0 && (!best || c.getBoundingClientRect().top <= window.innerHeight * 0.45)) best = c; });
+      tabs.forEach(function (a) { a.setAttribute('aria-current', String(!!best && a.getAttribute('href') === '#' + best.id)); });
+    }, { threshold: [0, 0.01, 0.25, 0.5], rootMargin: '-64px 0px -35% 0px' });
+    chapters.forEach(function (c) { ro.observe(c); });
   }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (es) {

@@ -4,80 +4,74 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>db-hub — your workshop</title>
-<meta name="theme-color" content="#FFF9F0">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%233355F0'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>worxmax — your workshop</title>
+<meta name="theme-color" content="#F2C500">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%231E2124'/%3E%3Crect x='22' y='0' width='10' height='12' fill='%23F2C500'/%3E%3Cpath d='M6 11l4 12 6-9 6 9 4-12' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preload" href="../assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* Same look as the db-hub website (assets/site.css): warm paper, white cards, blue for actions. */
-:root{--paper:#FFF9F0;--sheet:#fff;--tray:#F8F1E5;--ink:#1B2140;--ink2:#474E6B;--ink3:#6C7391;--rule:#ECE3D4;--rule2:#D9CEBB;
-  --brand:#3355F0;--brand-dark:#2643CF;--brand-soft:#E6EBFF;--sun:#FFC53D;--sun-soft:#FFF0C7;--ok:#1F9D5B;--bad:#C8341B;
-  --display:'Bricolage Grotesque',system-ui,sans-serif;--body:'Instrument Sans',system-ui,-apple-system,"Segoe UI",sans-serif}
+/* Same world as the worxmax website (assets/site.css): catalogue paper, graphite ink, signal yellow on what you press. */
+@font-face{font-family:"Archivo";font-style:normal;font-weight:100 900;font-stretch:62% 125%;font-display:swap;src:url("../assets/fonts/archivo-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Archivo";font-style:normal;font-weight:100 900;font-stretch:62% 125%;font-display:swap;src:url("../assets/fonts/archivo-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
+:root{--paper:#F1F2F4;--sheet:#fff;--tray:#F1F2F4;--ink:#1E2124;--ink2:#454B53;--ink3:#646B74;--rule:#D8DCE0;--rule2:#B4BAC2;
+  --brand:#F2C500;--brand-dark:#1E2124;--brand-soft:#FFF3BF;--sun:#F2C500;--sun-soft:#FFF3BF;--ok:#1E7F47;--bad:#B3261E;
+  --display:"Archivo",system-ui,sans-serif;--body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif}
 *{box-sizing:border-box}
 body{margin:0;font-family:var(--body);font-size:16px;line-height:1.5;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
-body::before{content:'';position:fixed;inset:0 0 auto;height:520px;background:radial-gradient(46% 62% at 12% 0%,var(--sun-soft),transparent 72%),radial-gradient(44% 60% at 90% 0%,var(--brand-soft),transparent 72%);pointer-events:none;z-index:-1}
-a{color:var(--brand-dark)}
+body::before{content:'';position:fixed;inset:0 0 auto;height:8px;background:var(--sun);pointer-events:none;z-index:-1}
+a{color:var(--ink)}
 h1,h2,p{margin:0}
-h1{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-h2{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+h1{font-family:var(--display);font-stretch:115%;font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+h2{font-family:var(--display);font-stretch:115%;font-size:20px;font-weight:700;letter-spacing:-.01em}
 button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;box-shadow:0 0 0 6px var(--sun)}
 [hidden]{display:none!important}
 .wrap{max-width:980px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
 .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:23px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-stretch:115%;font-weight:700;font-size:23px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
 #who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.card{background:var(--sheet);border:1px solid var(--rule);border-radius:20px;padding:24px;box-shadow:0 1px 2px rgba(27,33,64,.04),0 18px 40px -26px rgba(27,33,64,.28)}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:2px;padding:24px;box-shadow:0 1px 2px rgba(27,33,64,.04),0 18px 40px -26px rgba(27,33,64,.28)}
 .narrow{max-width:440px;margin:6vh auto 0}
 .stack{display:flex;flex-direction:column;gap:14px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
 label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink2);min-width:0}
 .row label{flex:1 1 180px}
-input,select{min-height:46px;background:#FFFDF9;color:var(--ink);border:1px solid var(--rule2);border-radius:10px;padding:8px 12px;width:100%;font-weight:400;transition:border-color .15s,box-shadow .15s}
-input:focus,select:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
-.btn{min-height:46px;padding:0 20px;border-radius:999px;border:1px solid var(--rule2);background:var(--sheet);color:var(--ink);cursor:pointer;font-weight:600;transition:background .15s,border-color .15s,color .15s}
-.btn:hover{border-color:var(--brand);color:var(--brand-dark)}
-.btn.go{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 12px 24px -14px rgba(51,85,240,.9)}
-.btn.go:hover{background:var(--brand-dark);color:#fff}
+input,select{min-height:46px;background:#FFFDF9;color:var(--ink);border:1px solid var(--rule2);border-radius:2px;padding:8px 12px;width:100%;font-weight:400;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px var(--sun)}
+.btn{min-height:46px;padding:0 20px;border-radius:2px;border:1px solid var(--rule2);background:var(--sheet);color:var(--ink);cursor:pointer;font-weight:600;transition:background .15s,border-color .15s,color .15s}
+.btn:hover{border-color:var(--ink);background:var(--brand-soft)}
+.btn.go{background:var(--brand);border-color:var(--ink);color:var(--ink)}
+.btn.go:hover{background:#FFD52E;color:var(--ink)}
 .btn.small{min-height:36px;padding:0 14px;font-weight:600;font-size:14px}
 .btn:disabled{opacity:.6;cursor:default}
-.tabs{display:flex;background:var(--tray);border:1px solid var(--rule);border-radius:99px;padding:4px}
-.tabs button{flex:1;min-height:40px;border:0;border-radius:99px;background:transparent;color:var(--ink2);font-weight:600;cursor:pointer}
+.tabs{display:flex;background:var(--tray);border:1px solid var(--rule);border-radius:2px;padding:4px}
+.tabs button{flex:1;min-height:40px;border:0;border-radius:2px;background:transparent;color:var(--ink2);font-weight:600;cursor:pointer}
 .tabs button[aria-pressed="true"]{background:var(--sheet);color:var(--ink);box-shadow:0 1px 3px rgba(27,33,64,.12)}
 .msg{min-height:22px;font-size:14px;color:var(--bad)}
 .msg.ok{color:var(--ok)}
 .muted{color:var(--ink3);font-size:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px}
-.big{font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.big{font-family:var(--display);font-stretch:115%;font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
 .scroll{overflow-x:auto}
 table{border-collapse:collapse;width:100%;min-width:560px}
 th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
 th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 tr:last-child td{border-bottom:0}
-.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:99px;padding:2px 9px;background:var(--brand-soft);color:var(--brand-dark)}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:2px;padding:2px 9px;background:var(--brand-soft);color:var(--brand-dark)}
 .apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.app{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;padding:16px;border:1px solid var(--rule);border-radius:16px;background:var(--sheet);min-width:0}
-.app b{display:block;font-family:var(--display);font-size:18px;letter-spacing:-.01em;line-height:1.2}
+.app{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;padding:16px;border:1px solid var(--rule);border-radius:2px;background:var(--sheet);min-width:0}
+.app b{display:block;font-family:var(--display);font-stretch:115%;font-size:18px;letter-spacing:-.01em;line-height:1.2}
 .app p{font-size:14px;color:var(--ink2);line-height:1.4;margin-top:3px}
-.app small{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:var(--ink3);background:var(--tray);border-radius:99px;padding:2px 9px}
-.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand)}
+.app small{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:var(--ink3);background:var(--tray);border-radius:2px;padding:2px 9px}
+.ico{width:44px;height:44px;border-radius:2px;display:grid;place-items:center;background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
 .ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
-.ico[data-st="sell"]{background:#FFF0C7;color:#946000}
-.ico[data-st="design"]{background:#E6EBFF;color:#3355F0}
-.ico[data-st="cut"]{background:#FFE4DA;color:#C2431B}
-.ico[data-st="build"]{background:#DDF5E6;color:#1B7F4B}
-.ico[data-st="deliver"]{background:#EFE5FF;color:#6B3FD4}
-.ico[data-st="bill"]{background:#FFE3EE;color:#BF2F68}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top">
     <a class="logo" href="../">
-      <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="5" fill="#3355F0"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
-      db-hub
+      <svg aria-hidden="true" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" rx="3" fill="#1E2124"/><rect x="22" y="0" width="10" height="12" fill="#F2C500"/><path d="M6 11l4 12 6-9 6 9 4-12" fill="none" stroke="#fff" stroke-width="3.2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      worxmax
     </a>
     <div id="who" hidden><span class="muted" id="whoMail"></span> <button class="btn small" id="out" type="button">Sign out</button></div>
   </div>
@@ -149,7 +143,7 @@ tr:last-child td{border-bottom:0}
   </section>
 </div>
 
-<script src="../assets/site.js?v=11"></script>
+<script src="../assets/site.js?v=20"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 // Public address and publishable key of the db-hub database. Every table is protected by

@@ -1,0 +1,4 @@
+# GitHub Pages: keep Impeccable's design records out of the published site.
+exclude:
+  - PRODUCT.md
+  - DESIGN.md
