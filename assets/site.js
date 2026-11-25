@@ -119,14 +119,6 @@ window.DBHUB = (function () {
     window.addEventListener('hashchange', function () { setTimeout(markRail, 50); });
     markRail();
   }
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { threshold: 0.08 });
-    $$('.rv').forEach(function (el) { io.observe(el); });
-  } else {
-    $$('.rv').forEach(function (el) { el.classList.add('in'); });
-  }
 
   return { $: $, $$: $$, reduce: reduce, eur: eur, plural: plural, fillRange: fillRange,
     STAGES: STAGES, APPS: APPS, PLAN_OF: PLAN_OF, PLAN_NAMES: PLAN_NAMES, byId: byId, stageOf: stageOf,

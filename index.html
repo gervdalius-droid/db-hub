@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#F2C500">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%231E2124'/%3E%3Crect x='22' y='0' width='10' height='12' fill='%23F2C500'/%3E%3Cpath d='M6 11l4 12 6-9 6 9 4-12' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css?v=22">
+<link rel="stylesheet" href="assets/site.css?v=23">
 </head>
 <body>
 
@@ -179,8 +179,8 @@
 <section id="apps">
   <header class="ch"><div class="wrap"><span class="ch-n" aria-hidden="true">2</span><h2>Nine apps, one job</h2><p>Each app does one job in the workshop and hands its result to the next, from the first phone call to the paid invoice.</p></div></header>
   <div class="wrap sec">
-    <div class="cat rv" id="cards"></div>
-    <div class="cat-foot rv">
+    <div class="cat" id="cards"></div>
+    <div class="cat-foot">
       <div class="plans-key" aria-label="Plan key"><span><i>O</i>Office</span><span><i>W</i>Workshop</span><span><i>C</i>Complete</span></div>
       <a class="cta line sm" href="apps.html">Real screens of every app <span class="arr" aria-hidden="true"></span></a>
     </div>
@@ -190,7 +190,7 @@
 <section id="value" class="band">
   <header class="ch"><div class="wrap"><span class="ch-n" aria-hidden="true">3</span><h2>Less typing. Fewer walks to the floor.</h2><p>What each piece of paperwork turns into.</p></div></header>
   <div class="wrap sec">
-    <div class="cmp rv">
+    <div class="cmp">
       <div class="cmp-h"><span></span><span>Today</span><span></span><span>With worxmax</span><span></span></div>
       <div class="cmp-r"><span class="what">A quote</span><span class="old">Rebuilt in Excel for every kitchen</span><span class="ar" aria-hidden="true"></span><span class="new">Priced cabinet by cabinet from your own material and labour rates</span><a href="apps.html#offers">WX-02 Offers</a></div>
       <div class="cmp-r"><span class="what">A cut list</span><span class="old">Copied by hand from the drawing</span><span class="ar" aria-hidden="true"></span><span class="new">Comes out of the cabinet design, with the CNC programs</span><a href="apps.html#studio">WX-03 Cabinet Studio</a></div>
@@ -199,7 +199,7 @@
       <div class="cmp-r"><span class="what">A new worker</span><span class="old">Another licence to pay for</span><span class="ar" aria-hidden="true"></span><span class="new">A name and a PIN. Extra people cost nothing</span><a href="apps.html#shopflow">WX-06 ShopFlow</a></div>
     </div>
 
-    <details class="roi-d rv">
+    <details class="roi-d">
       <summary>What is the re-typing costing you? Work it out</summary>
       <div class="roi" id="roi">
         <div class="roi-in">
@@ -224,14 +224,14 @@
 <section id="pricing">
   <header class="ch"><div class="wrap"><span class="ch-n" aria-hidden="true">4</span><h2>One price per workshop. Unlimited people.</h2><p>Every plan starts with a 5-day free trial. Prices exclude VAT.</p></div></header>
   <div class="wrap sec">
-    <div class="controls rv">
+    <div class="controls">
       <div class="seg big" role="group" aria-label="Billing period">
         <button type="button" id="billM" aria-pressed="true">Monthly</button>
         <button type="button" id="billY" aria-pressed="false">Yearly · 2 months free</button>
       </div>
     </div>
-    <div class="plans rv" id="plans"></div>
-    <div class="once rv">
+    <div class="plans" id="plans"></div>
+    <div class="once">
       <div><h3>Prefer to pay once?</h3>Complete as a one-time licence: €2,490 including the first year of hosting and updates, then €390 a year to keep both.</div>
       <a class="cta line sm" href="#start" data-plan="Complete — one-time licence">Ask about the one-time licence</a>
     </div>
@@ -242,7 +242,7 @@
 <section id="faq">
   <header class="ch"><div class="wrap"><span class="ch-n" aria-hidden="true">5</span><h2>Questions workshops ask first</h2></div></header>
   <div class="wrap sec">
-    <div class="faq-list rv">
+    <div class="faq-list">
       <details><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio writes a drilling and routing program for each part in .XXL format, used by SCM machines, and exports the part list as an Excel file (.xlsx) and as .csv. Nesting and the DXF Editor work with DXF files, which most router and saw software can open. If your machine needs another format, tell us when you start the trial.</p></details>
       <details><summary>Do we need to install anything?</summary><p>No. Everything runs in the browser on the office PC, a workshop tablet or the TV on the wall.</p></details>
       <details><summary>How many people can use it?</summary><p>Everyone in your workshop, at no extra cost. Workers sign in with a name and PIN, and office apps stay hidden from shop-floor logins.</p></details>
@@ -287,7 +287,7 @@
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
-<script src="assets/site.js?v=21"></script>
+<script src="assets/site.js?v=23"></script>
 <script>
 (function () {
   'use strict';

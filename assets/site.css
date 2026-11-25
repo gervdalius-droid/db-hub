@@ -112,7 +112,7 @@ html{scrollbar-color:var(--rule2) var(--tray)}
 .spec caption{caption-side:top;text-align:left;font-weight:800;font-stretch:115%;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding-bottom:8px}
 .spec table{width:100%;border-collapse:collapse}
 .spec th,.spec td{padding:8px 0;border-bottom:1px solid rgba(30,33,36,.28);text-align:left;vertical-align:top}
-.spec th{font-weight:500;color:#4A4320;width:44%;padding-right:12px}
+.spec th{font-weight:500;color:#3A3416;width:44%;padding-right:12px}
 .spec td{font-weight:700}
 
 /* ---------- the live demo, set as catalogue Fig. 1 ---------- */
@@ -341,7 +341,7 @@ form.start{background:var(--paper);border:2px solid var(--ink);border-radius:var
 @media (max-width:560px){form.start{grid-template-columns:minmax(0,1fr);padding:18px}}
 form.start .full{grid-column:1/-1}
 form.start label{display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;min-width:0}
-form.start input,form.start select,form.start textarea{width:100%;min-height:48px;border:1.5px solid var(--rule2);border-radius:var(--r);background:#FCFCFD;padding:10px 12px;font-size:16px;font-weight:400;transition:border-color .15s,box-shadow .15s}
+form.start input,form.start select,form.start textarea{width:100%;min-height:48px;border:1.5px solid var(--rule2);border-radius:var(--r);background:var(--paper);padding:10px 12px;font-size:16px;font-weight:400;transition:border-color .15s,box-shadow .15s}
 form.start textarea{min-height:88px;resize:vertical}
 form.start input:focus,form.start select:focus,form.start textarea:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px var(--yellow)}
 form.start .attach{flex-direction:row;align-items:center;gap:10px;font-weight:600;background:var(--tray);border-radius:var(--r);padding:10px 12px}
