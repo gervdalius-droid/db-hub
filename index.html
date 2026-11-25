@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#F2C500">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%231E2124'/%3E%3Crect x='22' y='0' width='10' height='12' fill='%23F2C500'/%3E%3Cpath d='M6 11l4 12 6-9 6 9 4-12' fill='none' stroke='%23fff' stroke-width='3.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preload" href="assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css?v=20">
+<link rel="stylesheet" href="assets/site.css?v=22">
 </head>
 <body>
 
@@ -47,7 +47,7 @@
         <h1>From quote to cut list, without typing anything twice.</h1>
         <p class="sub">worxmax is nine connected apps for furniture workshops. Enter a cabinet once and the quote, cut list, CNC programs, nested sheets, part labels and invoice all work from the same numbers.</p>
         <div class="row">
-          <a class="cta primary" href="#start">Start 5-day free trial <span class="arr" aria-hidden="true">→</span></a>
+          <a class="cta primary" href="#start">Start 5-day free trial <span class="arr" aria-hidden="true"></span></a>
           <a class="cta line" href="apps.html">See the nine apps</a>
         </div>
       </div>
@@ -71,14 +71,14 @@
 
       <div class="bench-body">
         <div class="col in">
-          <div class="col-h"><b>1</b>You enter the cabinet<span id="drawCap">sizes in mm</span></div>
+          <div class="col-h"><b>A</b>You enter the cabinet<span id="drawCap">sizes in mm</span></div>
           <div class="draw">
             <svg id="sketch" role="img" aria-label="Drawing of the cabinet you are editing"></svg>
             <button type="button" class="mini" id="doorBtn" aria-pressed="true">Close drawers</button>
           </div>
           <div class="ctrls">
             <div class="ctl">
-              <div class="ctl-h"><label for="cW">Width</label><span class="hint" id="hint" aria-hidden="true">← drag</span><output id="oW" for="cW">600</output></div>
+              <div class="ctl-h"><label for="cW">Width</label><span class="hint" id="hint" aria-hidden="true">drag</span><output id="oW" for="cW">600</output></div>
               <input id="cW" type="range" min="300" max="1200" step="50" value="600">
             </div>
             <div class="ctl">
@@ -102,7 +102,7 @@
               </div>
             </div>
             <div class="ctl end">
-              <button type="button" class="mini" id="moreBtn" aria-expanded="false" aria-controls="more">More options +</button>
+              <button type="button" class="mini" id="moreBtn" aria-expanded="false" aria-controls="more">More options</button>
             </div>
           </div>
           <div class="more" id="more" hidden>
@@ -135,12 +135,12 @@
         </div>
 
         <div class="col out">
-          <div class="col-h"><b>2</b>worxmax produces the rest<span>nothing typed twice</span></div>
+          <div class="col-h"><b>B</b>worxmax produces the rest<span>nothing typed twice</span></div>
           <div class="tabs" id="tabs" role="group" aria-label="What worxmax produces from the cabinet">
-            <button type="button" data-tab="quote" aria-pressed="true"><small>Quote · sample</small><b id="kPrice">€0</b></button>
-            <button type="button" data-tab="parts" aria-pressed="false"><small>Cut list</small><b id="kParts">0 parts</b></button>
-            <button type="button" data-tab="sheets" aria-pressed="false"><small>Sheets</small><b id="kSheets">0</b></button>
-            <button type="button" data-tab="labels" aria-pressed="false"><small>Labels</small><b id="kLabels">0 labels</b></button>
+            <button type="button" data-tab="quote" aria-pressed="true"><small><i>1</i>Quote</small><b id="kPrice">€0</b><span class="smp">sample price</span></button>
+            <button type="button" data-tab="parts" aria-pressed="false"><small><i>2</i>Cut list</small><b id="kParts">0 parts</b></button>
+            <button type="button" data-tab="sheets" aria-pressed="false"><small><i>3</i>Sheets</small><b id="kSheets">0</b></button>
+            <button type="button" data-tab="labels" aria-pressed="false"><small><i>4</i>Labels</small><b id="kLabels">0 labels</b></button>
           </div>
           <div class="panel" data-panel="quote">
             <div class="panel-h"><span class="tag">Offers</span>The quote, line by line <span class="sample">sample prices</span></div>
@@ -182,7 +182,7 @@
     <div class="cat rv" id="cards"></div>
     <div class="cat-foot rv">
       <div class="plans-key" aria-label="Plan key"><span><i>O</i>Office</span><span><i>W</i>Workshop</span><span><i>C</i>Complete</span></div>
-      <a class="cta line sm" href="apps.html">Real screens of every app <span class="arr" aria-hidden="true">→</span></a>
+      <a class="cta line sm" href="apps.html">Real screens of every app <span class="arr" aria-hidden="true"></span></a>
     </div>
   </div>
 </section>
@@ -192,11 +192,11 @@
   <div class="wrap sec">
     <div class="cmp rv">
       <div class="cmp-h"><span></span><span>Today</span><span></span><span>With worxmax</span><span></span></div>
-      <div class="cmp-r"><span class="what">A quote</span><span class="old">Rebuilt in Excel for every kitchen</span><span class="ar" aria-hidden="true">→</span><span class="new">Priced cabinet by cabinet from your own material and labour rates</span><a href="apps.html#offers">WX-02 Offers</a></div>
-      <div class="cmp-r"><span class="what">A cut list</span><span class="old">Copied by hand from the drawing</span><span class="ar" aria-hidden="true">→</span><span class="new">Comes out of the cabinet design, with the CNC programs</span><a href="apps.html#studio">WX-03 Cabinet Studio</a></div>
-      <div class="cmp-r"><span class="what">The boards</span><span class="old">Laid out by eye at the saw</span><span class="ar" aria-hidden="true">→</span><span class="new">Nested for you, with a printed label on every part</span><a href="apps.html#nesting">WX-05 Nesting</a></div>
-      <div class="cmp-r"><span class="what">"Is it done?"</span><span class="old">Walk to the floor and ask</span><span class="ar" aria-hidden="true">→</span><span class="new">Each project reads as one sentence: what is done, what is missing</span><a href="apps.html#overview">WX-08 Project Overview</a></div>
-      <div class="cmp-r"><span class="what">A new worker</span><span class="old">Another licence to pay for</span><span class="ar" aria-hidden="true">→</span><span class="new">A name and a PIN. Extra people cost nothing</span><a href="apps.html#shopflow">WX-06 ShopFlow</a></div>
+      <div class="cmp-r"><span class="what">A quote</span><span class="old">Rebuilt in Excel for every kitchen</span><span class="ar" aria-hidden="true"></span><span class="new">Priced cabinet by cabinet from your own material and labour rates</span><a href="apps.html#offers">WX-02 Offers</a></div>
+      <div class="cmp-r"><span class="what">A cut list</span><span class="old">Copied by hand from the drawing</span><span class="ar" aria-hidden="true"></span><span class="new">Comes out of the cabinet design, with the CNC programs</span><a href="apps.html#studio">WX-03 Cabinet Studio</a></div>
+      <div class="cmp-r"><span class="what">The boards</span><span class="old">Laid out by eye at the saw</span><span class="ar" aria-hidden="true"></span><span class="new">Nested for you, with a printed label on every part</span><a href="apps.html#nesting">WX-05 Nesting</a></div>
+      <div class="cmp-r"><span class="what">"Is it done?"</span><span class="old">Walk to the floor and ask</span><span class="ar" aria-hidden="true"></span><span class="new">Each project reads as one sentence: what is done, what is missing</span><a href="apps.html#overview">WX-08 Project Overview</a></div>
+      <div class="cmp-r"><span class="what">A new worker</span><span class="old">Another licence to pay for</span><span class="ar" aria-hidden="true"></span><span class="new">A name and a PIN. Extra people cost nothing</span><a href="apps.html#shopflow">WX-06 ShopFlow</a></div>
     </div>
 
     <details class="roi-d rv">
@@ -287,7 +287,7 @@
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
-<script src="assets/site.js?v=20"></script>
+<script src="assets/site.js?v=21"></script>
 <script>
 (function () {
   'use strict';
@@ -945,7 +945,7 @@
   $('moreBtn').addEventListener('click', function () {
     var open = $('more').hidden;
     $('more').hidden = !open; this.setAttribute('aria-expanded', String(open));
-    this.textContent = open ? 'Fewer options −' : 'More options +';
+    this.textContent = open ? 'Fewer options' : 'More options';
     ['cD', 'cS'].forEach(function (id) { fillRange($(id)); });
   });
 
@@ -973,13 +973,13 @@
   /* ===================== THE NINE APPS, one line each ===================== */
   // The nine apps as catalogue rows, grouped by the stage of the job they serve.
   $('cards').innerHTML = H.STAGES.map(function (st) {
-    return '<div class="cat-st"><div><h3><small>' + st.n + '</small>' + st.t + '</h3><p>' + st.d.charAt(0).toUpperCase() + st.d.slice(1) + '.</p></div><div>' +
+    return '<div class="cat-st"><div><h3><span class="st-n" aria-hidden="true">' + (H.STAGES.indexOf(st) + 1) + '</span>' + st.t + '</h3><p>' + st.d.charAt(0).toUpperCase() + st.d.slice(1) + '.</p></div><div>' +
       H.APPS.filter(function (a) { return a.st === st.id; }).map(function (a) {
         var p = H.PLAN_OF[a.id];
         return '<a class="art" href="apps.html#' + a.id + '"><span class="art-no">' + a.art + '</span><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
           '<span><b>' + a.name + '</b><p>' + a.short + '</p></span>' +
           '<span class="plans-av" aria-label="In plans: ' + H.PLAN_NAMES.slice(p).join(', ') + '">' + ['O', 'W', 'C'].map(function (k, i) { return '<span class="' + (i >= p ? 'on' : '') + '" aria-hidden="true">' + k + '</span>'; }).join('') + '</span>' +
-          '<span class="go" aria-hidden="true">→</span></a>';
+          '<span class="go" aria-hidden="true"></span></a>';
       }).join('') + '</div></div>';
   }).join('');
 
@@ -1010,7 +1010,7 @@
     $('billY').setAttribute('aria-pressed', String(yearly));
     $('plans').innerHTML = PLANS.map(function (p) {
       return '<div class="plan' + (p.feat ? ' feat' : '') + '">' +
-        '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Most workshops</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
+        '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Includes the shop floor</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
         '<div><div class="price"><b>€' + (yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (yearly ? '/ year' : '/ month') + '</span></div>' +
         '<div class="muted" style="font-size:13px;margin-top:6px">' + (yearly ? 'Two months free, billed once a year' : 'Billed monthly, cancel any time') + '</div></div>' +
         '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>' +
@@ -1062,7 +1062,7 @@
         session: (f.attach.checked || demoSent) ? SESSION : '', attach: f.attach.checked });
     }).then(function (r) {
       if (!r.ok) { if (r.status === 429) { btn.disabled = false; btn.textContent = 'Start my 5-day free trial'; msg.textContent = 'We already have several requests from you. We will be in touch shortly.'; return; } return fail(); }
-      f.reset(); $('fPlan').value = ''; btn.textContent = 'Request sent ✓';   // reset() keeps a hidden field's value
+      f.reset(); $('fPlan').value = ''; btn.textContent = 'Request sent';   // reset() keeps a hidden field's value
       msg.textContent = 'Thank you. We have your request and will send your workshop login, usually the same working day.';
     }).catch(fail);
   });

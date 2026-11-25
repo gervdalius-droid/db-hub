@@ -1,0 +1,506 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-25T00:00:00Z",
+  "title": "Design System: worxmax",
+  "extensions": {
+    "colorMeta": {
+      "yellow": {
+        "role": "primary",
+        "displayName": "Signal Yellow",
+        "canonical": "oklch(83.9% 0.172 92)",
+        "tonalRamp": [
+          "#110A00",
+          "#2F2200",
+          "#4F3D00",
+          "#735B00",
+          "#9B7D00",
+          "#C6A000",
+          "#F2C505",
+          "#FFEEB5"
+        ]
+      },
+      "yellow-bright": {
+        "role": "primary",
+        "displayName": "Lamp Yellow",
+        "canonical": "oklch(88.4% 0.171 93)",
+        "tonalRamp": [
+          "#100B00",
+          "#2D2300",
+          "#4D3E02",
+          "#705C09",
+          "#987E13",
+          "#C2A21E",
+          "#EEC72A",
+          "#FFEEB2"
+        ]
+      },
+      "yellow-soft": {
+        "role": "primary",
+        "displayName": "Tissue Yellow",
+        "canonical": "oklch(96.1% 0.068 97)",
+        "tonalRamp": [
+          "#0C0B07",
+          "#26241C",
+          "#434032",
+          "#635E49",
+          "#878165",
+          "#ADA582",
+          "#D5CBA0",
+          "#F5EFD6"
+        ]
+      },
+      "olive-ink": {
+        "role": "primary",
+        "displayName": "Olive Ink",
+        "canonical": "oklch(32.4% 0.047 98)",
+        "tonalRamp": [
+          "#0F0B00",
+          "#2A2408",
+          "#464024",
+          "#635E45",
+          "#85816B",
+          "#A9A593",
+          "#CECBBC",
+          "#F0EFE9"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Coated Paper",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "tray": {
+        "role": "neutral",
+        "displayName": "Tray Grey",
+        "canonical": "oklch(96.1% 0.003 265)",
+        "tonalRamp": [
+          "#0A0B0C",
+          "#232425",
+          "#3F4041",
+          "#5D5E5F",
+          "#7F8082",
+          "#A4A4A6",
+          "#C9CACC",
+          "#EDEEF0"
+        ]
+      },
+      "tray-deep": {
+        "role": "neutral",
+        "displayName": "Deep Tray",
+        "canonical": "oklch(93.0% 0.005 258)",
+        "tonalRamp": [
+          "#0A0B0D",
+          "#232426",
+          "#3E4042",
+          "#5C5E60",
+          "#7E8083",
+          "#A3A5A7",
+          "#C9CBCD",
+          "#EDEEF0"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "oklch(24.6% 0.007 248)",
+        "tonalRamp": [
+          "#090B0E",
+          "#212427",
+          "#3D4043",
+          "#5A5E62",
+          "#7D8184",
+          "#A1A5A9",
+          "#C7CBCF",
+          "#EDEFF1"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Graphite 2",
+        "canonical": "oklch(41.0% 0.016 256)",
+        "tonalRamp": [
+          "#070B12",
+          "#1F242C",
+          "#3A4048",
+          "#585E66",
+          "#7A818A",
+          "#9EA5AE",
+          "#C4CBD5",
+          "#EBEFF4"
+        ]
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Graphite 3",
+        "canonical": "oklch(52.5% 0.017 255)",
+        "tonalRamp": [
+          "#070C12",
+          "#1F252C",
+          "#3A4049",
+          "#575E67",
+          "#7A818A",
+          "#9EA5AF",
+          "#C3CBD5",
+          "#EBEFF4"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(89.3% 0.007 248)",
+        "tonalRamp": [
+          "#090B0E",
+          "#212427",
+          "#3D4043",
+          "#5B5E61",
+          "#7D8184",
+          "#A1A5A9",
+          "#C7CBCF",
+          "#EDEFF1"
+        ]
+      },
+      "rule-2": {
+        "role": "neutral",
+        "displayName": "Steel Rule",
+        "canonical": "oklch(78.7% 0.013 256)",
+        "tonalRamp": [
+          "#080B11",
+          "#20242A",
+          "#3B4047",
+          "#595E65",
+          "#7B8188",
+          "#9FA5AD",
+          "#C5CBD3",
+          "#ECEFF3"
+        ]
+      },
+      "steel": {
+        "role": "neutral",
+        "displayName": "Steel",
+        "canonical": "oklch(66.4% 0.016 255)",
+        "tonalRamp": [
+          "#070B12",
+          "#1F252C",
+          "#3A4048",
+          "#585E67",
+          "#7A818A",
+          "#9EA5AE",
+          "#C4CBD5",
+          "#EBEFF4"
+        ]
+      },
+      "ok": {
+        "role": "signal",
+        "displayName": "Done Green",
+        "canonical": "oklch(52.8% 0.124 153)",
+        "tonalRamp": [
+          "#001200",
+          "#002F0D",
+          "#004E23",
+          "#11703C",
+          "#42945F",
+          "#73B787",
+          "#A2DAB2",
+          "#DFF5E4"
+        ]
+      },
+      "bad": {
+        "role": "signal",
+        "displayName": "Fault Red",
+        "canonical": "oklch(50.1% 0.178 29)",
+        "tonalRamp": [
+          "#2B0000",
+          "#530000",
+          "#7D0001",
+          "#AA2119",
+          "#CE5346",
+          "#ED8173",
+          "#FFAEA1",
+          "#FFE4DD"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The worxmax wordmark on the cover only."
+      },
+      "chapter-number": {
+        "displayName": "Chapter Number",
+        "purpose": "Numeral in each yellow chapter opener; stage numbers at 1.9em."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Chapter titles and the closing band."
+      },
+      "headline-cover": {
+        "displayName": "Cover Headline",
+        "purpose": "The one sentence on the cover."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Article names, stage heads, plan names (wdth 108 to 122%)."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Prices and the savings result."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Reading text, tabular figures on."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Page intros, max 62ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase column, table, panel heads and tags; never an eyebrow."
+      }
+    },
+    "shadows": [
+      {
+        "name": "lift",
+        "value": "0 1px 0 rgba(30,33,36,.06), 0 22px 40px -26px rgba(30,33,36,.42)",
+        "purpose": "Demo plate, order form, screenshot frame, mobile dock only."
+      },
+      {
+        "name": "focus-halo",
+        "value": "outline: 3px solid #1E2124; outline-offset: 2px; box-shadow: 0 0 0 6px #F2C500",
+        "purpose": "Every focus-visible element."
+      },
+      {
+        "name": "field-focus",
+        "value": "border-color: #1E2124; box-shadow: 0 0 0 3px #F2C500",
+        "purpose": "Text fields and selects on focus."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state",
+        "value": "0.15s ease",
+        "purpose": "Background and colour changes on buttons, rows, segments."
+      },
+      {
+        "name": "arrow-nudge",
+        "value": "transform translateX(3px), 0.15s",
+        "purpose": "Arrow on hover of buttons and article rows."
+      },
+      {
+        "name": "rail",
+        "value": "background, color 0.2s",
+        "purpose": "Thumb-index tab lighting the chapter in view."
+      },
+      {
+        "name": "settle",
+        "value": "cubic-bezier(.2,.8,.2,1) 0.5s",
+        "purpose": "Nested parts and screenshot swaps in the demo and apps page."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation and transition none",
+        "purpose": "prefers-reduced-motion removes all motion; content is always visible."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "nav-min",
+        "value": "460px"
+      },
+      {
+        "name": "tabs-2x2",
+        "value": "480px"
+      },
+      {
+        "name": "form-1col",
+        "value": "560px"
+      },
+      {
+        "name": "article-compact",
+        "value": "620px"
+      },
+      {
+        "name": "dock",
+        "value": "760px"
+      },
+      {
+        "name": "opener-2col",
+        "value": "860px"
+      },
+      {
+        "name": "nav-compact",
+        "value": "900px"
+      },
+      {
+        "name": "plans-stack",
+        "value": "920px"
+      },
+      {
+        "name": "cover-stack",
+        "value": "980px"
+      },
+      {
+        "name": "rail",
+        "value": "1180px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The order button: yellow, graphite outline, square-capped arrow.",
+      "html": "<button class=\"ds-cta-primary\">Start 5-day free trial <span class=\"ds-arr\"></span></button>",
+      "css": ".ds-cta-primary{font-family:'Archivo',system-ui,sans-serif;display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border-radius:2px;border:2px solid #1E2124;font-weight:700;font-stretch:108%;font-size:16px;letter-spacing:.01em;cursor:pointer;transition:background .15s;background:#F2C500;color:#1E2124}.ds-cta-primary:hover{background:#FFD52E}.ds-cta-primary:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #F2C500;}.ds-arr{display:inline-block;width:16px;height:16px;background:currentColor;-webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h11M9 3.5 13.5 8 9 12.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E\") center/contain no-repeat;mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h11M9 3.5 13.5 8 9 12.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E\") center/contain no-repeat;transition:transform .15s}.ds-cta-primary:hover .ds-arr{transform:translateX(3px)}"
+    },
+    {
+      "name": "Line Button",
+      "kind": "button",
+      "refersTo": "button-line",
+      "description": "Secondary action on paper; tissue-yellow hover.",
+      "html": "<button class=\"ds-cta-line\">See the nine apps</button>",
+      "css": ".ds-cta-line{font-family:'Archivo',system-ui,sans-serif;display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border-radius:2px;border:2px solid #1E2124;font-weight:700;font-stretch:108%;font-size:16px;letter-spacing:.01em;cursor:pointer;transition:background .15s;background:#FFFFFF;color:#1E2124}.ds-cta-line:hover{background:#FFF3BF}.ds-cta-line:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #F2C500;}"
+    },
+    {
+      "name": "Primary on Yellow",
+      "kind": "button",
+      "refersTo": "button-primary-on-yellow",
+      "description": "The Yellow Flip: primary button on a yellow band turns graphite.",
+      "html": "<div class=\"ds-ybg\"><button class=\"ds-cta-flip\">Start 5-day free trial</button></div>",
+      "css": ".ds-ybg{background:#F2C500;padding:20px}.ds-cta-flip{font-family:'Archivo',system-ui,sans-serif;display:inline-flex;align-items:center;gap:10px;min-height:52px;padding:0 24px;border-radius:2px;border:2px solid #1E2124;font-weight:700;font-stretch:108%;font-size:16px;letter-spacing:.01em;cursor:pointer;transition:background .15s;background:#1E2124;color:#fff}.ds-cta-flip:hover{background:#000}.ds-cta-flip:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #fff}"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "chip",
+      "refersTo": "segment-selected",
+      "description": "Graphite-ruled strip; the selected cell is yellow.",
+      "html": "<div class=\"ds-seg\"><button>Doors</button><button>2 drawers</button><button aria-pressed=\"true\">3 drawers</button></div>",
+      "css": ".ds-seg{display:inline-flex;border:1.5px solid #1E2124;border-radius:2px;overflow:hidden;background:#fff}.ds-seg button{font-family:'Archivo',system-ui,sans-serif;min-height:36px;padding:0 14px;border:0;border-left:1.5px solid #1E2124;background:transparent;font-size:13.5px;font-weight:650;color:#454B53;cursor:pointer;transition:background .15s}.ds-seg button:first-child{border-left:0}.ds-seg button:hover{background:#FFF3BF}.ds-seg button[aria-pressed=true]{background:#F2C500;color:#1E2124;font-weight:800}.ds-seg button:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #F2C500;}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Steel-outlined field; graphite border and yellow ring on focus.",
+      "html": "<label class=\"ds-field\">Workshop name<input placeholder=\"Your workshop\"></label>",
+      "css": ".ds-field{font-family:'Archivo',system-ui,sans-serif;display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:700;color:#1E2124;max-width:320px}.ds-field input{font:inherit;font-size:16px;font-weight:400;min-height:48px;border:1.5px solid #B4BAC2;border-radius:2px;background:#FCFCFD;padding:10px 12px;transition:border-color .15s,box-shadow .15s}.ds-field input:focus{outline:0;border-color:#1E2124;box-shadow:0 0 0 3px #F2C500}"
+    },
+    {
+      "name": "Header Navigation",
+      "kind": "nav",
+      "description": "Sticky header: wordmark, ink-2 links with graphite hover rule and yellow current rule, small yellow button.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-logo\" href=\"#\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 32 32\"><rect width=\"32\" height=\"32\" rx=\"3\" fill=\"#1E2124\"/><rect x=\"22\" width=\"10\" height=\"12\" fill=\"#F2C500\"/><path d=\"M6 11l4 12 6-9 6 9 4-12\" fill=\"none\" stroke=\"#fff\" stroke-width=\"3.2\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg>worxmax</a><a class=\"ds-link\" aria-current=\"page\" href=\"#\">The nine apps</a><a class=\"ds-link\" href=\"#\">Prices</a><a class=\"ds-sm\" href=\"#\">Start free trial</a></nav>",
+      "css": ".ds-nav{font-family:'Archivo',system-ui,sans-serif;display:flex;align-items:center;gap:26px;min-height:64px;padding:0 20px;background:rgba(255,255,255,.94);border-bottom:1px solid #D8DCE0}.ds-logo{display:flex;align-items:center;gap:10px;margin-right:auto;text-decoration:none;font-weight:800;font-stretch:122%;font-size:22px;letter-spacing:-.02em;color:#1E2124}.ds-link{text-decoration:none;font-weight:600;font-size:15px;color:#454B53;padding:6px 0;border-bottom:2px solid transparent}.ds-link:hover{color:#1E2124;border-bottom-color:#1E2124}.ds-link[aria-current]{color:#1E2124;border-bottom-color:#F2C500}.ds-sm{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;border:2px solid #1E2124;border-radius:2px;background:#F2C500;color:#1E2124;font-weight:700;font-stretch:108%;font-size:15px;text-decoration:none}.ds-sm:hover{background:#FFD52E}.ds-link:focus-visible,.ds-sm:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #F2C500;}"
+    },
+    {
+      "name": "Tag",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Graphite status tag with uppercase label. On the featured plan it is a corner label pinned to the cell corner (top/right -2px, radius 0 0 0 2px) so plan prices share one baseline.",
+      "html": "<div class=\"ds-plan\"><span class=\"ds-tag ds-corner\">Includes the shop floor</span><b>Workshop</b></div> <span class=\"ds-tag\">Live</span>",
+      "css": ".ds-tag{font-family:'Archivo',system-ui,sans-serif;display:inline-flex;font-size:12px;font-weight:700;font-stretch:112%;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:2px;background:#1E2124;color:#fff}.ds-plan{position:relative;display:inline-block;padding:28px 24px 20px;border:2px solid #1E2124;background:#F1F2F4;font-family:Archivo,system-ui,sans-serif;font-weight:900;font-stretch:122%;font-size:26px;vertical-align:top}.ds-corner{position:absolute;top:-2px;right:-2px;border-radius:0 0 0 2px}"
+    },
+    {
+      "name": "Chapter Opener",
+      "kind": "custom",
+      "refersTo": "chapter-opener",
+      "description": "Full-width yellow band: huge expanded numeral, title, olive-ink sentence.",
+      "html": "<header class=\"ds-ch\"><span class=\"ds-ch-n\">4</span><h2>One price per workshop. Unlimited people.</h2><p>Every plan starts with a 5-day free trial. Prices exclude VAT.</p></header>",
+      "css": ".ds-ch{font-family:'Archivo',system-ui,sans-serif;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 28px;align-items:end;padding:26px 20px 24px;background:#F2C500;color:#1E2124}.ds-ch-n{grid-row:span 2;font-weight:900;font-stretch:125%;font-size:88px;line-height:.8;letter-spacing:-.03em}.ds-ch h2{margin:0;font-weight:800;font-stretch:115%;font-size:34px;line-height:1.02;letter-spacing:-.02em}.ds-ch p{margin:0;font-size:17px;line-height:1.45;color:#3A3416;max-width:46ch}"
+    },
+    {
+      "name": "Catalogue Article Row",
+      "kind": "card",
+      "description": "Ruled article row: WX number, icon square, name and line, plan letters, arrow; tissue-yellow hover.",
+      "html": "<a class=\"ds-art\" href=\"#\"><span class=\"ds-no\">WX-05</span><span class=\"ds-ico\"><svg viewBox=\"0 0 24 24\"><rect x=\"3\" y=\"4\" width=\"18\" height=\"16\"/><path d=\"M3 11h10M13 4v16\"/></svg></span><span><b>Nesting</b><small>Lays parts out on full sheets and prints a label for each.</small></span><span class=\"ds-pl\"><i>O</i><i class=\"on\">W</i><i class=\"on\">C</i></span><span class=\"ds-arr\"></span></a>",
+      "css": ".ds-art{font-family:'Archivo',system-ui,sans-serif;display:grid;grid-template-columns:62px 40px minmax(0,1fr) auto 18px;gap:6px 16px;align-items:center;padding:14px 4px;border-bottom:1px solid #D8DCE0;border-top:2px solid #1E2124;text-decoration:none;color:#1E2124;transition:background .15s}.ds-art:hover{background:#FFF3BF}.ds-art:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #F2C500;}.ds-no{font-weight:800;font-stretch:112%;font-size:14px;color:#646B74}.ds-ico{display:grid;place-items:center;width:40px;height:40px;border:1.5px solid #1E2124;border-radius:2px;background:#fff}.ds-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}.ds-art b{display:block;font-weight:800;font-stretch:110%;font-size:19px;line-height:1.15}.ds-art small{display:block;font-size:15px;color:#454B53;line-height:1.4}.ds-pl{display:flex;gap:3px}.ds-pl i{width:24px;height:24px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;border:1.5px solid #B4BAC2;color:#8D949D;border-radius:2px}.ds-pl i.on{border-color:#1E2124;background:#1E2124;color:#fff}.ds-arr{display:inline-block;width:16px;height:16px;background:currentColor;-webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h11M9 3.5 13.5 8 9 12.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E\") center/contain no-repeat;mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8h11M9 3.5 13.5 8 9 12.5' fill='none' stroke='black' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E\") center/contain no-repeat;transition:transform .15s}.ds-art:hover .ds-arr{transform:translateX(3px)}"
+    },
+    {
+      "name": "Thumb-Index Rail",
+      "kind": "nav",
+      "description": "Right-edge chapter tabs; the chapter in view is graphite with a yellow numeral.",
+      "html": "<nav class=\"ds-rail\"><a href=\"#\"><b>1</b><span>Demo</span></a><a href=\"#\" aria-current=\"true\"><b>2</b><span>Apps</span></a><a href=\"#\"><b>3</b><span>Gains</span></a></nav>",
+      "css": ".ds-rail{font-family:'Archivo',system-ui,sans-serif;display:inline-flex;flex-direction:column;background:#E6E8EB;border:2px solid #1E2124;border-right:0;border-radius:2px 0 0 2px;overflow:hidden}.ds-rail a{width:60px;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;color:#454B53;border-top:1px solid #B4BAC2;transition:background .2s,color .2s}.ds-rail a:first-child{border-top:0}.ds-rail b{font-weight:800;font-stretch:118%;font-size:18px;line-height:1}.ds-rail span{font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}.ds-rail a:hover{background:#FFF3BF;color:#1E2124}.ds-rail a[aria-current=true]{background:#1E2124;color:#fff}.ds-rail a[aria-current=true] b{color:#F2C500}.ds-rail a:focus-visible{outline:3px solid #1E2124;outline-offset:2px;box-shadow:0 0 0 6px #F2C500;}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Fittings Catalogue",
+    "overview": "worxmax is shown the way a workshop already buys hinges and runners: a printed fittings catalogue. Coated white paper, graphite ink, steel-grey rules, and one signal yellow. The nine apps are articles WX-01 to WX-09, the live demo is \"Fig. 1\", chapters open on full-width yellow bands with a huge expanded-black number, and a thumb-index rail on the right edge lights the chapter in view. Facts sit in spec tables, prices are set like list prices, and every number is tabular.\n\nDensity is catalogue density: ruled rows, a lot of information per screen, held in order by heavy graphite rules and generous chapter breaks rather than by cards and whitespace. Hierarchy comes from Archivo's width axis and weight at committed scale, not from colour variety. The world rejects the SaaS hero-plus-feature-grid and the dark \"industrial\" costume; it also replaces an earlier cream-paper, blue-action look, which must not return.\n\nThe same world runs in the sign-in app (`app/index.html`) with restraint: grey tray page, white sheets with a 2px graphite outline, a thin yellow strip along the top edge, yellow only on the go button and selected tab.",
+    "keyCharacteristics": [
+      "One accent, signal yellow, reserved for what you press, what is selected, where you are, and chapter openers.",
+      "Archivo variable throughout; the width axis (100% to 125%) carries the hierarchy.",
+      "Graphite 2px rules for structure, 1px steel rules between rows, dashed rules for anything provisional.",
+      "Near-square corners (2px) everywhere; circles only for numbered callouts and status dots.",
+      "Catalogue apparatus as content: article numbers, Fig. numbers, spec tables, numbered callouts, plan-letter keys."
+    ],
+    "rules": [
+      {
+        "name": "The Pressable Yellow Rule",
+        "body": "Yellow means you can press it, it is selected, or it marks where you are; the only large yellow fields are chapter openers, the cover and the one computed result (the savings panel). Never yellow for decoration, illustration or emphasis of plain text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Yellow Flip Rule",
+        "body": "On a yellow surface the primary button turns graphite with white text, and outline buttons go transparent with a graphite border. Yellow never sits on yellow.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Accent Rule",
+        "body": "There is no secondary brand colour. Green and red are signals, not palette.",
+        "section": "colors"
+      },
+      {
+        "name": "The Width Axis Rule",
+        "body": "Hierarchy is set with font-stretch, not with a second family: 125% for numerals and the wordmark, 108 to 122% for heads, 100% for reading. Never introduce another face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Rule",
+        "body": "Tabular figures are on for the whole body. Every price, size and count lines up.",
+        "section": "typography"
+      },
+      {
+        "name": "The Label Placement Rule",
+        "body": "Uppercase labels head columns, tables and panels. They never sit above a headline as an eyebrow.",
+        "section": "typography"
+      },
+      {
+        "name": "The Plate Rule",
+        "body": "Only a figure, a form or a frame is lifted. Rows, cards and buttons never carry a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep yellow (#F2C500) on things you press, select or jump to, plus chapter openers and the cover (The Pressable Yellow Rule).",
+      "**Do** flip the primary button to graphite with white text whenever it sits on yellow.",
+      "**Do** set hierarchy with Archivo's width axis: 125% numerals, 108 to 122% heads, 100% reading text.",
+      "**Do** keep tabular figures on for every price, size and count.",
+      "**Do** outline every pressable thing in graphite (2px for buttons, 1.5px for small controls) at a 2px corner.",
+      "**Do** divide cells inside one shared border with rules instead of floating separate cards in gaps.",
+      "**Do** use dashed steel rules for anything provisional, sample or illustrative.",
+      "**Do** name things the catalogue way: article numbers WX-01 to WX-09, Fig. numbers, numbered callouts.",
+      "**Do** draw icons as inline SVG line drawings or CSS-masked SVG shapes (square-capped arrows, chevrons, plus marks)."
+    ],
+    "donts": [
+      "**Don't** bring back the earlier cream paper, blue actions or yellow text highlights.",
+      "**Don't** use a SaaS hero with a feature-card grid, or a dark \"industrial\" theme.",
+      "**Don't** add a second accent colour; green and red are status only.",
+      "**Don't** put an uppercase eyebrow or kicker above a headline.",
+      "**Don't** add shadows to rows, cards or buttons; the lift is for plates, the form, the screenshot frame and the dock only. No hard offset shadows.",
+      "**Don't** round corners beyond 2px; circles are only for numbered callouts and status dots.",
+      "**Don't** use text glyphs (arrows, ticks, stars) as icons.",
+      "**Don't** set grey ink-2 text on yellow; use olive ink."
+    ]
+  }
+}

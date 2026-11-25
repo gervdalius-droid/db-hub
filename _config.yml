@@ -2,3 +2,4 @@
 exclude:
   - PRODUCT.md
   - DESIGN.md
+  - assets/apps/*.json

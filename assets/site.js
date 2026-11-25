@@ -102,17 +102,22 @@ window.DBHUB = (function () {
     $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs worxmax is responsible for this data.') +
       (CONTACT_EMAIL ? ' Write to ' + CONTACT_EMAIL + ' about anything on this page.' : '');
   }
-  // Thumb-index rail: the tab of the chapter in view turns yellow.
+  // Thumb-index rail: the tab of the chapter in view is marked. The current chapter is the
+  // last one whose top has passed 45% of the window height.
   var tabs = $$('.rail a');
-  if (tabs.length && 'IntersectionObserver' in window) {
-    var chapters = tabs.map(function (a) { return document.querySelector(a.getAttribute('href')); }).filter(Boolean), seen = {};
-    var ro = new IntersectionObserver(function (es) {
-      es.forEach(function (en) { seen[en.target.id] = en.isIntersecting ? en.intersectionRatio : 0; });
-      var best = null;
-      chapters.forEach(function (c) { if ((seen[c.id] || 0) > 0 && (!best || c.getBoundingClientRect().top <= window.innerHeight * 0.45)) best = c; });
-      tabs.forEach(function (a) { a.setAttribute('aria-current', String(!!best && a.getAttribute('href') === '#' + best.id)); });
-    }, { threshold: [0, 0.01, 0.25, 0.5], rootMargin: '-64px 0px -35% 0px' });
-    chapters.forEach(function (c) { ro.observe(c); });
+  if (tabs.length) {
+    var chapters = tabs.map(function (a) { return document.querySelector(a.getAttribute('href')); }), railQueued = false;
+    var markRail = function () {
+      railQueued = false;
+      var line = window.innerHeight * 0.45, cur = 0;
+      chapters.forEach(function (c, i) { if (c && c.getBoundingClientRect().top <= line) cur = i; });
+      tabs.forEach(function (a, i) { a.setAttribute('aria-current', String(i === cur)); });
+    };
+    window.addEventListener('scroll', markRail, { passive: true });
+    window.addEventListener('resize', markRail);
+    window.addEventListener('load', markRail);
+    window.addEventListener('hashchange', function () { setTimeout(markRail, 50); });
+    markRail();
   }
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (es) {
