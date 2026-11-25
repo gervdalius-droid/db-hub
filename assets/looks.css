@@ -1,0 +1,60 @@
+/* Three looks of the Drawer Cabinet, picked with ?look=a|b|c while the user compares them.
+   A — Pulled drawer: ink carcass, white fronts, the blue drawer pulled out (the chosen sketch).
+   B — Open shelf: light. No solid carcass; each drawer front is outlined in ink on wall grey.
+   C — Night workshop: dark wall and charcoal fronts, lime handles; the demo stays a light insert.
+   Once one is chosen, its rules move into site.css and this file and the switcher go. */
+
+/* ---------- B: open shelf ---------- */
+:root[data-look="b"]{--wall:#F7F6F2;--handle:#1C1A16}
+:root[data-look="b"] main{background:transparent;padding:0 20px;border-radius:0}
+:root[data-look="b"] main > section:not(#top),:root[data-look="b"] main > article{border:2.5px solid var(--carcass)}
+:root[data-look="b"] .hero{margin-right:0;box-shadow:0 30px 50px -34px rgba(28,26,22,.6);border:2.5px solid var(--carcass)}
+:root[data-look="b"] .plate .bench{border:2.5px solid var(--carcass)}
+:root[data-look="b"] footer{border-radius:22px 22px 0 0;margin-top:24px}
+:root[data-look="b"] .rail{background:var(--wall);border:2px solid var(--carcass);border-right:0;padding:5px 0 5px 5px}
+:root[data-look="b"] .rail a{border:1.5px solid var(--carcass);border-right:0}
+:root[data-look="b"] .rail a[aria-current="true"]{border-color:var(--blue)}
+
+/* ---------- C: night workshop ---------- */
+:root[data-look="c"]{--wall:#12110E;--carcass:#26241F;--handle:#C6F24E}
+:root[data-look="c"] body{color:#F2F1ED}
+:root[data-look="c"] .top{background:color-mix(in srgb,#12110E 92%,transparent)}
+:root[data-look="c"] .top .logo img{filter:none}
+:root[data-look="c"] .top nav a.link{color:#CFCAC0}
+:root[data-look="c"] .top nav a.link:hover{color:#fff;border-bottom-color:#fff}
+:root[data-look="c"] main{background:#26241F}
+:root[data-look="c"] main > section:not(#top),:root[data-look="c"] main > article{
+  --front:#1C1A16;--paper:#24221D;--tray:#2C2A24;--tray2:#36332C;
+  --ink:#F2F1ED;--ink2:#D3CEC4;--ink3:#ABA59A;--rule:#3B3831;--rule2:#57534A;--steel:#8C877C;
+  --blue-soft:#22325E;--lime-soft:#2F3A16;
+  color:var(--ink);background:var(--front)}
+:root[data-look="c"] main > section:not(#top) .cta.primary,
+:root[data-look="c"] main > section:not(#top) .mini.go{color:#1C1A16;border-color:#C6F24E}
+:root[data-look="c"] main > section:not(#top) .plans-av span.on{color:#fff}
+:root[data-look="c"] main > section:not(#top) .plans-key i{color:#fff}
+:root[data-look="c"] main > section:not(#top) .tag{background:#F2F1ED;color:#1C1A16}
+:root[data-look="c"] main > section:not(#top) .plan .plan-top .tag{background:var(--blue);color:#fff}
+:root[data-look="c"] main > section:not(#top) .cmp-r a{background:transparent}
+:root[data-look="c"] main > section:not(#top) .faq-list summary::after{filter:invert(1)}
+:root[data-look="c"] main > section:not(#top) .faq-list details[open] summary::after,
+:root[data-look="c"] main > section:not(#top) .faq-list summary:hover::after{filter:none}
+:root[data-look="c"] .hero{box-shadow:0 0 0 6px #26241F,0 34px 60px -30px rgba(0,0,0,.8)}
+:root[data-look="c"] .plate .bench::before{background:#1C1A16}
+:root[data-look="c"] footer{background:#26241F}
+:root[data-look="c"] .rail{background:#26241F}
+:root[data-look="c"] .rail a{background:#1C1A16;color:#D3CEC4}
+:root[data-look="c"] .rail a::after{background:#C6F24E}
+:root[data-look="c"] .rail a[aria-current="true"]{background:var(--blue);color:#fff}
+:root[data-look="c"] .page-h,:root[data-look="c"] .legal{color:#F2F1ED}
+
+/* ---------- the preview switcher (goes away once a look is chosen) ---------- */
+.looks{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;align-items:center;gap:4px;padding:5px;background:#1C1A16;color:#fff;border-radius:12px;box-shadow:0 10px 24px -12px rgba(0,0,0,.6);font-size:13px;font-weight:700}
+.looks span{padding:0 6px 0 4px;letter-spacing:.06em;text-transform:uppercase;font-size:11px;color:#CFCAC0}
+.looks a{display:grid;place-items:center;width:32px;height:30px;border-radius:8px;text-decoration:none;color:#fff;background:#2E2C26}
+.looks a:hover{background:#3A3731}
+.looks a[aria-current="true"]{background:#C6F24E;color:#1C1A16}
+@media (max-width:760px){.looks{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+
+/* C fixes: light logo on the dark header; the demo insert keeps dark text */
+:root[data-look="c"] .top .logo img{content:url("brand/worxmax-logo-white.svg")}
+:root[data-look="c"] #top .bench{color:#1C1A16}

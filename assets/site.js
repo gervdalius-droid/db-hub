@@ -120,6 +120,16 @@ window.DBHUB = (function () {
     markRail();
   }
 
+  // Preview only: keep the chosen look (?look=a|b|c) when moving between pages, and mark it.
+  var look = document.documentElement.getAttribute('data-look');
+  if (look && /[?&]look=/.test(location.search)) {
+    $$('a[href]').forEach(function (el) {
+      var h = el.getAttribute('href'), m = /^((?:index|apps|privacy)\.html)([^#]*)(#.*)?$/.exec(h);
+      if (m && !/look=/.test(h)) el.setAttribute('href', m[1] + (m[2] ? m[2] + '&' : '?') + 'look=' + look + (m[3] || ''));
+    });
+  }
+  $$('.looks a').forEach(function (el) { el.setAttribute('aria-current', String(el.getAttribute('data-look') === look)); });
+
   return { $: $, $$: $$, reduce: reduce, eur: eur, plural: plural, fillRange: fillRange,
     STAGES: STAGES, APPS: APPS, PLAN_OF: PLAN_OF, PLAN_NAMES: PLAN_NAMES, byId: byId, stageOf: stageOf,
     CONTACT_EMAIL: CONTACT_EMAIL, CONTACT_PHONE: CONTACT_PHONE };
