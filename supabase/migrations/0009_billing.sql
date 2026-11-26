@@ -30,7 +30,7 @@ create table if not exists private.billing_settings (
   parts_months int not null default 6,                -- ShopFlow: parts lists of finished orders
   warn_days int not null default 30,                  -- show upcoming removals this far ahead
   enforce boolean not null default false,             -- false: only report, delete nothing
-  terms_version text not null default '2026-11-26',
+  terms_version text not null default '2026-11-26b',
   updated_at timestamptz not null default now()
 );
 insert into private.billing_settings (id) values (true) on conflict do nothing;

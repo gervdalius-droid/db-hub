@@ -244,6 +244,7 @@ td select{min-height:36px;padding:4px 8px}
     <form class="stack" id="newForm">
       <label>Workshop name<input id="wsName" maxlength="80" minlength="2" required placeholder="e.g. Baltic Kitchens"></label>
       <label>Your name<input id="myName" maxlength="80" required autocomplete="name"></label>
+      <label class="agree"><input type="checkbox" id="newAgree" required><span>I set this up for a business and agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including that results are checked by us and used <b>at our own risk</b>, and <b>how long data is kept</b>.</span></label>
       <button class="btn go" type="submit" id="newBtn">Create workshop</button>
       <div class="msg" id="newMsg" role="alert"></div>
       <button class="btn small" type="button" id="out2">Sign out</button>
@@ -266,7 +267,7 @@ td select{min-height:36px;padding:4px 8px}
   </div>
 </div>
 
-<script src="/assets/site.js?v=24"></script>
+<script src="/assets/site.js?v=33"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const RECOVERY = /type=recovery/.test(location.hash + location.search);   // came from a password-reset email
@@ -372,9 +373,11 @@ $('authForm').addEventListener('submit', async (e) => {
 $('newForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('newBtn').disabled = true; say('newMsg', '');
+  if (!$('newAgree').checked) { $('newBtn').disabled = false; return say('newMsg', 'Please tick that you agree to the terms first.'); }
   const { error } = await db.rpc('create_workshop', { p_name: $('wsName').value, p_display_name: $('myName').value });
   $('newBtn').disabled = false;
   if (error) return say('newMsg', error.message);
+  await db.rpc('accept_terms', { p_version: TERMS_VERSION });   // returns an error (ignored) until the billing update is in
   start();
 });
 $('out2').addEventListener('click', signOut);
@@ -588,7 +591,7 @@ function accountHTML() {
 /* ---------------- plan & billing ---------------- */
 // Prices excl. VAT, in euro. Stripe holds the real price list (supabase/functions/_shared/billing.ts).
 const PRICE = { office: { month: 39, year: 390 }, workshop: { month: 89, year: 890 }, complete: { month: 149, year: 1490 } };
-const LICENCE = { once: 2490, care: 390 }, SETUP = 350, TERMS_VERSION = '2026-11-26';
+const LICENCE = { once: 2490, care: 390 }, SETUP = 350, TERMS_VERSION = '2026-11-26b';
 const KEEP = { office: 12, workshop: 24, complete: 36, trial: 36 };
 const B = { interval: 'month', setup: false, agree: false, ready: null, busy: false, msg: '', ok: false, preview: null };
 function isOwner() { return me && me.role === 'admin'; }
@@ -671,7 +674,7 @@ function billingHTML(cur) {
       ${notReady}
       ${planCards()}
       <label class="agree"><input type="checkbox" id="bSetup" ${B.setup ? 'checked' : ''}><span><b>Add guided setup — €${SETUP} once.</b> We set up your workshop with you and import your price lists.</span></label>
-      <label class="agree"><input type="checkbox" id="bAgree" ${B.agree ? 'checked' : ''}><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including <b>how long data is kept</b> (below), and that the plan renews until I cancel it.</span></label>
+      <label class="agree"><input type="checkbox" id="bAgree" ${B.agree ? 'checked' : ''}><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a> for my business, including that results are checked by us and used <b>at our own risk</b>, <b>how long data is kept</b> (below), no refunds, and that the plan renews until I cancel it.</span></label>
       <p class="muted" style="font-size:13px">VAT is added at checkout; with a valid EU VAT number your company is charged without it. You pay on Stripe's secure page; worxmax never sees the card.</p>
       <div class="msg${B.ok ? ' ok' : ''}" id="billMsg" role="alert">${esc(B.msg)}</div></section>`;
   return `<div class="page"><div class="phead"><div><h1>Plan & billing</h1><p class="muted sub">One price for the whole workshop. Extra people cost nothing.</p></div></div>

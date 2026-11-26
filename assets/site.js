@@ -9,6 +9,13 @@ window.DBHUB = (function () {
   var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
   var COMPANY_LINE = '';   // shown in the footer when set
   var OWNER = 'Ričardo Gervinsko įmonė';   // named on privacy.html as the owner
+  // Legal details the Law on Information Society Services asks the site to show (terms.html).
+  var COMPANY = {
+    form: 'individuali įmonė',        // legal form
+    code: '',                          // registration code (Register of Legal Entities), e.g. '305000000'
+    address: '',                       // registered office address
+    vat: ''                            // VAT code if registered, e.g. 'LT100000000000'
+  };
 
   var $ = function (id) { return document.getElementById(id); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
@@ -98,6 +105,14 @@ window.DBHUB = (function () {
   function onScroll() { topbar.classList.toggle('scrolled', window.scrollY > 8); }
   if (topbar) { window.addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
   if (COMPANY_LINE && $('footLine')) $('footLine').textContent = COMPANY_LINE;
+  // terms.html: who provides the service
+  (function () {
+    var put = function (k, txt) { var el = document.querySelector('[data-co="' + k + '"]'); if (el && txt) el.textContent = txt; };
+    put('form', COMPANY.form ? ' (' + COMPANY.form + ')' : '');
+    put('code', COMPANY.code ? ', registration code ' + COMPANY.code + ' (Register of Legal Entities, Republic of Lithuania)' : '');
+    put('address', COMPANY.address ? ', registered office ' + COMPANY.address : '');
+    put('vat', COMPANY.vat ? ', VAT code ' + COMPANY.vat : '');
+  })();
   // privacy.html names whoever runs the site, once the details above are filled in
   if ($('ctrl') && (OWNER || COMPANY_LINE || CONTACT_EMAIL)) {
     var who = OWNER || COMPANY_LINE;
