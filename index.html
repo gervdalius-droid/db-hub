@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <script>/* look B is the site; ?look=a|c still previews the other two */(function(){var m=/[?&]look=([abc])/.exec(location.search);document.documentElement.setAttribute('data-look',m?m[1]:'b')})();</script>
 <link rel="preload" href="assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css?v=44">
+<link rel="stylesheet" href="assets/site.css?v=45">
 <link rel="stylesheet" href="assets/looks.css?v=38">
 </head>
 <body>
@@ -48,7 +48,7 @@
       <div>
         <span class="mark-word" aria-hidden="true"><img src="assets/brand/worxmax-wordmark-white.svg" alt="" width="230" height="64"></span>
         <h1>From quote to cut list, without typing anything twice.</h1>
-        <p class="sub">worxmax is nine connected apps for furniture workshops. Enter a cabinet once and the quote, cut list, CNC programs, nested sheets, part labels and invoice all work from the same numbers.</p>
+        <p class="sub">Nine connected apps for furniture workshops. Enter a cabinet once: the quote, cut list, CNC programs and invoice follow.</p>
         <div class="row">
           <a class="cta primary" href="#start">Start 5-day free trial <span class="arr" aria-hidden="true"></span></a>
         </div>
@@ -58,7 +58,7 @@
 
   <div class="wrap plate">
     <div class="bench" id="lab" aria-label="Live demo: one cabinet becomes a quote, a cut list, nested sheets and labels">
-      <div class="bench-head"><span class="fig">Fig. 1</span><span>Change the cabinet. The quote, cut list, sheets and labels follow.</span><span class="live"><i></i>Live</span></div>
+      <div class="bench-head"><span class="fig">Fig. 1</span><span>Change the cabinet. Everything else follows.</span><span class="live"><i></i>Live</span></div>
 
       <div class="bench-body">
         <div class="col in">
@@ -68,11 +68,6 @@
             <svg id="sketch" role="img" aria-label="Drawing of the cabinet you are editing"></svg>
             <div class="seg vseg chips" id="cShow" role="group" aria-label="Show"><button type="button" data-v="all" aria-pressed="true">Assembled</button><button type="button" data-v="nofronts" aria-pressed="false">No fronts</button></div>
           </div>
-          <div class="openrow">
-            <label for="cOpen">Opening</label><input id="cOpen" type="range" min="0" max="100" step="5" value="65"><output id="oOpen" for="cOpen">65%</output>
-            <label class="ck"><input type="checkbox" id="cDims" checked> Dimensions</label>
-            <label class="ck"><input type="checkbox" id="cHandles"> Handles</label>
-          </div>
           <div class="ctrls">
             <div class="ctl">
               <div class="ctl-h"><label for="cW">Width</label><span class="hint" id="hint" aria-hidden="true">drag</span><output id="oW" for="cW">600</output></div>
@@ -81,10 +76,6 @@
             <div class="ctl">
               <div class="ctl-h"><label for="cH">Height</label><output id="oH" for="cH">720</output></div>
               <input id="cH" type="range" min="300" max="2400" step="10" value="720">
-            </div>
-            <div class="ctl">
-              <div class="ctl-h"><span>Carcass, 18 mm</span></div>
-              <div class="seg" id="cMat" role="group" aria-label="Carcass board"></div>
             </div>
             <div class="ctl">
               <div class="ctl-h"><span>Fronts, 18 mm</span></div>
@@ -103,7 +94,16 @@
             </div>
           </div>
           <div class="more" id="more" hidden>
+            <div class="openrow">
+              <label for="cOpen">Opening</label><input id="cOpen" type="range" min="0" max="100" step="5" value="65"><output id="oOpen" for="cOpen">65%</output>
+              <label class="ck"><input type="checkbox" id="cDims" checked> Dimensions</label>
+              <label class="ck"><input type="checkbox" id="cHandles"> Handles</label>
+            </div>
             <div class="ctrls">
+              <div class="ctl">
+                <div class="ctl-h"><span>Carcass, 18 mm</span></div>
+                <div class="seg" id="cMat" role="group" aria-label="Carcass board"></div>
+              </div>
               <div class="ctl">
                 <div class="ctl-h"><span>Cabinet type</span></div>
                 <div class="seg" id="cType" role="group" aria-label="Cabinet type">
@@ -132,7 +132,7 @@
         </div>
 
         <div class="col out">
-          <div class="col-h"><b>B</b>worxmax produces the rest<span>nothing typed twice</span></div>
+          <div class="col-h"><b>B</b>worxmax does the rest</div>
           <div class="tabs" id="tabs" role="group" aria-label="What worxmax produces from the cabinet">
             <button type="button" data-tab="quote" aria-pressed="true"><small><i>1</i>Quote</small><b id="kPrice">€0</b><span class="smp">sample price</span></button>
             <button type="button" data-tab="parts" aria-pressed="false"><small><i>2</i>Cut list</small><b id="kParts">0 parts</b></button>
@@ -142,7 +142,7 @@
           <div class="panel" data-panel="quote">
             <div class="panel-h"><span class="tag">Offers</span>The quote, line by line <span class="sample">sample prices</span></div>
             <table class="q" id="bdTable"></table>
-            <p class="doc-note q-note">Sample prices from example rates. Your quotes use your own board, hardware and labour prices.</p>
+            <p class="doc-note q-note">Example rates. Yours replace them.</p>
           </div>
           <div class="panel" data-panel="parts" hidden>
             <div class="panel-h"><span class="tag">Cabinet Studio</span>Every part, with its edge banding</div>
@@ -165,8 +165,8 @@
       </div>
 
       <div class="bench-foot">
-        <span id="benchNote">A small demo with example prices. The real apps use your own materials, rates and machines.</span>
-        <div class="nudge" id="nudge"><span>That took <b id="nudgeT">a few seconds</b>. Now try it with your own price list and your own CNC.</span><a class="cta primary sm" href="#start" data-attach="1">Start free trial</a></div>
+        <span id="benchNote">Demo with example prices. The real apps use yours.</span>
+        <div class="nudge" id="nudge"><span>That took <b id="nudgeT">a few seconds</b>. Now try it with your own prices.</span><a class="cta primary sm" href="#start" data-attach="1">Start free trial</a></div>
       </div>
       <div class="toast" id="toast" role="status"></div>
     </div>
@@ -174,7 +174,7 @@
 </section>
 
 <section id="apps">
-  <header class="ch"><div class="wrap"><h2>Nine apps, one job</h2><p>Each app does one job in the workshop and hands its result to the next, from the first phone call to the paid invoice.</p></div></header>
+  <header class="ch"><div class="wrap"><h2>Nine apps, one job</h2><p>Each one hands its work to the next, from first call to paid invoice.</p></div></header>
   <div class="wrap sec">
     <div class="cat" id="cards"></div>
     <div class="cat-foot">
@@ -185,25 +185,25 @@
 </section>
 
 <section id="value" class="band">
-  <header class="ch"><div class="wrap"><h2>Less typing. Fewer walks to the floor.</h2><p>What each piece of paperwork turns into.</p></div></header>
+  <header class="ch"><div class="wrap"><h2>Less typing. Fewer walks to the floor.</h2></div></header>
   <div class="wrap sec">
     <div class="cmp">
       <div class="cmp-h"><span></span><span>Today</span><span></span><span>With worxmax</span><span></span></div>
-      <div class="cmp-r"><span class="what">A quote</span><span class="old">Rebuilt in Excel for every kitchen</span><span class="ar" aria-hidden="true"></span><span class="new">Priced cabinet by cabinet from your own material and labour rates</span><a href="apps.html#offers">WX-02 Offers</a></div>
-      <div class="cmp-r"><span class="what">A cut list</span><span class="old">Copied by hand from the drawing</span><span class="ar" aria-hidden="true"></span><span class="new">Comes out of the cabinet design, with the CNC programs</span><a href="apps.html#studio">WX-03 Cabinet Studio</a></div>
-      <div class="cmp-r"><span class="what">The boards</span><span class="old">Laid out by eye at the saw</span><span class="ar" aria-hidden="true"></span><span class="new">Nested for you, with a printed label on every part</span><a href="apps.html#nesting">WX-05 Nesting</a></div>
-      <div class="cmp-r"><span class="what">"Is it done?"</span><span class="old">Walk to the floor and ask</span><span class="ar" aria-hidden="true"></span><span class="new">Each project reads as one sentence: what is done, what is missing</span><a href="apps.html#overview">WX-08 Project Overview</a></div>
-      <div class="cmp-r"><span class="what">A new worker</span><span class="old">Another licence to pay for</span><span class="ar" aria-hidden="true"></span><span class="new">A name and a PIN. Extra people cost nothing</span><a href="apps.html#shopflow">WX-06 ShopFlow</a></div>
+      <div class="cmp-r"><span class="what">Quote</span><span class="old">Rebuilt in Excel every time</span><span class="ar" aria-hidden="true"></span><span class="new">Priced from your own rates</span><a href="apps.html#offers">Offers</a></div>
+      <div class="cmp-r"><span class="what">Cut list</span><span class="old">Copied by hand</span><span class="ar" aria-hidden="true"></span><span class="new">Comes out of the design</span><a href="apps.html#studio">Cabinet Studio</a></div>
+      <div class="cmp-r"><span class="what">Boards</span><span class="old">Laid out by eye</span><span class="ar" aria-hidden="true"></span><span class="new">Nested and labelled for you</span><a href="apps.html#nesting">Nesting</a></div>
+      <div class="cmp-r"><span class="what">"Is it done?"</span><span class="old">Walk to the floor</span><span class="ar" aria-hidden="true"></span><span class="new">One sentence per project</span><a href="apps.html#overview">Project Overview</a></div>
+      <div class="cmp-r"><span class="what">New worker</span><span class="old">Another licence</span><span class="ar" aria-hidden="true"></span><span class="new">A name and a PIN, free</span><a href="apps.html#shopflow">ShopFlow</a></div>
     </div>
 
     <details class="roi-d">
-      <summary>What is the re-typing costing you? Work it out</summary>
+      <summary>What is re-typing costing you?</summary>
       <div class="roi" id="roi">
         <div class="roi-in">
           <div class="ctl"><div class="ctl-h"><label for="rJobs">Kitchens or cabinet jobs a month</label><b id="oJobs"></b></div><input id="rJobs" type="range" min="1" max="40" value="8"></div>
-          <div class="ctl"><div class="ctl-h"><label for="rHrs">Office hours per job: quote, cut list, re-entry, status calls</label><b id="oHrs"></b></div><input id="rHrs" type="range" min="1" max="20" value="6"></div>
+          <div class="ctl"><div class="ctl-h"><label for="rHrs">Office hours per job</label><b id="oHrs"></b></div><input id="rHrs" type="range" min="1" max="20" value="6"></div>
           <div class="ctl"><div class="ctl-h"><label for="rRate">Cost of an hour, €</label><b id="oRate"></b></div><input id="rRate" type="range" min="10" max="60" value="25"></div>
-          <div class="ctl"><div class="ctl-h"><label for="rCut">Share of that time you think goes away</label><b id="oCut"></b></div><input id="rCut" type="range" min="10" max="80" step="5" value="40"></div>
+          <div class="ctl"><div class="ctl-h"><label for="rCut">Time saved</label><b id="oCut"></b></div><input id="rCut" type="range" min="10" max="80" step="5" value="40"></div>
         </div>
         <div class="roi-out" aria-live="polite">
           <div><div class="big" id="rHours">0 h</div><div class="lbl2">back every month</div></div>
@@ -211,7 +211,7 @@
             <div><b id="rEur">€0</b><span class="lbl2">worth of time a month</span></div>
             <div><b id="rX">0×</b><span class="lbl2">the Workshop plan (€89/mo)</span></div>
           </div>
-          <p class="note">This uses only your own guesses. The 5-day trial is how you check them on a real job.</p>
+          <p class="note">Your own guesses. The trial checks them on a real job.</p>
         </div>
       </div>
     </details>
@@ -219,7 +219,7 @@
 </section>
 
 <section id="pricing">
-  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>Every plan starts with a 5-day free trial. Prices exclude VAT.</p></div></header>
+  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>5-day free trial on every plan. Prices excl. VAT.</p></div></header>
   <div class="wrap sec">
     <div class="controls">
       <div class="seg big" role="group" aria-label="Billing period">
@@ -229,10 +229,10 @@
     </div>
     <div class="plans" id="plans"></div>
     <div class="once">
-      <div><h3>Prefer to pay once?</h3>Complete as a one-time licence: €2,490 including the first year of hosting and updates, then €390 a year to keep both.</div>
-      <a class="cta line sm" href="#start" data-plan="Complete — one-time licence">Ask about the one-time licence</a>
+      <div><h3>Prefer to pay once?</h3>Complete for €2,490 one-time, first year included. Then €390 a year.</div>
+      <a class="cta line sm" href="#start" data-plan="Complete — one-time licence">Ask about it</a>
     </div>
-    <p class="small" style="margin-top:14px">Guided setup, including import of your materials and price lists: €350 one-time.</p>
+    <p class="small" style="margin-top:14px">Guided setup with import of your price lists: €350 one-time.</p>
   </div>
 </section>
 
@@ -240,46 +240,38 @@
   <header class="ch"><div class="wrap"><h2>Questions workshops ask first</h2></div></header>
   <div class="wrap sec">
     <div class="faq-list">
-      <details><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio writes a drilling and routing program for each part in .XXL format, used by SCM machines, and exports the part list as an Excel file (.xlsx) and as .csv. Nesting and the DXF Editor work with DXF files, which most router and saw software can open. If your machine needs another format, tell us when you start the trial.</p></details>
-      <details><summary>Do we need to install anything?</summary><p>No. Everything runs in the browser on the office PC, a workshop tablet or the TV on the wall.</p></details>
-      <details><summary>How many people can use it?</summary><p>Everyone in your workshop, at no extra cost. Workers sign in with a name and PIN, and office apps stay hidden from shop-floor logins.</p></details>
-      <details><summary>Can we bring our own prices and materials?</summary><p>Yes. Quotes and cut lists use your own boards, edge banding, hardware and labour rates. Guided setup can import your existing price lists for you.</p></details>
-      <details><summary>Which languages?</summary><p>English and Lithuanian today, switchable per person. Need another language for your team? Tell us when you start the trial.</p></details>
-      <details><summary>Where is our data kept?</summary><p>On servers in the European Union (Ireland). Each workshop's data is kept separate from every other workshop's, and you can export it at any time.</p></details>
-      <details><summary>Can we try it first?</summary><p>Yes. Every plan starts with a 5-day free trial, so you can run a real project through it before paying.</p></details>
+      <details><summary>Which CNC machines does it work with?</summary><p>Cabinet Studio exports .XXL programs (SCM) and part lists as .xlsx and .csv. Nesting and the DXF Editor use DXF, which most router and saw software opens. Need another format? Tell us.</p></details>
+      <details><summary>Do we need to install anything?</summary><p>No. It runs in the browser on a PC, tablet or workshop TV.</p></details>
+      <details><summary>Can we use our own prices and materials?</summary><p>Yes. Quotes and cut lists use your own boards, edging, hardware and labour rates. Guided setup can import them for you.</p></details>
+      <details><summary>Which languages?</summary><p>English and Lithuanian, switchable per person. Need another? Tell us.</p></details>
+      <details><summary>Where is our data kept?</summary><p>On EU servers (Ireland), separate from every other workshop. Export it any time.</p></details>
     </div>
   </div>
 </section>
 
 <section id="start" class="final-s">
-  <header class="ch"><div class="wrap"><h2>Run one of your own jobs through it this week.</h2></div></header>
+  <header class="ch"><div class="wrap"><h2>Try it on one of your own jobs.</h2></div></header>
   <div class="final sec">
     <div class="wrap">
       <div>
-        <p class="l">Leave your name and email. We email you straight away with how to start.</p>
+        <p class="l">Leave your details and we email you how to start.</p>
         <ol>
-          <li><span><b>Send the form.</b> Three fields, under a minute.</span></li>
-          <li><span><b>Create your account.</b> At worxmax.com/app, then add your people.</span></li>
-          <li><span><b>Five days on a real job.</b> Quote it, nest it, track it. Pay only if it earns its place.</span></li>
+          <li><span><b>Send the form.</b> Under a minute.</span></li>
+          <li><span><b>Create your account</b> and add your people.</span></li>
+          <li><span><b>Use it for 5 days.</b> Pay only if it earns its place.</span></li>
         </ol>
-        <dl class="facts" aria-label="worxmax at a glance">
-          <div><dt>Runs on</dt><dd>Office PC, tablet, workshop TV</dd></div>
-          <div><dt>People</dt><dd>Unlimited on every plan</dd></div>
-          <div><dt>Languages</dt><dd>English, Lithuanian</dd></div>
-          <div><dt>Made by</dt><dd>A working furniture workshop</dd></div>
-        </dl>
         <p class="contact" id="contact" hidden></p>
       </div>
       <form class="start" id="startForm" novalidate>
         <label>Your name<input id="fName" name="name" autocomplete="name" required></label>
         <label>Workshop<input id="fCompany" name="company" autocomplete="organization" required></label>
         <label class="full">Email<input id="fEmail" name="email" type="email" autocomplete="email" required></label>
-        <label class="full">What should we set up first? (optional)<textarea id="fMsg" name="msg" placeholder="e.g. our kitchen quotes, nesting for our CNC router, tracking on two tablets"></textarea></label>
+        <label class="full">What to set up first? (optional)<textarea id="fMsg" name="msg" placeholder="e.g. kitchen quotes, nesting for our CNC"></textarea></label>
         <label class="attach full" id="attachRow" hidden><input type="checkbox" name="attach" id="fAttach"><span id="attachTxt">Attach the cabinets I built in the demo</span></label>
         <input type="hidden" name="plan" id="fPlan" value="">
         <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
         <div class="full"><button class="cta primary" type="submit" id="formBtn">Start my 5-day free trial</button></div>
-        <p class="fine full" id="formMsg" role="status">Nothing is charged during the trial. We keep your details only to set up your trial and contact you about it. <a href="privacy.html">How we handle them</a>.</p>
+        <p class="fine full" id="formMsg" role="status">No charge during the trial. <a href="privacy.html">Privacy</a>.</p>
       </form>
     </div>
   </div>
@@ -1001,7 +993,7 @@
   /* ===================== THE NINE APPS, one line each ===================== */
   // The nine apps as catalogue rows, grouped by the stage of the job they serve.
   $('cards').innerHTML = H.STAGES.map(function (st) {
-    return '<div class="cat-st"><div><h3><span class="st-n" aria-hidden="true">' + (H.STAGES.indexOf(st) + 1) + '</span>' + st.t + '</h3><p>' + st.d.charAt(0).toUpperCase() + st.d.slice(1) + '.</p></div><div>' +
+    return '<div class="cat-st"><div><h3><span class="st-n" aria-hidden="true">' + (H.STAGES.indexOf(st) + 1) + '</span>' + st.t + '</h3></div><div>' +
       H.APPS.filter(function (a) { return a.st === st.id; }).map(function (a) {
         var p = H.PLAN_OF[a.id];
         return '<a class="art" href="apps.html#' + a.id + '"><span class="art-no">' + a.art + '</span><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
@@ -1040,7 +1032,7 @@
       return '<div class="plan' + (p.feat ? ' feat' : '') + '">' +
         '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Includes the shop floor</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
         '<div><div class="price"><b>€' + (yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (yearly ? '/ year' : '/ month') + '</span></div>' +
-        '<div class="muted" style="font-size:13px;margin-top:6px">' + (yearly ? 'Two months free, billed once a year' : 'Billed monthly, cancel any time') + '</div></div>' +
+        '<div class="muted" style="font-size:13px;margin-top:6px">' + (yearly ? 'Two months free' : 'Cancel any time') + '</div></div>' +
         '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>' +
         '<a class="cta ' + (p.feat ? 'primary' : 'line') + '" href="#start" data-plan="' + p.name + '">' + p.cta + '</a></div>';
     }).join('');
