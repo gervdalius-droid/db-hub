@@ -294,3 +294,6 @@ revoke all on function public.admin_overview(), public.admin_create_workshop(jso
   public.admin_add_payment(jsonb), public.admin_delete_payment(uuid), public.admin_cancel_invite(uuid), public.admin_delete_lead(uuid) from public, anon;
 grant execute on function public.admin_overview(), public.admin_create_workshop(jsonb), public.admin_save_workshop(uuid, jsonb),
   public.admin_add_payment(jsonb), public.admin_delete_payment(uuid), public.admin_cancel_invite(uuid), public.admin_delete_lead(uuid) to authenticated;
+
+-- 9. The worxmax operator.
+insert into public.admins (email) values ('it@worxmax.com') on conflict do nothing;
