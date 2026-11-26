@@ -683,3 +683,24 @@ footer .logo img{height:28px}
   #top .col.in .draw{flex:1 1 150px;min-height:150px;display:flex}
   #top #sketch{height:auto!important;flex:1 1 auto;min-height:150px}
 }
+
+/* ===== demo preview, styled after the latest Cabinet Studio assembly preview ===== */
+.st-head{text-transform:none;letter-spacing:0;font-size:inherit;gap:10px}
+.st-head .cname{margin-left:0;flex:1 1 auto;min-width:0;font-weight:700;font-size:18px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-head .cname i{font-style:normal;font-weight:500;color:var(--ink3);margin-right:4px}
+.st-head .cname small{font-weight:400;font-size:14px;color:var(--ink3);margin-left:6px}
+.vseg{flex:none;border-radius:10px;border-color:var(--rule2);background:#F3F2EF;padding:3px;gap:2px}
+.vseg button{min-height:30px;padding:0 14px;border:0!important;border-radius:8px;font-size:14px;font-weight:600;color:var(--ink2);background:transparent}
+.vseg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(28,26,22,.12)}
+.draw{background:#F3F2EF;border-color:var(--rule)}
+.draw .chips{position:absolute;left:10px;top:10px;z-index:2}
+.draw{padding-top:46px}
+.draw .chips button[aria-pressed="true"]{background:var(--ink);color:#fff;box-shadow:none}
+#sketch .dim polyline{stroke:#3A3833;stroke-width:1}
+#sketch .dim rect.pill{fill:#fff;stroke:rgba(28,26,22,.14);stroke-width:1;vector-effect:non-scaling-stroke}
+#sketch .dim text{fill:var(--ink);font-weight:600;paint-order:normal;stroke:none;dominant-baseline:central}
+.openrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:14px;font-weight:600;color:var(--ink2)}
+.openrow input[type=range]{flex:1 1 120px;min-width:100px;width:auto}
+.openrow output{font-weight:700;color:var(--ink);min-width:38px}
+.openrow .ck{display:inline-flex;align-items:center;gap:6px;font-weight:500;cursor:pointer}
+.openrow .ck input{width:17px;height:17px;accent-color:var(--ink);margin:0}

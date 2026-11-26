@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <script>/* preview only: ?look=a|b|c picks one of the three Drawer Cabinet looks */(function(){var m=/[?&]look=([abc])/.exec(location.search);document.documentElement.setAttribute('data-look',m?m[1]:'a')})();</script>
 <link rel="preload" href="assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css?v=40">
+<link rel="stylesheet" href="assets/site.css?v=44">
 <link rel="stylesheet" href="assets/looks.css?v=38">
 </head>
 <body>
@@ -62,10 +62,16 @@
 
       <div class="bench-body">
         <div class="col in">
-          <div class="col-h"><b>A</b>You enter the cabinet<span id="drawCap">sizes in mm</span></div>
+          <div class="col-h st-head"><b>A</b><span class="cname" id="drawCap">Drawer base</span>
+            <div class="seg vseg" id="cView" role="group" aria-label="View"><button type="button" data-v="3d" aria-pressed="true">3D</button><button type="button" data-v="front" aria-pressed="false">Front</button></div></div>
           <div class="draw">
             <svg id="sketch" role="img" aria-label="Drawing of the cabinet you are editing"></svg>
-            <button type="button" class="mini" id="doorBtn" aria-pressed="true">Close drawers</button>
+            <div class="seg vseg chips" id="cShow" role="group" aria-label="Show"><button type="button" data-v="all" aria-pressed="true">Assembled</button><button type="button" data-v="nofronts" aria-pressed="false">No fronts</button></div>
+          </div>
+          <div class="openrow">
+            <label for="cOpen">Opening</label><input id="cOpen" type="range" min="0" max="100" step="5" value="65"><output id="oOpen" for="cOpen">65%</output>
+            <label class="ck"><input type="checkbox" id="cDims" checked> Dimensions</label>
+            <label class="ck"><input type="checkbox" id="cHandles"> Handles</label>
           </div>
           <div class="ctrls">
             <div class="ctl">
@@ -480,7 +486,6 @@
       b.title = b.disabled ? 'Drawers go in base cabinets' : '';
     });
     $('cS').disabled = dr; $('oS').textContent = dr ? '–' : draft.shelves;
-    $('doorBtn').textContent = (doorGoal ? 'Close ' : 'Open ') + frontWord(draft);
   }
   $('cType').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return; firstTouch();
@@ -504,20 +509,32 @@
   [['cW', 'w'], ['cH', 'h'], ['cD', 'd'], ['cS', 'shelves']].forEach(function (p) {
     $(p[0]).addEventListener('input', function (e) { firstTouch(); draft[p[1]] = parseInt(e.target.value, 10); render(); });
   });
-  function setDoors(open, instant) {
-    doorGoal = open ? 1 : 0;
-    $('doorBtn').setAttribute('aria-pressed', String(open)); $('doorBtn').textContent = (open ? 'Close ' : 'Open ') + frontWord(draft);
-    cancelAnimationFrame(doorRaf);
-    if (reduce || instant) { doorT = doorGoal; renderSketch(); return; }
+  // Opening: how far drawers pull out and doors swing, 0-100% (Cabinet Studio starts at 65%).
+  function setOpening(pct, animate) {
+    var goal = pct / 100;
+    $('cOpen').value = pct; fillRange($('cOpen')); $('oOpen').textContent = pct + '%';
+    doorGoal = goal; cancelAnimationFrame(doorRaf);
+    if (reduce || !animate) { doorT = goal; renderSketch(); return; }
     var from = doorT, start = Date.now(), dur = 750;
     (function step() {
       var k = Math.min(1, (Date.now() - start) / dur), e = 1 - Math.pow(1 - k, 3);
-      doorT = from + (doorGoal - from) * e;
+      doorT = from + (goal - from) * e;
       renderSketch();
       if (k < 1) doorRaf = requestAnimationFrame(step);
     })();
   }
-  $('doorBtn').addEventListener('click', function () { firstTouch(); setDoors(doorGoal === 0); });
+  function setDoors(open, instant) { setOpening(open ? 65 : 0, !instant); }
+  $('cOpen').addEventListener('input', function (e) { firstTouch(); setOpening(parseInt(e.target.value, 10), false); });
+  $('cView').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-v]'); if (!b) return; firstTouch(); setView(b.dataset.v);
+    $$('#cView button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); renderSketch();
+  });
+  $('cShow').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-v]'); if (!b) return; firstTouch(); NOFRONTS = b.dataset.v === 'nofronts';
+    $$('#cShow button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); }); renderSketch();
+  });
+  $('cDims').addEventListener('change', function (e) { firstTouch(); SHOWDIMS = e.target.checked; renderSketch(); });
+  $('cHandles').addEventListener('change', function (e) { firstTouch(); HANDLES = e.target.checked; renderSketch(); });
   $('addBtn').addEventListener('click', function () {
     firstTouch();
     if (kitchen.length >= 12) { toast('Twelve is plenty for a demo. The real app has no limit.'); return; }
@@ -595,7 +612,7 @@
     setK('kSheets', plural(nest.count, 'sheet'));
     $('nestNote').textContent = 'Board 2800 × 2070 mm · ' + Math.round(used) + '% used · trim 10, kerf 4 · one decor per sheet';
     setK('kLabels', plural(parts.length, 'label'));
-    $('drawCap').textContent = (cabs.length > 1 ? 'Editing #' + (sel + 1) + ' ' : '') + cabName(draft) + ' × ' + draft.h + ' × ' + draft.d + ' mm';
+    $('drawCap').innerHTML = '<i>' + (sel + 1) + '</i> ' + cabName(draft).replace(/ \d+$/, '') + ' <small>' + draft.w + ' × ' + draft.h + ' × ' + draft.d + ' mm</small>';
     $('bdTable').innerHTML = q.rows.map(function (r) { return '<tr><td>' + r[0] + '</td><td>' + eur(r[1]) + '</td></tr>'; }).join('') +
       '<tr class="tot"><td>Total, excl. VAT</td><td>' + eur(q.total) + '</td></tr>';
     $('plBody').innerHTML = cabs.map(function (c, ci) {
@@ -622,7 +639,14 @@
 
   /* --- cabinet drawing: the same kind of view as the assembly preview in Cabinet Studio.
          Axonometric, seen from the front right and a little above; shaded panels, legs, a soft shadow. --- */
+  // View and options, as in Cabinet Studio's assembly preview: 3D or straight-on front,
+  // fronts shown or not, how far drawers and doors are opened, dimensions and handles.
+  var VIEW = '3d', NOFRONTS = false, SHOWDIMS = true, HANDLES = false;
   var VT = 0.5, VP = 0.38, CT = Math.cos(VT), ST = Math.sin(VT), CP = Math.cos(VP), SP = Math.sin(VP);
+  function setView(v) {
+    VIEW = v; VT = v === 'front' ? 0 : 0.5; VP = v === 'front' ? 0 : 0.38;
+    CT = Math.cos(VT); ST = Math.sin(VT); CP = Math.cos(VP); SP = Math.sin(VP);
+  }
   // How far each door swings. The right one goes further, so from this side it does not hide the inside.
   var DOOR_L = 105 * Math.PI / 180, DOOR_R = 140 * Math.PI / 180;
   function shade(hex, t) {
@@ -697,7 +721,7 @@
           box(w - T - 18, w - T - 6, yk + 18, yk + 18 + bh, zf + 2, zf + 2 + bd, '', { col: METAL });
           box(T + 18, w - T - 18, yk + 18, yk + 30, zf + 2, zf + 2 + bd, 'DB' + (i + 1), { t: 0.1 });
           box(T + 18, w - T - 18, yk + 18, yk + 18 + bh * 0.92, zf + bd - 14, zf + 2 + bd, 'DK' + (i + 1));
-          box(2, w - 2, yk, yk + fh, zf - T, zf, 'F' + (i + 1), { col: fm.fill, handle: true });
+          if (!NOFRONTS) box(2, w - 2, yk, yk + fh, zf - T, zf, 'F' + (i + 1), { col: fm.fill, handle: HANDLES });
         }
         extMax = Math.max(extMax, ex);
         [0, w].forEach(function (x) { [y0, y1].forEach(function (y) { pts.push(pr(x + P.ox, y + P.oy, -ex - 2 - T + P.oz)); }); });
@@ -710,7 +734,7 @@
       }
       B.push({ x0: P.ox, x1: P.ox + w, y0: P.oy + y0, y1: P.oy + y1, z0: P.oz, z1: P.oz + d, boards: order });
       var n = doorCount(c);
-      for (j = 0; j < n; j++) Dr.push({ c: c, ci: ci, P: P, k: j, da: y0 + 2, db: y1 - 2 });
+      if (!NOFRONTS) for (j = 0; j < n; j++) Dr.push({ c: c, ci: ci, P: P, k: j, da: y0 + 2, db: y1 - 2 });
       if (leg) Lg.push({ P: P, w: w, d: d, leg: leg });
       // what the view has to hold, with doors fully open so the picture stays still while they swing
       [[0, 0, 0], [w, 0, 0], [w, 0, d], [0, 0, d], [0, y1, 0], [w, y1, 0], [w, y1, d], [0, y1, d]].forEach(function (q) { pts.push(pr(q[0] + P.ox, q[1] + P.oy, q[2] + P.oz)); });
@@ -725,10 +749,10 @@
     var sk = $('sketch'), cw = sk.clientWidth || 460, ch = sk.clientHeight || 340;
     var yf = c.type === 'wall' ? y0 : 0, u = 4, vb, off, dox;
     for (i = 0; i < 3; i++) {                                         // u = drawing units per screen pixel
-      off = 30 * u; dox = 40 * u;
-      var x0 = bx0 - 16 * u, x1 = Math.max(bx1, pe(w, 0, d)[0] + off + 32 * u, pe(w + dox, yf, d)[0] + 62 * u) + 12 * u;
-      var ya = Math.min(by0, pe(0, y1 + off, d)[1] - (cabs.length > 1 ? 30 : 12) * u) - 12 * u, yb = Math.max(by1, pe(w + dox, yf, 0)[1] + 8 * u) + 16 * u;
-      var vw = Math.max(x1 - x0, 1700), vh = Math.max(yb - ya, 1250);
+      off = 22 * u; dox = 30 * u;
+      var x0 = bx0 - 10 * u, x1 = Math.max(bx1, pe(w, 0, d)[0] + off + 28 * u, pe(w + dox, yf, d)[0] + 56 * u) + 6 * u;
+      var ya = Math.min(by0, pe(0, y1 + off, d)[1] - (cabs.length > 1 ? 24 : 10) * u) - 4 * u, yb = Math.max(by1, pe(w + dox, yf, 0)[1] + 6 * u) + 8 * u;
+      var vw = Math.max(x1 - x0, 1150), vh = Math.max(yb - ya, 950);   // a single cabinet fills the preview, as in Cabinet Studio
       vb = [x0 - (vw - (x1 - x0)) / 2, yb - vh, vw, vh];
       u = 1 / Math.min(cw / vw, ch / vh);
     }
@@ -737,7 +761,7 @@
       '<filter id="soft" x="-40%" y="-90%" width="180%" height="280%"><feGaussianBlur stdDeviation="30"/></filter></defs>');
 
     // shadows on the floor, then the legs
-    Lg.forEach(function (L) {
+    if (VIEW === '3d') Lg.forEach(function (L) {
       var o = L.P;
       g.push(poly([pt(o.ox - 70, 0, o.oz - 30), pt(o.ox + L.w + 10, 0, o.oz - 30), pt(o.ox + L.w + 10, 0, o.oz + L.d + 70), pt(o.ox - 70, 0, o.oz + L.d + 70)], 'rgba(30,33,36,.2)', ' class="ns" filter="url(#soft)"'));
     });
@@ -775,21 +799,27 @@
     // dimension lines, drawn before the doors so an open door passes in front of them
     var fs = 11.5 * u, gp = 7 * u, D = [], L = [];
     function line(q) { D.push('<polyline points="' + q.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ') + '"/>'); }
-    function label(p, txt, anchor) { L.push('<text x="' + p[0].toFixed(1) + '" y="' + p[1].toFixed(1) + '" font-size="' + fs.toFixed(1) + '" stroke-width="' + (5 * u).toFixed(1) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + txt + '</text>'); }
+    // labels sit in white pills, like the dimension labels in Cabinet Studio
+    function label(p, txt, anchor) {
+      var tw = String(txt).length * fs * 0.6, ph = fs * 1.8, x = p[0], y = p[1];
+      var rx = anchor === 'start' ? x - fs * 0.55 : anchor === 'middle' ? x - tw / 2 - fs * 0.55 : x - tw - fs * 0.55;
+      L.push('<rect class="pill" x="' + rx.toFixed(1) + '" y="' + (y - ph / 2).toFixed(1) + '" width="' + (tw + fs * 1.1).toFixed(1) + '" height="' + ph.toFixed(1) + '" rx="' + (ph * 0.3).toFixed(1) + '"/>' +
+        '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" font-size="' + fs.toFixed(1) + '"' + (anchor ? ' text-anchor="' + anchor + '"' : '') + '>' + txt + '</text>');
+    }
     function mid(a, b) { return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]; }
     var a1 = pe(0, y1 + off, d), a2 = pe(w, y1 + off, d);                                    // width, above the back edge
     line([pe(0, y1 + gp, d), a1, a2, pe(w, y1 + gp, d)]); label(mid(a1, a2), c.w + ' mm', 'middle');
     var h0 = pe(w, y0, d), h1 = pe(w, y1, d);                                                // height, beside the back corner
     line([[h0[0] + gp, h0[1]], [h0[0] + off, h0[1]], [h1[0] + off, h1[1]], [h1[0] + gp, h1[1]]]); label([h0[0] + off, (h0[1] + h1[1]) / 2], c.h + ' mm', 'middle');
-    var d0 = pe(w + dox, yf, 0), d1 = pe(w + dox, yf, d);                                    // depth, on the floor beside it
-    line([pe(w + gp, yf, 0), d0, d1, pe(w + gp, yf, d)]); label([d1[0] + 7 * u, d1[1]], c.d + ' mm', 'start');   // at the far end, clear of an open door
+    var d0 = pe(w + dox, yf, 0), d1 = pe(w + dox, yf, d);                                    // depth, on the floor beside it (3D only)
+    if (VIEW === '3d') { line([pe(w + gp, yf, 0), d0, d1, pe(w + gp, yf, d)]); label([d1[0] + 7 * u, d1[1]], c.d + ' mm', 'start'); }
     // with more than one cabinet, a number over each so they match the cut list
     if (cabs.length > 1) cabs.forEach(function (cc, ci) {
       if (ci === ed) return;
       var o = place[ci], top = (cc.type === 'wall' ? 0 : 100) + cc.h, p = pr(o.ox + cc.w / 2, o.oy + top + 14 * u, o.oz + cc.d / 2);
       label(p, '#' + (ci + 1), 'middle');
     });
-    g.push('<g class="dim">' + D.join('') + L.join('') + '</g>');
+    if (SHOWDIMS) g.push('<g class="dim">' + D.join('') + L.join('') + '</g>');
 
     // doors last: they stand in front of the carcasses
     Dr.forEach(function (J) {
@@ -800,7 +830,7 @@
         g.push(poly([pt(X(f[0]), da, Z(f[0])), pt(X(f[1]), da, Z(f[1])), pt(X(f[1]), db, Z(f[1])), pt(X(f[0]), db, Z(f[0]))], shade(fm.fill, wallShade(f[2], f[3])), p));
       });
       g.push(poly(Q.map(function (q) { return pt(X(q), db, Z(q)); }), shade(fm.fill, 0.32), p));
-      if (dr.n[1] * CT - dr.n[0] * ST < 0) {                            // handle, on the outside face
+      if (HANDLES && dr.n[1] * CT - dr.n[0] * ST < 0) {                 // handle, on the outside face
         var hh = Math.min(160, cc.h / 4), hy = cc.type === 'wall' ? da + 60 : cc.type === 'tall' ? (da + db) / 2 - hh / 2 : db - 60 - hh;
         var q = function (s) { return [Q[3][0] + s * dr.u[0] + 6 * dr.n[0], Q[3][1] + s * dr.u[1] + 6 * dr.n[1]]; }, qa = q(dr.dw - 54), qb = q(dr.dw - 40);
         g.push(poly([pt(X(qa), hy, Z(qa)), pt(X(qb), hy, Z(qb)), pt(X(qb), hy + hh, Z(qb)), pt(X(qa), hy + hh, Z(qa))], '#9AA0B5'));
