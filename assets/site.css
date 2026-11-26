@@ -767,3 +767,5 @@ footer .logo img{height:28px}
   form.start{padding:16px;gap:12px}
   form.start textarea{min-height:64px}
 }
+/* hero is slogan + button only: keep the button right under the headline */
+@media (min-width:900px){.hero .row{grid-row:2;align-self:end}}
