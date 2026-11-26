@@ -1,0 +1,270 @@
+/* ============================================================
+   Našumas — results by norms. One calculation shared by the managers'
+   page (/hub/nasumas/) and the plan's "Dienos šaunuolis".
+
+   What it joins:
+     • ShopFlow orders that have a report list (parts with sizes and edges)
+       and their steps (done / not done, who is assigned, timer)
+     • the norms: how much one person makes in a working day at each step
+     • the plan's work stretches: who was where, on which project, how long
+
+   A finished step is worth its normed hours (quantity ÷ norm × day).
+   They go to the people who marked time on that project at a matching
+   place, split by their time; with no marked time they go to the person
+   assigned to the step in ShopFlow, then to the default person
+   (Startech → Donatas, Volter → Nerijus unless changed).
+   Performance = normed hours ÷ hours actually marked on those steps.
+   Finishing (apdaila) and packing (pakavimas) have no norm: their time
+   counts as worked hours, one for one.
+   Plain ES5 — it also runs on the TV box and the older tablets.
+   ============================================================ */
+(function (root) {
+  "use strict";
+  var DEF = {
+    dayHours: 8, hourCost: 12.5, minShoutH: 2,
+    sheetM2: 5.8,   /* one full board, 2800 × 2070: a note "16 plokštės" on a saw / CNC stretch = 16 × this */
+    links: {},      /* order number → nesting project name ("-" = do not link); empty = match by name */
+    ops: {
+      pjov: { lt: "Pjovimas", en: "Cutting", unit: "m²", perDay: 92, sale: 3.6 },
+      briaun: { lt: "Briaunavimas", en: "Edge banding", unit: "m", perDay: 333.33, sale: 1 },
+      grez: { lt: "Gręžimas", en: "Drilling", unit: "m²", perDay: 100, sale: 2 },
+      sur: { lt: "Surinkimas", en: "Assembly", unit: "m²", perDay: 20, sale: 10 },
+      /* no norm: the hours worked count as they are (100 %) */
+      apd: { lt: "Apdaila", en: "Finishing", unit: "h", hours: true, sale: 10 },
+      pak: { lt: "Pakavimas", en: "Packing", unit: "h", hours: true, sale: 10 }
+    },
+    /* who gets a step when nobody marked time and ShopFlow has no one assigned */
+    def: { pjov: "Nerijus", briaun: "", grez: "Donatas", sur: "" }
+  };
+  var ORDER = ["pjov", "briaun", "grez", "sur"], HOURS = ["apd", "pak"], ALL = ORDER.concat(HOURS);
+  var HOUR_RE = { apd: /apdail|[sš]lif|apdirb|da[zž]y|finish|paint/i, pak: /pakav|pack/i };
+  var CAT_RE = { pjov: /pjov|piov|cut|saw/i, briaun: /briaun|edge|band/i, grez: /gr[eęė][zž]|drill|cnc/i, sur: /surink|assem/i };
+  /* which steps a place on the plan can do */
+  var PLACE = { altendorf: ["pjov"], felder: ["pjov"], olimpic: ["briaun"], startech: ["grez"], vitap: ["grez"], blum: ["grez"], volter: ["pjov"] };
+  function norm(v) { return String(v == null ? "" : v).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim(); }
+  function isObj(x) { return !!x && typeof x === "object" && !Array.isArray(x); }
+  function cfgOf(saved) {
+    var c = JSON.parse(JSON.stringify(DEF)), s = isObj(saved) ? saved : {};
+    if (+s.dayHours > 0) c.dayHours = +s.dayHours;
+    if (+s.hourCost >= 0 && s.hourCost != null) c.hourCost = +s.hourCost;
+    ORDER.forEach(function (k) {
+      var o = isObj(s.ops) && isObj(s.ops[k]) ? s.ops[k] : {};
+      if (+o.perDay > 0) c.ops[k].perDay = +o.perDay;
+      if (o.sale != null && +o.sale >= 0) c.ops[k].sale = +o.sale;
+      if (isObj(s.def) && typeof s.def[k] === "string") c.def[k] = s.def[k];
+    });
+    if (+s.sheetM2 > 0) c.sheetM2 = +s.sheetM2;
+    if (isObj(s.links)) Object.keys(s.links).forEach(function (k) { if (typeof s.links[k] === "string" && s.links[k]) c.links[k] = s.links[k]; });
+    HOURS.forEach(function (k) { var o = isObj(s.ops) && isObj(s.ops[k]) ? s.ops[k] : {}; if (o.sale != null && +o.sale >= 0) c.ops[k].sale = +o.sale; });
+    return c;
+  }
+  /* finishing and packing: which of the two a place or a ShopFlow station is, if either */
+  function hourCat(name, type) {
+    var n = String(name || "");
+    if (HOUR_RE.pak.test(n)) return "pak";
+    if (type === "booth" || HOUR_RE.apd.test(n)) return "apd";
+    return null;
+  }
+  function catOfStation(name) { for (var i = 0; i < ORDER.length; i++) if (CAT_RE[ORDER[i]].test(String(name || ""))) return ORDER[i]; return null; }
+  function placeCats(it) {
+    if (!it) return [];
+    if (it.t === "desk") return /[sš]lif|apdirb|apdail|da[zž]y/i.test(String(it.n || "")) ? [] : ["sur"];
+    return PLACE[it.t] || [];
+  }
+  function isTop(p) { return /stalvir/i.test(norm(p.name) + " " + norm(p.board)); }
+  function isBack(p) { return /plaus|hdf|\b3 ?mm/i.test(norm(p.board)); }
+  function edgeOn(e, i) { return Array.isArray(e) ? !!String(e[i] == null ? "" : e[i]).trim() : false; }
+  /* one part's quantities, all pieces */
+  function partQty(p) {
+    var l = +p.l || 0, w = +p.w || 0, q = Math.max(1, +p.qty || 1), a = l * w * q / 1e6, e = p.edges;
+    var m = ((edgeOn(e, 0) ? l : 0) + (edgeOn(e, 1) ? l : 0) + (edgeOn(e, 2) ? w : 0) + (edgeOn(e, 3) ? w : 0)) * q / 1000;
+    return { pjov: a, briaun: m, grez: isTop(p) || isBack(p) ? 0 : a, sur: isTop(p) ? 0 : a };
+  }
+  function sumQty(parts, cat) { var s = 0; for (var i = 0; i < parts.length; i++) s += partQty(parts[i])[cat]; return s; }
+  function stdH(cfg, cat, qty) { var o = cfg.ops[cat]; return o && o.perDay > 0 ? qty / o.perDay * cfg.dayHours : 0; }
+  function label(o) { return [o.num, o.product].filter(Boolean).join(" · "); }
+  function prMatches(pr, o) {
+    var p = norm(pr); if (!p) return false;
+    var num = norm(o.num), prod = norm(o.product);
+    return p === norm(label(o)) || (num && (p === num || p.indexOf(num + " ") === 0)) || (prod && p === prod);
+  }
+  /* time between a and b with the breaks taken out */
+  function netMs(a, b, breaks) {
+    if (!(b > a)) return 0; var ms = b - a;
+    var mm = function (v) { var x = String(v || "").split(":"); return (+x[0] || 0) * 60 + (+x[1] || 0); };
+    var d = new Date(a); d.setHours(0, 0, 0, 0);
+    for (; d.getTime() < b; d.setDate(d.getDate() + 1)) {
+      var d0 = d.getTime();
+      for (var i = 0; i < (breaks || []).length; i++) { var k = breaks[i]; if (!k || !k.f || !k.t) continue; var s0 = d0 + mm(k.f) * 6e4, s1 = d0 + mm(k.t) * 6e4; ms -= Math.max(0, Math.min(b, s1) - Math.max(a, s0)); }
+    }
+    return Math.max(0, ms);
+  }
+  function dayOf(ms) { var d = new Date(ms), p = function (x) { return (x < 10 ? "0" : "") + x; }; return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()); }
+  function endOfDay(ms) { var d = new Date(ms); d.setHours(23, 59, 59, 999); return d.getTime(); }
+
+  /* ---- projects with no report list in ShopFlow: take the parts from the nesting app's project ----
+     Matched by name: the same name, or the same words shortened ("GelumbauskoMiegSP" ↔ "GEL_MIEG_SP");
+     a manager can pick or remove the link by hand (cfg.links). nest = [{name, parts}] */
+  function toks(v) {
+    return String(v || "").replace(/([a-z\u00e0-\u017f])([A-Z0-9])/g, "$1 $2").replace(/([A-Za-z])(\d)/g, "$1 $2").replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+      .toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^a-z0-9]+/).filter(Boolean);
+  }
+  function nameFit(a, b) {
+    var x = toks(a), y = toks(b); if (!x.length || !y.length) return 0;
+    if (x.join("") === y.join("")) return 2;
+    if (x.length !== y.length || x.length < 2) return 0;
+    for (var i = 0; i < x.length; i++) if (x[i].indexOf(y[i]) !== 0 && y[i].indexOf(x[i]) !== 0) return 0;
+    return 1;
+  }
+  function nestFor(o, nest, links) {
+    var pick = links && links[o.num];
+    if (pick === "-") return null;
+    var i, n, best = null, lvl = 0, tie = false;
+    if (pick) { for (i = 0; i < nest.length; i++) if (nest[i].name === pick) return { p: nest[i], auto: false }; return null; }
+    for (i = 0; i < nest.length; i++) {
+      n = nest[i]; if (!n || !Array.isArray(n.parts) || !n.parts.length) continue;
+      var f = Math.max(nameFit(o.product, n.name), nameFit(o.num, n.name));
+      if (f > lvl) { best = n; lvl = f; tie = false; } else if (f && f === lvl) tie = true;
+    }
+    return best && !(tie && lvl < 2) ? { p: best, auto: true } : null;
+  }
+  function attachNesting(orders, nest, links) {
+    nest = Array.isArray(nest) ? nest : [];
+    return (orders || []).map(function (o) {
+      if (!o || o.type === "eng" || (Array.isArray(o.parts) && o.parts.length)) return o;
+      var m = nestFor(o, nest, links); if (!m) return o;
+      var c = {}; for (var k in o) c[k] = o[k];
+      c.nest = m.p.name; c.nestAuto = m.auto;
+      c.parts = m.p.parts.filter(function (p) { return p && +p.l > 0 && +p.w > 0; }).map(function (p) {
+        var e = p.eb || {}; return { l: +p.l, w: +p.w, qty: Math.max(1, +p.qty || 1), name: p.name || "", board: p.mat || "", edges: [e.eb1 || "", e.eb2 || "", e.eb3 || "", e.eb4 || ""] };
+      });
+      return c;
+    });
+  }
+
+  /* ---- the steps of every order that has a report list, grouped per order and step kind ---- */
+  function groups(orders, stations, cfg) {
+    var stName = {}; (stations || []).forEach(function (s) { if (s && s.id) stName[s.id] = s.name || s.id; });
+    var out = [];
+    (orders || []).forEach(function (o) {
+      if (!o || o.type === "eng" || !Array.isArray(o.parts) || !o.parts.length) return;
+      var by = {};
+      (o.ops || []).forEach(function (op) {
+        if (!op) return; var cat = catOfStation(stName[op.stationId] || op.stationId); if (!cat) return;
+        var own = o.parts.filter(function (p) { return p && p.itemId === op.itemId; });
+        var parts = own.length ? own : (cat === "sur" || o.nest ? o.parts : []);
+        var qty = sumQty(parts, cat); if (!(qty > 0)) return;
+        var g = by[cat] = by[cat] || { order: o, label: label(o), cat: cat, ops: [], qty: 0, stdH: 0, doneQty: 0, doneH: 0, at: 0, allDone: true };
+        var h = stdH(cfg, cat, qty), done = op.status === "done";
+        g.ops.push({ qty: qty, stdH: h, done: done, at: +op.completedAt || 0, who: (Array.isArray(op.assigneeIds) && op.assigneeIds.length ? op.assigneeIds : (op.assigneeId ? [op.assigneeId] : [])), logged: +op.loggedMs || 0 });
+        g.qty += qty; g.stdH += h;
+        /* a running step counts for the pieces already marked (the Startech scans raise qtyDone as they go) */
+        var iq = 0; (o.items || []).forEach(function (i) { if (i && i.id === op.itemId) iq = +i.qty || 0; });
+        var frac = done ? 1 : (iq > 0 ? Math.min(1, Math.max(0, (+op.qtyDone || 0) / iq)) : 0);
+        if (frac > 0) { g.doneQty += qty * frac; g.doneH += h * frac; }
+        if (done) g.at = Math.max(g.at, +op.completedAt || 0); else g.allDone = false;
+      });
+      ORDER.forEach(function (c) { if (by[c]) out.push(by[c]); });
+    });
+    return out;
+  }
+
+  /* ---- everything: opts = {orders, stations, members, sessions, items, breaks, cfg, from, to} ---- */
+  function compute(opts) {
+    var cfg = opts.cfg || cfgOf(null), breaks = opts.breaks || [], items = opts.items || {}, from = opts.from, to = opts.to;
+    var memName = {}; (opts.members || []).forEach(function (m) { if (m && m.id) memName[m.id] = m.name || ""; });
+    var sess = (opts.sessions || []).filter(function (x) { return x && !x.del && +x.b > +x.a && x.n; }).map(function (x) {
+      var it = items[x.s];
+      var cats = placeCats(it), sm = cats.indexOf("pjov") >= 0 ? /(\d+(?:[.,]\d+)?)\s*(?:plok|pl\b|pl\.|lak[sš]t|lap|sheet|board)/i.exec(String(x.nt || "")) : null;
+      return { n: String(x.n), s: x.s, sn: x.sn || "", pr: x.pr || "", a: +x.a, b: +x.b, ms: netMs(+x.a, +x.b, breaks), cats: cats, sheets: sm ? parseFloat(sm[1].replace(",", ".")) : 0, nt: String(x.nt || ""), hcat: it && (it.t === "desk" || it.t === "booth") ? hourCat(it.n, it.t) : null };
+    });
+    /* A note stays on the person on the plan until it is changed, so the same text turning up on a later
+       day is the old note carried over, not new boards: it counts only on the first day it appears. */
+    var seenNote = {};
+    sess.slice().sort(function (p, q) { return p.a - q.a; }).forEach(function (x) {
+      if (!(x.sheets > 0)) return; var k = norm(x.n) + "|" + norm(x.nt), d = dayOf(x.a);
+      if (!seenNote[k]) seenNote[k] = d; else if (seenNote[k] !== d) x.sheets = 0;
+    });
+    var G = groups(opts.orders, opts.stations, cfg), credits = [], jobs = [];
+    G.forEach(function (g) {
+      var job = { label: g.label, cat: g.cat, qty: g.qty, stdH: g.stdH, doneQty: g.doneQty, doneH: g.doneH, allDone: g.allDone, at: g.at, actualMs: 0, people: [], measured: false, started: false };
+      var lim = g.allDone && g.at ? endOfDay(g.at) : Infinity;
+      var mine = sess.filter(function (x) { return x.cats.indexOf(g.cat) >= 0 && !(x.sheets > 0 && g.cat === "pjov") && prMatches(x.pr, g.order) && x.a <= lim; });
+      var tot = 0; mine.forEach(function (x) { tot += x.ms; });
+      job.started = tot > 0 || g.doneH > 0; job.actualMs = tot;
+      /* Live: while a step is still running, the marked time earns normed hours one for one until the
+         step's norm is used up (so it shows 100 % while inside the norm and drops once over it).
+         When the step is marked done the real figure replaces it: the whole norm ÷ the whole time. */
+      var liveH = g.allDone ? g.doneH : Math.max(g.doneH, Math.min(g.stdH, tot / 36e5));
+      job.live = !g.allDone && tot > 0; job.creditH = liveH;
+      if (liveH > 0 && tot >= 6e5) {
+        job.measured = true;
+        mine.forEach(function (x) {
+          var f = x.ms / tot;
+          credits.push({ n: x.n, t: x.a, cat: g.cat, label: g.label, h: liveH * f, qty: (g.stdH > 0 ? g.qty * liveH / g.stdH : 0) * f, ms: x.ms, measured: true, open: !g.allDone });
+          if (job.people.indexOf(x.n) < 0) job.people.push(x.n);
+        });
+      } else if (g.doneH > 0) {
+        g.ops.forEach(function (op) {
+          if (!op.done) return;
+          var who = op.who.map(function (id) { return memName[id]; }).filter(Boolean);
+          if (!who.length && cfg.def[g.cat]) who = [cfg.def[g.cat]];
+          if (!who.length) return;
+          var timed = op.logged >= 3e5;
+          who.forEach(function (n) {
+            credits.push({ n: n, t: op.at || g.at, cat: g.cat, label: g.label, h: op.stdH / who.length, qty: op.qty / who.length, ms: timed ? op.logged / who.length : 0, measured: timed, open: !g.allDone });
+            if (job.people.indexOf(n) < 0) job.people.push(n);
+          });
+          if (timed) { job.actualMs += op.logged; job.measured = true; }
+        });
+      }
+      job.eff = job.measured && job.actualMs > 0 ? (job.creditH || job.doneH) / (job.actualMs / 36e5) : null;
+      jobs.push(job);
+    });
+    /* finishing and packing have no norm: the time counts as worked hours, one for one.
+       Finishing = time marked on the plan at the paint booth or a sanding / finishing desk.
+       Packing = a packing desk on the plan, plus the ShopFlow timer of finished packing steps. */
+    /* boards counted by hand: a note like "16 plokštės" on a saw / CNC stretch is that many full boards cut.
+       The same note carried over several stretches of one day counts once, against all their time. */
+    var SH = {};
+    sess.forEach(function (x) { if (!(x.sheets > 0)) return; var k = norm(x.n) + "|" + dayOf(x.a) + "|" + norm(x.nt); (SH[k] = SH[k] || { n: x.n, t: x.a, sheets: x.sheets, ms: 0, pr: x.pr }).ms += x.ms; });
+    Object.keys(SH).forEach(function (k) { var e = SH[k], q = e.sheets * cfg.sheetM2; if (e.ms >= 6e4) credits.push({ n: e.n, t: e.t, cat: "pjov", label: e.pr, h: stdH(cfg, "pjov", q), qty: q, ms: e.ms, measured: true, open: false, sheets: e.sheets }); });
+    sess.forEach(function (x) { if (x.hcat && x.ms >= 6e4) credits.push({ n: x.n, t: x.a, cat: x.hcat, label: x.pr, h: x.ms / 36e5, qty: x.ms / 36e5, ms: x.ms, measured: true, open: false }); });
+    var stN = {}; (opts.stations || []).forEach(function (s) { if (s && s.id) stN[s.id] = s.name || ""; });
+    (opts.orders || []).forEach(function (o) {
+      if (!o || o.type === "eng") return;
+      (o.ops || []).forEach(function (op) {
+        if (!op || op.status !== "done" || !(+op.loggedMs >= 3e5) || !(+op.completedAt > 0) || hourCat(stN[op.stationId]) !== "pak") return;
+        var who = (Array.isArray(op.assigneeIds) && op.assigneeIds.length ? op.assigneeIds : (op.assigneeId ? [op.assigneeId] : [])).map(function (id) { return memName[id]; }).filter(Boolean);
+        who.forEach(function (n) { var ms = +op.loggedMs / who.length; credits.push({ n: n, t: +op.completedAt, cat: "pak", label: label(o), h: ms / 36e5, qty: ms / 36e5, ms: ms, measured: true, open: false }); });
+      });
+    });
+    /* per person, inside the period */
+    var P = {};
+    function person(n) { var k = norm(n); return P[k] = P[k] || { n: n, presentMs: 0, normedMs: 0, earnedH: 0, measuredH: 0, looseH: 0, hoursH: 0, value: 0, byOp: {}, days: {} }; }
+    (opts.members || []).forEach(function (m) { if (m && m.name && (m.role === "worker" || !m.role)) person(m.name); });
+    sess.forEach(function (x) {
+      var a = Math.max(x.a, from), b = Math.min(x.b, to); if (!(b > a)) return;
+      var ms = netMs(a, b, breaks), p = person(x.n); p.presentMs += ms;
+      var d = dayOf(a); (p.days[d] = p.days[d] || { presentMs: 0, normedMs: 0, measuredH: 0, earnedH: 0 }).presentMs += ms;
+    });
+    credits.forEach(function (c) {
+      if (!(c.t >= from && c.t < to)) return;
+      var p = person(c.n), d = dayOf(c.t), day = p.days[d] = p.days[d] || { presentMs: 0, normedMs: 0, measuredH: 0, earnedH: 0 };
+      p.earnedH += c.h; day.earnedH += c.h; p.value += c.qty * (cfg.ops[c.cat].sale || 0);
+      p.byOp[c.cat] = (p.byOp[c.cat] || 0) + c.qty; if (cfg.ops[c.cat].hours) p.hoursH += c.h;
+      if (c.measured) { p.measuredH += c.h; p.normedMs += c.ms; day.measuredH += c.h; day.normedMs += c.ms; } else p.looseH += c.h;
+    });
+    var people = Object.keys(P).map(function (k) { var p = P[k]; p.perf = p.normedMs >= 6e5 ? p.measuredH / (p.normedMs / 36e5) : null; return p; });
+    var T = { presentMs: 0, normedMs: 0, earnedH: 0, measuredH: 0, looseH: 0, hoursH: 0, value: 0 };
+    people.forEach(function (p) { T.presentMs += p.presentMs; T.normedMs += p.normedMs; T.earnedH += p.earnedH; T.measuredH += p.measuredH; T.looseH += p.looseH; T.hoursH += p.hoursH; T.value += p.value; });
+    T.perf = T.normedMs >= 6e5 ? T.measuredH / (T.normedMs / 36e5) : null; T.cost = T.presentMs / 36e5 * cfg.hourCost;
+    return { people: people, team: T, jobs: jobs, groups: G, cfg: cfg };
+  }
+  /* today's best by norms: people with enough normed time today, best first; [] when the norms say nothing yet */
+  function best(opts) {
+    var r = compute(opts), min = (r.cfg.minShoutH || 2) * 36e5;
+    return r.people.filter(function (p) { return p.perf != null && p.normedMs >= min; }).sort(function (a, b) { return b.perf - a.perf; });
+  }
+  root.Nasumas = { DEF: DEF, ORDER: ORDER, HOURS: HOURS, ALL: ALL, hourCat: hourCat, attachNesting: attachNesting, nameFit: nameFit, cfgOf: cfgOf, compute: compute, best: best, groups: groups, partQty: partQty, stdH: stdH, netMs: netMs, dayOf: dayOf, norm: norm, placeCats: placeCats, catOfStation: catOfStation };
+})(typeof window !== "undefined" ? window : globalThis);

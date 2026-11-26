@@ -150,6 +150,10 @@ th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
 tr:last-child td{border-bottom:0}
 td select{min-height:36px;padding:4px 8px}
 
+#frames{position:relative;height:100vh;background:#fff}
+#frames iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#fff}
+#frames iframe[hidden]{display:none}
+.frame-load{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink3);font-size:14px;background:var(--paper)}
 @media (max-width:1080px){.cols{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:860px){
   .shell,.shell.collapsed{grid-template-columns:minmax(0,1fr);--side:264px}
@@ -164,6 +168,7 @@ td select{min-height:36px;padding:4px 8px}
   .topbar{display:flex;position:sticky;top:0;z-index:20;align-items:center;gap:10px;background:var(--paper);border-bottom:1.5px solid var(--rule);padding:10px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px))}
   .topbar img{height:24px;width:auto}
   .page{padding-top:22px}
+  #frames{height:calc(100vh - 51px);height:calc(100dvh - 51px)}
   h1{font-size:24px}
 }
 @media (prefers-reduced-motion:reduce){.side{transition:none}}
@@ -220,6 +225,7 @@ td select{min-height:36px;padding:4px 8px}
       <img src="../assets/brand/worxmax-logo.svg" alt="worxmax" width="120" height="24">
     </header>
     <main id="main"></main>
+    <div id="frames" hidden></div>
   </div>
 </div>
 
@@ -252,6 +258,14 @@ const I = {
   arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
 };
 
+// Where each app lives on this site (the worxmax copies of the apps).
+const APP_URL = { crm: '/hub/crm/', offers: '/offer/', studio: '/builder/', dxf: '/cad/draft.html', nesting: '/nesting/',
+  shopflow: '/shopflow-app/', plan: '/hub/cechas/', overview: '/hub/apzvalga/', invoices: '/invoices/' };
+// After signing in, an app that sent the person here gets them back.
+function nextUrl() {
+  const n = new URLSearchParams(location.search).get('next') || '';
+  return /^\/(?!\/)/.test(n) && !/^\/app\//.test(n) ? n : '';
+}
 let mode = 'in', me = null, uid = null, email = '', team = { members: [], invites: [] };
 const S = { collapsed: false, navOpen: false };
 try { S.collapsed = localStorage.getItem('wx.side') === '1'; } catch (e) {}
@@ -304,7 +318,7 @@ $('newForm').addEventListener('submit', async (e) => {
 });
 $('out2').addEventListener('click', signOut);
 $('out3').addEventListener('click', signOut);
-async function signOut() { await db.auth.signOut(); me = null; location.hash = ''; start(); }
+async function signOut() { await db.auth.signOut(); me = null; $('frames').innerHTML = ''; $('frames').hidden = true; $('main').hidden = false; location.hash = ''; start(); }
 
 async function start() {
   const { data: { session } } = await db.auth.getSession();
@@ -322,6 +336,8 @@ async function start() {
     if (!r.data || !r.data.length) return showGate('new');
   }
   me = r.data[0];
+  const nx = nextUrl();
+  if (nx) { location.replace(nx); return; }
   $('loading').hidden = true; $('gate').hidden = true; $('shell').hidden = false;
   await loadTeam();
   route();
@@ -368,13 +384,30 @@ function route() {
   S.navOpen = false;
   renderSide(cur);
   const main = $('main');
-  main.innerHTML = cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : homeHTML();
+  const live = cur.v === 'app' && APP_URL[cur.id] && canUse(cur.id) && !trialOver();
+  showFrame(live ? cur.id : null);
+  main.hidden = !!live;
+  main.innerHTML = live ? '' : cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : homeHTML();
   if (cur.v === 'app') { try { localStorage.setItem('wx.opened', '1'); } catch (e) {} }
   document.title = (cur.v === 'app' ? byId[cur.id].name : cur.v === 'team' ? 'Team' : cur.v === 'account' ? 'Account' : me.workshop_name) + ' — worxmax';
   window.scrollTo(0, 0);
-  const h1 = main.querySelector('h1'); if (h1 && cur.v !== 'home') { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
+  const h1 = live ? null : main.querySelector('h1'); if (h1 && cur.v !== 'home') { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
 }
 
+function trialOver() { return me.plan === 'trial' && trialDays() <= 0; }
+// Each app opens once in its own frame and stays loaded, so switching back keeps your place.
+function showFrame(id) {
+  const box = $('frames');
+  box.hidden = !id;
+  [...box.querySelectorAll('iframe')].forEach((f) => { f.hidden = f.dataset.app !== id; });
+  if (!id || box.querySelector(`iframe[data-app="${id}"]`)) return;
+  const f = document.createElement('iframe');
+  f.dataset.app = id; f.title = byId[id].name; f.src = APP_URL[id];
+  f.setAttribute('allow', 'clipboard-read; clipboard-write; fullscreen; camera');
+  const load = document.createElement('div'); load.className = 'frame-load'; load.textContent = 'Opening ' + byId[id].name + '…';
+  f.addEventListener('load', () => load.remove(), { once: true });
+  box.append(load, f);
+}
 function trialBanner() {
   if (me.plan !== 'trial') return '';
   const d = trialDays(), end = new Date(me.trial_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
@@ -422,7 +455,7 @@ function appHTML(a) {
   const s = stageOf[a.st] || {}, ok = canUse(a.id), nx = a.next && byId[a.next[0]];
   const need = (W.PLAN_NAMES || [])[PLAN_OF[a.id]] || '';
   const notice = ok
-    ? `<div class="soon">${svg(I.info)}<div><b>${esc(a.name)} is being connected to your workshop account.</b><span class="muted">It will open right here, with your own data. Until then, this is what it looks like with sample data.</span></div></div>`
+    ? `<div class="banner end"><span><b>Your free trial has ended.</b> Choose a plan to keep using ${esc(a.name)}. Your data is kept.</span><a class="btn small go" href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Plan for ' + me.workshop_name)}">Choose a plan</a></div>`
     : `<div class="banner end"><span><b>${esc(a.name)} is not in your ${esc(PLANS[me.plan] || me.plan)} plan.</b> It comes with the ${esc(need)} plan.</span><a class="btn small go" href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Upgrade ' + me.workshop_name + ' to ' + need)}">Ask to upgrade</a></div>`;
   return `<div class="page">
     <div class="phead"><div class="apphead"><span class="ico big">${svg(a.ico)}</span><div><div class="crumb">${esc(a.art)} · ${esc(s.t || '')}</div><h1>${esc(a.name)}</h1></div></div>
