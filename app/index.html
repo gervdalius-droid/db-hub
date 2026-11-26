@@ -190,6 +190,13 @@ td select{min-height:36px;padding:4px 8px}
     </form>
   </section>
 
+  <section class="card narrow stack" id="vAdmin" hidden>
+    <h1>worxmax admin</h1>
+    <p class="muted">You are signed in with the worxmax admin account. Customers, trial requests and payments are in the admin dashboard.</p>
+    <a class="btn go" href="../admin/">Open the admin dashboard</a>
+    <button class="btn small" type="button" id="out3">Sign out</button>
+  </section>
+
   <section class="card narrow stack" id="vNew" hidden>
     <h1>Set up your workshop</h1>
     <p class="muted">You get every app free for 5 days. You will be the owner and can add your team next.</p>
@@ -250,7 +257,7 @@ const S = { collapsed: false, navOpen: false };
 try { S.collapsed = localStorage.getItem('wx.side') === '1'; } catch (e) {}
 
 function say(id, text, ok) { const el = $(id); if (!el) return; el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
-function showGate(which) { $('loading').hidden = true; $('shell').hidden = true; $('gate').hidden = false; $('vAuth').hidden = which !== 'auth'; $('vNew').hidden = which !== 'new'; }
+function showGate(which) { $('loading').hidden = true; $('shell').hidden = true; $('gate').hidden = false; $('vAuth').hidden = which !== 'auth'; $('vNew').hidden = which !== 'new'; $('vAdmin').hidden = which !== 'admin'; }
 function canUse(id) { return (RANK[me.plan] ?? 2) >= (PLAN_OF[id] ?? 0); }
 function trialDays() { return Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5); }
 function planLine() {
@@ -296,6 +303,7 @@ $('newForm').addEventListener('submit', async (e) => {
   start();
 });
 $('out2').addEventListener('click', signOut);
+$('out3').addEventListener('click', signOut);
 async function signOut() { await db.auth.signOut(); me = null; location.hash = ''; start(); }
 
 async function start() {
@@ -305,6 +313,9 @@ async function start() {
   let r = await db.rpc('workshop_me');
   if (r.error) { showGate('new'); return say('newMsg', 'Could not load your account: ' + r.error.message); }
   if (!r.data || !r.data.length) {
+    // The worxmax operator has no workshop: send them to the admin dashboard, not a trial.
+    const adm = await db.rpc('am_i_admin');
+    if (adm.data === true) return showGate('admin');
     // No workshop yet: join one if this email was invited, otherwise offer to create one.
     const inv = await db.rpc('accept_invite');
     if (!inv.error) r = await db.rpc('workshop_me');
