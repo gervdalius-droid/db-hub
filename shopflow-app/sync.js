@@ -216,6 +216,9 @@ var Sync = {
             }, p => {
               var d = p.new && p.new.data;
               if (d) _this5._applyRemote(d);
+              // worxmax: past Supabase's 1 MB live-message limit the data field is left out of
+              // the message; fetch the record instead so this screen never works on old data.
+              else if (p.eventType !== "DELETE") _this5.pull();
             }).subscribe(st => {
               _this5.status = st === "SUBSCRIBED" ? "live" : "connecting";
               _this5.paint();
