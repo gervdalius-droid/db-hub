@@ -652,6 +652,9 @@ const DRAWER_HW=["BLUM TANDEM","BLUM TANDEMBOX","GUOLINIAI","KT. PASLĖPTO MONTA
 const DOOR_HW=["BLUM LANKSTAI","BLUM TIP-ON","KT. LANKSTAI","KT. TIP-ON","BE FURNITŪROS"];
 const HARDWARE=["BLUM TANDEM","BLUM TANDEMBOX","GUOLINIAI","KT. PASLĖPTO MONTAVIMO","BLUM LANKSTAI","BLUM TIP-ON","KT. LANKSTAI","KT. TIP-ON","BE FURNITŪROS"];
 const LAM=["KAS BŪTINA","PILNAI"];
+// worxmax: English names on screen for the built-in keys (the keys themselves stay, the maths uses them).
+const NAME_EN={"BLUM TANDEM":"Blum Tandem","BLUM TANDEMBOX":"Blum Tandembox","GUOLINIAI":"Ball-bearing runners","KT. PASLĖPTO MONTAVIMO":"Other concealed runners","BLUM LANKSTAI":"Blum hinges","BLUM TIP-ON":"Blum Tip-On","KT. LANKSTAI":"Other hinges","KT. TIP-ON":"Other push-to-open","BE FURNITŪROS":"No hardware","FASADAS":"Facade","KARKASAS":"Carcass","KITA":"Other","KAS BŪTINA":"Only where needed","PILNAI":"Everywhere"};
+function dn(v){return LANG==='en'&&NAME_EN[v]?NAME_EN[v]:v;}
 
 /* ===================== state ===================== */
 function uid(){return Math.random().toString(36).slice(2,9)}
@@ -669,8 +672,8 @@ const DEFAULT_STATE=()=>({v:2,projectName:"",
   rates:{cut:0.6,edge:1.7,hw:{"BLUM TANDEM":26,"BLUM TANDEMBOX":40,"GUOLINIAI":8,"KT. PASLĖPTO MONTAVIMO":12,"BLUM LANKSTAI":13,"BLUM TIP-ON":16,"KT. LANKSTAI":6,"KT. TIP-ON":9,"BE FURNITŪROS":0},
     hwCustom:[], accUnit:{led:30,ledBase:30,hk:70,hl:100,hf:110,tandem:40,accDrawer:80,shoeDrawer:80,holes:30}},
   materials:[
-    {id:uid(),name:"LMDP fasadas",code:"",supplier:"",cat:"FASADAS",unit:"m2",price:29,sL:2800,sW:2070,disc:0},
-    {id:uid(),name:"LMDP18 karkasas",code:"LMDP18",supplier:"",cat:"KARKASAS",unit:"m2",price:8,sL:2800,sW:2070,disc:0},
+    {id:uid(),name:"Melamine board (facade)",code:"",supplier:"",cat:"FASADAS",unit:"m2",price:29,sL:2800,sW:2070,disc:0},
+    {id:uid(),name:"Melamine 18 mm (carcass)",code:"LMDP18",supplier:"",cat:"KARKASAS",unit:"m2",price:8,sL:2800,sW:2070,disc:0},
   ],
   cabinets:[], boards:[],
   quote:{projType:"VIRTUVĖ",country:"LIETUVA",margin:28,pvm:21,matMarkup:10,packing:1,defects:5,fasteners:4,waste:25,depreciation:2.5,
@@ -1282,8 +1285,8 @@ function renderMaterials(){const tb=document.getElementById('matBody');tb.innerH
     <td><input value="${escapeHtml(m.name)}" oninput="upMatSoft(${i},'name',this.value)" style="min-width:150px"></td>
     <td><input value="${escapeHtml(m.code||'')}" oninput="upMatSoft(${i},'code',this.value)" style="min-width:74px"></td>
     <td><input value="${escapeHtml(m.supplier||'')}" oninput="upMatSoft(${i},'supplier',this.value)" style="min-width:96px"></td>
-    <td><select onchange="upMat(${i},'cat',this.value)">${['','FASADAS','KARKASAS','KITA'].map(x=>`<option ${m.cat===x?'selected':''} value="${x}">${x||'—'}</option>`).join('')}</select></td>
-    <td><select onchange="upMat(${i},'unit',this.value)">${[['m2','€/m²'],['sheet','€/lakštas'],['m','€/m']].map(u=>`<option ${m.unit===u[0]?'selected':''} value="${u[0]}">${u[1]}</option>`).join('')}</select></td>
+    <td><select onchange="upMat(${i},'cat',this.value)">${['','FASADAS','KARKASAS','KITA'].map(x=>`<option ${m.cat===x?'selected':''} value="${x}">${x?dn(x):'—'}</option>`).join('')}</select></td>
+    <td><select onchange="upMat(${i},'unit',this.value)">${[['m2','€/m²'],['sheet',LANG==='lt'?'€/lakštas':'€/sheet'],['m','€/m']].map(u=>`<option ${m.unit===u[0]?'selected':''} value="${u[0]}">${u[1]}</option>`).join('')}</select></td>
     <td class="num"><input type="number" class="cost" step="0.01" value="${m.price}" oninput="upMatSoft(${i},'price',this.value)"></td>
     <td class="num">${m.unit==='sheet'?`<input type="number" value="${m.sL}" oninput="upMatSoft(${i},'sL',this.value)" style="width:58px">×<input type="number" value="${m.sW}" oninput="upMatSoft(${i},'sW',this.value)" style="width:58px">`:'<span class="muted">—</span>'}</td>
     <td class="num"><input type="number" step="0.5" value="${m.disc}" oninput="upMatSoft(${i},'disc',this.value)" style="width:60px"></td>
@@ -1304,13 +1307,13 @@ function renderRates(){
   const ocb=document.getElementById('opCostBox');if(ocb)ocb.innerHTML=OC.map(r=>`<label class="f"><span class="l">${r[1]}</span><input type="number" step="0.5" value="${S.quote[r[0]]}" oninput="S.quote['${r[0]}']=num(this.value);recalc();saveNow()"></label>`).join('');
   const hw=document.getElementById('hwRatesBox');hw.innerHTML="";
   S.rates.hwCustom=S.rates.hwCustom||[];
-  HARDWARE.forEach(h=>{const l=document.createElement('label');l.className="f";l.innerHTML=`<span class="l">${h}</span><input type="number" class="cost" step="0.5" value="${S.rates.hw[h]!==undefined?S.rates.hw[h]:0}" oninput="S.rates.hw['${h.replace(/'/g,"\\'")}']=num(this.value);renderCabinets();recalc();saveNow()">`;hw.appendChild(l);});
+  HARDWARE.forEach(h=>{const l=document.createElement('label');l.className="f";l.innerHTML=`<span class="l">${dn(h)}</span><input type="number" class="cost" step="0.5" value="${S.rates.hw[h]!==undefined?S.rates.hw[h]:0}" oninput="S.rates.hw['${h.replace(/'/g,"\\'")}']=num(this.value);renderCabinets();recalc();saveNow()">`;hw.appendChild(l);});
   S.rates.hwCustom.forEach((h,i)=>{const catL=h.cat==='door'?(LANG==='lt'?'vyriai':'hinge'):h.cat==='drawer'?(LANG==='lt'?'bėgeliai':'slide'):(LANG==='lt'?'kita':'other');
     const l=document.createElement('label');l.className="f";l.innerHTML=`<span class="l">${escapeHtml(h.name)} · ${catL} <a href="#" onclick="delHardware(${i});return false" style="color:var(--bad);text-decoration:none">✕</a></span><input type="number" class="cost" step="0.5" value="${num(S.rates.hw[h.name])}" oninput="S.rates.hw['${h.name.replace(/'/g,"\\'")}']=num(this.value);renderCabinets();recalc();saveNow()">`;hw.appendChild(l);});
   const add=document.createElement('div');add.className="addbar";add.style.cssText="grid-column:1/-1;margin-top:6px";
   add.innerHTML=`<input id="newHwName" placeholder="${LANG==='lt'?'Furnitūros pavadinimas':'Fitting name'}" style="flex:1;min-width:140px">
     <select id="newHwCat"><option value="drawer">${LANG==='lt'?'bėgeliai':'slide'}</option><option value="door">${LANG==='lt'?'vyriai':'hinge'}</option><option value="other">${LANG==='lt'?'kita':'other'}</option></select>
-    <input id="newHwPrice" type="number" step="0.5" placeholder="€/vnt" style="width:90px">
+    <input id="newHwPrice" type="number" step="0.5" placeholder="€/pc" style="width:90px">
     <button class="btn sm primary" onclick="addHardware()">＋</button>`;
   hw.appendChild(add);
 }
@@ -1376,7 +1379,7 @@ function typeOptions(c){const cur=c.dishwasher?'__dish':c.type;return TYPES.conc
 function matField(label,cat,sel,price,onSel,onPrice){
   return `<label class="f wide"><span class="l">${label}</span><div class="matf"><select onchange="${onSel}">${matOptions(cat,sel)}</select>${sel?`<span class="mpr mono">€${fx(num(price))}</span>`:`<input type="number" step="0.01" value="${fx(num(price),2)}" oninput="${onPrice}" title="€/m²">`}</div></label>`;}
 function numField(label,val,oninput,extra){return `<label class="f"><span class="l">${label}</span><input type="number" value="${val}" oninput="${oninput}" ${extra||''}></label>`;}
-function selField(label,opts,cur,onchange){return `<label class="f"><span class="l">${label}</span><select onchange="${onchange}">${opts.map(o=>{const v=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:o;return `<option ${eq(cur,v)?'selected':''} value="${v}">${l}</option>`;}).join('')}</select></label>`;}
+function selField(label,opts,cur,onchange){return `<label class="f"><span class="l">${label}</span><select onchange="${onchange}">${opts.map(o=>{const v=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:dn(o);return `<option ${eq(cur,v)?'selected':''} value="${v}">${l}</option>`;}).join('')}</select></label>`;}
 function meterText(c,cu){return `${Math.round(cu.sumExplicit)} / ${Math.round(num(c.H))} mm${cu.nFill>0?` · ${t('fFill').toLowerCase()} ${Math.round(cu.fillH)}`:''}${cu.over?' · '+t('overH'):''}`;}
 
 function sectionsHTML(i,c,r){

@@ -360,7 +360,7 @@
     var c = idx(), q = S.ui.q.trim(), me = meName();
     var mine = function (d) { return !S.ui.mine || d.data.owner === me; };
     var h = '<div class="head"><div><h1>Deals</h1><p>Drag a card to the next stage. Click it to see everything.</p></div><div class="toolbar">' +
-      '<div class="filter">' + ic("search") + '<input class="inp" type="search" placeholder="Filtruoti…" data-keep="pq" data-in="q" value="' + esc(S.ui.q) + '" aria-label="Filtruoti sandorius"></div>' +
+      '<div class="filter">' + ic("search") + '<input class="inp" type="search" placeholder="Filter…" data-keep="pq" data-in="q" value="' + esc(S.ui.q) + '" aria-label="Filter deals"></div>' +
       '<div class="seg" role="group" aria-label="Whose"><button data-act="mine" data-v="0" aria-pressed="' + !S.ui.mine + '">All</button><button data-act="mine" data-v="1" aria-pressed="' + S.ui.mine + '">Mine</button></div>' +
       '<div class="seg" role="group" aria-label="Status"><button data-act="pmode" data-v="open" aria-pressed="' + (S.ui.pipeMode === "open") + '">Open</button><button data-act="pmode" data-v="won" aria-pressed="' + (S.ui.pipeMode === "won") + '">Won</button><button data-act="pmode" data-v="lost" aria-pressed="' + (S.ui.pipeMode === "lost") + '">Lost</button></div>' +
       "</div></div>";
