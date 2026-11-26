@@ -17524,7 +17524,8 @@ async function _lqSha1(buf){
 // Store the imported reportlist in the cloud (once per file content) → storage key
 async function labelFileUpload(buf, fileName){
   var ext=(/\.xlsm$/i.test(fileName)?'.xlsm':'.xlsx');
-  var key='label-files/'+(await _lqSha1(buf))+ext;
+  var wsId=''; try{ var me=window.WorkshopAuth&&await WorkshopAuth.me(); wsId=(me&&me.workshop_id)||''; }catch(e){}
+  var key=(wsId?wsId+'/':'')+'label-files/'+(await _lqSha1(buf))+ext;   // worxmax: each workshop's files in its own folder
   var tok=await _lqToken();
   var r=await fetch(SUPABASE_URL+'/storage/v1/object/'+LQ_BUCKET+'/'+key,{method:'POST',
     headers:_lqHdr(tok,{'x-upsert':'true','Content-Type':ext==='.xlsm'?'application/vnd.ms-excel.sheet.macroEnabled.12':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),body:buf});
