@@ -7,7 +7,8 @@ window.DBHUB = (function () {
   /* ===== Edit before going live. Empty values are simply left off the pages. ===== */
   var CONTACT_EMAIL = 'hello@worxmax.com';
   var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
-  var COMPANY_LINE = 'MB SUVESIU';
+  var COMPANY_LINE = '';   // shown in the footer when set
+  var OWNER = 'Ričardo Gervinsko įmonė';   // named on privacy.html as the owner
 
   var $ = function (id) { return document.getElementById(id); };
   var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
@@ -98,8 +99,9 @@ window.DBHUB = (function () {
   if (topbar) { window.addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
   if (COMPANY_LINE && $('footLine')) $('footLine').textContent = COMPANY_LINE;
   // privacy.html names whoever runs the site, once the details above are filled in
-  if ($('ctrl') && (COMPANY_LINE || CONTACT_EMAIL)) {
-    $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs worxmax is responsible for this data.') +
+  if ($('ctrl') && (OWNER || COMPANY_LINE || CONTACT_EMAIL)) {
+    var who = OWNER || COMPANY_LINE;
+    $('ctrl').textContent = (who ? 'worxmax is owned by ' + who + ', which is responsible for this data.' : 'The company that runs worxmax is responsible for this data.') +
       (CONTACT_EMAIL ? ' Write to ' + CONTACT_EMAIL + ' about anything on this page.' : '');
   }
   // Thumb-index rail: the tab of the chapter in view is marked. The current chapter is the

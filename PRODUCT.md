@@ -42,7 +42,7 @@ Built by people who run a working furniture workshop and use these apps on their
 
 - Name: **worxmax** (lowercase), replacing "db-hub" across the website and the product (sign-in app, app tiles, emails). Decided 2026-11-25. Not related to the user's separate WorxLead platform.
 - The user's own workshop deployments (app.dedesbaldai.lt) keep the Dėdės Baldai brand; never rebrand them.
-- Contact: info@dedesbaldai.lt. Company shown: MB SUVESIU.
+- Contact: info@dedesbaldai.lt. Owner named on the privacy page: Ričardo Gervinsko įmonė. No company line in the footer.
 
 ## Evidence on Hand
 
