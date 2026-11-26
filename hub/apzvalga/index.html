@@ -209,13 +209,7 @@ textarea.copy{position:absolute;left:-9999px}
   </div>
   <div class="sums" id="sum" aria-label="Santrauka / Summary"></div>
   <div class="late" id="late"></div>
-  <div class="legend" aria-hidden="true">
-    <span><i style="background:var(--done)"></i>atlikta / done</span>
-    <span><i style="background:var(--run)"></i>dirbama / in progress</span>
-    <span><i style="background:var(--paused)"></i>pristabdyta / paused</span>
-    <span><i style="background:var(--blocked)"></i>stringa / blocked</span>
-    <span><i style="background:var(--queued)"></i>laukia / waiting</span>
-  </div>
+  <div class="legend" id="legend" aria-hidden="true"></div>
 
   <main id="groups" style="display:flex;flex-direction:column;gap:26px"><div class="state">Loading…</div></main>
 
@@ -433,7 +427,8 @@ function grp(id){return GROUPS.filter(function(G){return G.id===id;})[0];}
 function render(){
   var B=base(),list=shown(),sum="",g="",late=B.filter(function(x){return days(x.p.d)<0;}).length;
   var tabs=[["all","Visi","All",data.length]].concat(STAGES.map(function(S){return [S.id,S.lt,S.en,data.filter(function(x){return x.p.t===S.id;}).length];}));
-  document.getElementById("tabs").innerHTML=tabs.map(function(t){return '<button type="button" role="tab" data-view="'+t[0]+'" aria-selected="'+(VIEW===t[0])+'"><span>'+t[1]+'<b>'+t[3]+'</b></span><small>'+t[2]+'</small></button>';}).join("");
+  document.getElementById("legend").innerHTML=[["done","atlikta","done"],["run","dirbama","in progress"],["paused","pristabdyta","paused"],["blocked","stringa","blocked"],["queued","laukia","waiting"]].map(function(x){return '<span><i style="background:var(--'+x[0]+')"></i>'+(L==='lt'?x[1]:L==='en'?x[2]:x[1]+' / '+x[2])+'</span>';}).join("");
+  document.getElementById("tabs").innerHTML=tabs.map(function(t){return '<button type="button" role="tab" data-view="'+t[0]+'" aria-selected="'+(VIEW===t[0])+'"><span>'+(L==='en'?t[2]:t[1])+'<b>'+t[3]+'</b></span>'+(L==='both'?'<small>'+t[2]+'</small>':'')+'</button>';}).join("");
   STAGES.filter(function(S){return VIEW==="all"||S.id===VIEW;}).forEach(function(S){
     var inS=list.filter(function(x){return x.p.t===S.id;}),all=data.filter(function(x){return x.p.t===S.id;});
     var lateS=all.filter(function(x){return days(x.p.d)<0;}).length,cells="",body="";
@@ -469,7 +464,7 @@ var qi=document.getElementById("q");
 qi.addEventListener("input",function(){Q=qi.value.trim();editing=null;render();});
 qi.addEventListener("keydown",function(e){if(e.key==="Escape"){Q="";qi.value="";render();}});
 document.addEventListener("keydown",function(e){if(e.key==="/"&&!/^(INPUT|TEXTAREA)$/.test((document.activeElement||{}).tagName||"")){e.preventDefault();qi.focus();}});
-document.querySelector(".seg").addEventListener("click",function(e){var b=e.target.closest("[data-lang]");if(b){L=b.dataset.lang;setLang(L);}});
+document.querySelector(".seg").addEventListener("click",function(e){var b=e.target.closest("[data-lang]");if(b){L=b.dataset.lang;setLang(L);try{render();}catch(err){}}});
 document.getElementById("groups").addEventListener("click",function(e){
   var ed=e.target.closest("[data-edit]");if(ed){editing=ed.dataset.edit;render();var i=document.getElementById("note-"+editing);if(i)i.focus();return;}
   if(e.target.closest("[data-cancel]")){editing=null;render();}
@@ -501,7 +496,7 @@ function plain(){
 /* PDF: the browser's own "Save as PDF" (phone: Print → Save as PDF), so Lithuanian letters and colours come out right */
 document.getElementById("pdf").addEventListener("click",function(){
   var Sv=STAGES.filter(function(S){return S.id===VIEW;})[0], n=shown().length, q=Q.trim();
-  var bits=["<span>Rodoma / Showing: <b>"+esc(Sv?Sv.lt+" / "+Sv.en:"Visi / All")+"</b></span>",
+  var bits=["<span>"+lbl("Rodoma","Showing")+": <b>"+esc(Sv?lbl(Sv.lt,Sv.en,"x").replace("x"," / "):lbl("Visi","All","x").replace("x"," / "))+"</b></span>",
     "<span>Projects: <b>"+n+"</b></span>"];
   if(q)bits.push("<span>Search: <b>“"+esc(q)+"”</b></span>");
   if(ME)bits.push("<span>"+esc(ME.display_name)+"</span>");

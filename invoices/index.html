@@ -387,7 +387,7 @@
 <header>
   <div class="hwrap">
     <div class="brand">
-      <span class="logo">SF</span>
+      <span class="logo">INV</span>
       <div><h1 id="brandTitle">Sąskaitos faktūros</h1><div class="sub" id="brandSub">invoicing · 2026</div></div>
     </div>
     <div class="hspace"></div>
@@ -1057,7 +1057,7 @@ function blankState(){
     v:STATE_V,
     seller:{name:"",code:"",vat:"",address:"",email:"",phone:"",web:"",director:"",logo:"",
             banks:[{bank:"",iban:"",swift:""}]},
-    settings:{series:"SF",next:1,format:"{S}-{YYYY}-{NNNN}",vatRate:21,vatPayer:true,
+    settings:{series:"INV",next:1,format:"{S}-{YYYY}-{NNNN}",vatRate:21,vatPayer:true,
               currency:"EUR",term:14,unit:"vnt",note:"",footer:"",
               showDisc:false,
               /* važtaraštis gets its own series so the two never collide */
@@ -6129,7 +6129,7 @@ function invoiceHtml(inv,opt){
   ${paid&&br.paidStamp?`<div class="paidmark">${esc(t('pdfPaid')).toUpperCase()}</div>`:''}
   <div class="top">
     <div>${br.showLogo&&s.logo?`<img class="brandimg" src="${s.logo}">`
-        :`<span class="logo">${esc((s.name||'SF').slice(0,3).toUpperCase())}</span>`}
+        :`<span class="logo">${esc((s.name||'INV').slice(0,3).toUpperCase())}</span>`}
       <div class="sname">${esc(s.name||'')}</div>
       ${br.headline?`<div class="headline">${esc(br.headline)}</div>`:''}</div>
     <div class="doc"><h1>${esc(docTitle(inv))}</h1>

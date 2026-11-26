@@ -4721,7 +4721,7 @@ const I18N = {
     typesN: { line: ['line', 'lines'], circle: ['circle', 'circles'], arc: ['arc', 'arcs'], poly: ['contour', 'contours'], text: ['text', 'texts'] }
   }
 };
-let lang = LS.get('dxfed.lang', 'lt'); if (!I18N[lang]) lang = 'lt';
+let lang = LS.get('dxfed.lang', 'en'); if (!I18N[lang]) lang = 'en';
 function t(k, ...a) { let s = I18N[lang][k]; if (s == null) s = I18N.en[k]; if (s == null) s = k; if (typeof s === 'string') a.forEach((v, i) => { s = s.split('{' + i + '}').join(v); }); return s; }
 
 /* ---------- state ---------- */
@@ -6257,16 +6257,16 @@ function zoomAt(x, y, f) { const w = s2w(x, y); S.view.s = clamp(S.view.s * f, 1
 function sampleDoc() {
   // Example: cabinet side 560 × 720 with 5 mm system holes, a back-panel groove line and a shelf with rounded corners
   const ents = [];
-  ents.push({ layer: 'KONTURAS', type: 'poly', closed: true, pts: rectPts({ x: 0, y: 0 }, { x: 560, y: 720 }) });
-  for (const x of [37, 485]) for (let y = 104; y <= 616; y += 32) ents.push({ layer: 'SKYLES', type: 'circle', cx: x, cy: y, r: 2.5 });
-  ents.push({ layer: 'SKYLES', type: 'circle', cx: 9, cy: 32, r: 4 }, { layer: 'SKYLES', type: 'circle', cx: 9, cy: 688, r: 4 });
-  ents.push({ layer: 'GRIOVELIS', type: 'line', x1: 540, y1: 0, x2: 540, y2: 720 });
-  const shelf = cornerPolyAll({ layer: 'KONTURAS', type: 'poly', closed: true, pts: rectPts({ x: 680, y: 0 }, { x: 1180, y: 300 }) }, 'fillet', 40).ent;
+  ents.push({ layer: 'OUTLINE', type: 'poly', closed: true, pts: rectPts({ x: 0, y: 0 }, { x: 560, y: 720 }) });
+  for (const x of [37, 485]) for (let y = 104; y <= 616; y += 32) ents.push({ layer: 'HOLES', type: 'circle', cx: x, cy: y, r: 2.5 });
+  ents.push({ layer: 'HOLES', type: 'circle', cx: 9, cy: 32, r: 4 }, { layer: 'HOLES', type: 'circle', cx: 9, cy: 688, r: 4 });
+  ents.push({ layer: 'GROOVE', type: 'line', x1: 540, y1: 0, x2: 540, y2: 720 });
+  const shelf = cornerPolyAll({ layer: 'OUTLINE', type: 'poly', closed: true, pts: rectPts({ x: 680, y: 0 }, { x: 1180, y: 300 }) }, 'fillet', 40).ent;
   ents.push(shelf);
-  ents.push({ layer: 'SKYLES', type: 'circle', cx: 930, cy: 150, r: 17.5 });
-  ents.push({ layer: 'TEKSTAS', type: 'text', x: 0, y: 740, h: 18, rot: 0, text: 'Šonas 560×720 · Lentyna 500×300 (pavyzdys)' });
+  ents.push({ layer: 'HOLES', type: 'circle', cx: 930, cy: 150, r: 17.5 });
+  ents.push({ layer: 'TEXT', type: 'text', x: 0, y: 740, h: 18, rot: 0, text: (lang==='lt'?'Šonas 560×720 · Lentyna 500×300 (pavyzdys)':'Side 560×720 · Shelf 500×300 (sample)') });
   ents.forEach(e => e.id = nid());
-  return { ents, layers: { '0': { color: 7, visible: true }, KONTURAS: { color: 7, visible: true }, SKYLES: { color: 1, visible: true }, GRIOVELIS: { color: 4, visible: true }, TEKSTAS: { color: 8, visible: true } } };
+  return { ents, layers: { '0': { color: 7, visible: true }, OUTLINE: { color: 7, visible: true }, HOLES: { color: 1, visible: true }, GROOVE: { color: 4, visible: true }, TEXT: { color: 8, visible: true } } };
 }
 
 /* ---------- input wiring ---------- */
