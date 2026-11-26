@@ -16,7 +16,7 @@
   --paper:#FFFFFF;--tray:#F4F3EF;--tray2:#E7E5DF;
   --ink:#1C1A16;--ink2:#47443D;--ink3:#6A665D;
   --rule:#E2DFD8;--rule2:#BDB8AD;--steel:#8C877C;
-  --blue:#2D5BD8;--blue2:#2149B8;--blue-soft:#E4EBFC;--on-blue:#FFFFFF;--on-blue2:#D6E0FA;
+  --blue:#2D5BD8;--blue2:#2149B8;--blue-soft:#E4EBFC;--on-blue:#FFFFFF;--on-blue2:#E6EDFC;
   --lime:#C6F24E;--lime2:#B4E236;--lime-soft:#F1FBD6;--on-lime:#1C1A16;
   --yellow:var(--lime);--yellow2:var(--lime2);--yellow-soft:var(--lime-soft);--yellow-ink:var(--on-lime);
   --handle:#1C1A16;
@@ -506,8 +506,8 @@ input[type=range]::-moz-range-progress{background:var(--blue)}
 .facts3 .next:hover{background:var(--lime2)}
 .tag{border-radius:6px}
 .plans-av span{border-radius:6px}
-.plans-av span.on{background:var(--blue);border-color:var(--blue)}
-.plans-key i{background:var(--blue);border-radius:6px}
+.plans-av span.on{background:var(--ink);border-color:var(--ink)}
+.plans-key i{background:var(--ink);border-radius:6px}
 .faq-list summary::after{border-radius:8px}
 .faq-list summary:hover::after{background-color:var(--lime-soft)}
 .faq-list details[open] summary::after{background-color:var(--lime)}
@@ -535,12 +535,12 @@ main .wrap{max-width:1240px}
 .ch + .sec,.ch + .final.sec{padding-top:clamp(28px,3.4vw,44px)}
 
 /* the open drawer: blue, pulled out to the right, lime handle */
-.hero{position:relative;background:var(--blue);color:var(--on-blue);border-radius:var(--rd);margin-right:0;box-shadow:0 0 0 6px var(--carcass),0 34px 50px -30px rgba(0,0,0,.55)}
+.hero{position:relative;background:var(--blue);color:var(--on-blue);border-radius:var(--rd);margin-left:clamp(22px,7vw,110px);margin-right:0;box-shadow:0 0 0 6px var(--carcass),0 34px 50px -30px rgba(0,0,0,.55)}
 .hero::before{content:'';position:absolute;right:56px;top:24px;width:170px;height:14px;border-radius:14px;background:var(--lime)}
 /* pulled out past the carcass only where the window leaves room for it */
 @media (min-width:1440px){.hero{margin-right:-44px}}
-.hero .wrap{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);padding-block:clamp(56px,6vw,84px) clamp(40px,5vw,64px)}
-@media (max-width:980px){.hero .wrap{grid-template-columns:minmax(0,1fr)}}
+.hero .wrap{display:block;margin:0;max-width:none;padding:clamp(52px,6vw,88px) clamp(22px,5vw,72px) clamp(40px,5vw,64px)}
+.hero .sub{max-width:52ch}
 .mark-word{margin-bottom:26px}
 .mark-word img{height:clamp(44px,5vw,64px);width:auto;display:block}
 .hero h1{font-weight:700;font-size:clamp(34px,4.4vw,62px);line-height:1.02;letter-spacing:-.045em;text-transform:lowercase;max-width:16ch}
@@ -558,7 +558,7 @@ main .wrap{max-width:1240px}
 .plate .bench{border:0;border-radius:var(--rd);box-shadow:none}
 .plate .bench::before{content:'';position:absolute;left:50%;top:10px;width:120px;height:9px;margin-left:-60px;border-radius:9px;background:var(--handle);z-index:3}
 .bench-head{border-bottom:1.5px solid var(--rule);padding-top:28px}
-.fig{background:var(--blue);color:var(--on-blue);border-radius:6px}
+.fig{background:var(--ink);color:#fff;border-radius:6px}
 .col.out{border-left:1.5px solid var(--rule)}
 @media (max-width:900px){.col.out{border-left:0;border-top:1.5px solid var(--rule)}}
 .bench-foot{border-top:1.5px solid var(--rule)}
@@ -591,11 +591,11 @@ main .wrap{max-width:1240px}
 .plan .plan-top .tag{border-radius:0 16px 0 10px;top:-2px;right:-2px;background:var(--blue)}
 .once{border-radius:18px}
 form.start{border-radius:18px}
-.final ol li::before{color:var(--blue)}
+.final ol li::before{color:var(--ink)}
 .cat-st{border-top-color:var(--ink)}
 .art{border-radius:12px}
 .art:hover{background:var(--lime-soft)}
-.st i b{background:var(--blue)}
+.st i b{background:var(--ink)}
 
 /* footer: the plinth under the cabinet */
 footer{max-width:1340px;margin:0 auto;background:var(--carcass);color:#E9E6DE;border-top:0;border-radius:0 0 22px 22px}
@@ -605,4 +605,18 @@ footer .logo img{height:28px}
 .cta-band{background:var(--blue);color:var(--on-blue);border-radius:var(--rd)}
 .cta-band .cta.primary{border-color:var(--carcass)}
 .legal-body h2{border-top-color:var(--ink)}
-.legal-body li::before{background:var(--blue);border-radius:50%}
+.legal-body li::before{background:var(--ink);border-radius:50%}
+
+/* the rail stays out of the way while the open drawer is on screen */
+.rail{transition:opacity .25s,transform .3s cubic-bezier(.2,.8,.2,1)}
+.rail.away{opacity:0;pointer-events:none;transform:translate(100%,-50%)}
+
+/* worxmax at a glance: a slim drawer under the demo */
+.glance-w{margin-top:var(--gap)}
+.glance{margin:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--front);border-radius:var(--rd);padding:18px 8px}
+.glance > div{padding:4px 16px;border-left:1.5px solid var(--rule);min-width:0}
+.glance > div:first-child{border-left:0}
+.glance dt{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.glance dd{margin:4px 0 0;font-weight:700;font-size:15px;line-height:1.3;color:var(--ink)}
+@media (max-width:1100px){.glance{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:14px}.glance > div:nth-child(4){border-left:0}}
+@media (max-width:560px){.glance{grid-template-columns:repeat(2,minmax(0,1fr))}.glance > div:nth-child(odd){border-left:0}.glance > div:nth-child(4){border-left:1.5px solid var(--rule)}}

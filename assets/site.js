@@ -107,11 +107,14 @@ window.DBHUB = (function () {
   var tabs = $$('.rail a');
   if (tabs.length) {
     var chapters = tabs.map(function (a) { return document.querySelector(a.getAttribute('href')); }), railQueued = false;
+    var rail = document.querySelector('.rail'), openDrawer = document.querySelector('.hero');
     var markRail = function () {
       railQueued = false;
       var line = window.innerHeight * 0.45, cur = 0;
       chapters.forEach(function (c, i) { if (c && c.getBoundingClientRect().top <= line) cur = i; });
       tabs.forEach(function (a, i) { a.setAttribute('aria-current', String(i === cur)); });
+      // the rail would cover the pulled-out edge of the open drawer, so it waits until that drawer has scrolled away
+      if (rail && openDrawer) rail.classList.toggle('away', openDrawer.getBoundingClientRect().bottom > 80);
     };
     window.addEventListener('scroll', markRail, { passive: true });
     window.addEventListener('resize', markRail);

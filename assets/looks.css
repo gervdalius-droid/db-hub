@@ -5,10 +5,10 @@
    Once one is chosen, its rules move into site.css and this file and the switcher go. */
 
 /* ---------- B: open shelf ---------- */
-:root[data-look="b"]{--wall:#F7F6F2;--handle:#1C1A16}
+:root[data-look="b"]{--handle:#1C1A16}
 :root[data-look="b"] main{background:transparent;padding:0 20px;border-radius:0}
 :root[data-look="b"] main > section:not(#top),:root[data-look="b"] main > article{border:2.5px solid var(--carcass)}
-:root[data-look="b"] .hero{margin-right:0;box-shadow:0 30px 50px -34px rgba(28,26,22,.6);border:2.5px solid var(--carcass)}
+:root[data-look="b"] .hero{box-shadow:0 30px 50px -34px rgba(28,26,22,.6);border:2.5px solid var(--carcass)}
 :root[data-look="b"] .plate .bench{border:2.5px solid var(--carcass)}
 :root[data-look="b"] footer{border-radius:22px 22px 0 0;margin-top:24px}
 :root[data-look="b"] .rail{background:var(--wall);border:2px solid var(--carcass);border-right:0;padding:5px 0 5px 5px}
@@ -58,3 +58,9 @@
 /* C fixes: light logo on the dark header; the demo insert keeps dark text */
 :root[data-look="c"] .top .logo img{content:url("brand/worxmax-logo-white.svg")}
 :root[data-look="c"] #top .bench{color:#1C1A16}
+
+:root[data-look="c"] main > section:not(#top) .cmp-r .old{text-decoration-color:rgba(242,241,237,.55)}
+:root[data-look="c"] .glance{background:#1C1A16}
+:root[data-look="c"] .glance dd{color:#F2F1ED}
+:root[data-look="c"] .glance dt{color:#ABA59A}
+:root[data-look="c"] .glance > div{border-left-color:#3B3831}
