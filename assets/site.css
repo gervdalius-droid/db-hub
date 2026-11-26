@@ -642,3 +642,4 @@ footer .logo img{height:28px}
   .hero .row{grid-column:2;grid-row:3;margin-top:clamp(14px,2.4vh,32px)}
   .hero .wrap{padding-top:clamp(30px,6vh,96px);padding-bottom:clamp(28px,5.5vh,88px)}
 }
+.doc-note.q-note{margin-top:2px}
