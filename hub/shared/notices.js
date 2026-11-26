@@ -41,13 +41,13 @@
   function pad(n) { return (n < 10 ? "0" : "") + n; }
   function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function localDT(d) { return ymd(d) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes()); }
-  var MON = ["saus.", "vas.", "kov.", "bal.", "geg.", "birž.", "liep.", "rugp.", "rugs.", "spal.", "lapkr.", "gruod."];
-  var WDN = ["sekmadienį", "pirmadienį", "antradienį", "trečiadienį", "ketvirtadienį", "penktadienį", "šeštadienį"];
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var WDN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   function when(iso) {
     if (!iso) return ""; var t = new Date(iso), s = (Date.now() - t.getTime()) / 1000, hm = pad(t.getHours()) + ":" + pad(t.getMinutes());
-    if (s < 0) { var dd = Math.round((new Date(ymd(t)) - new Date(ymd(new Date()))) / 86400000); return (dd === 0 ? "šiandien " : dd === 1 ? "rytoj " : dd < 7 ? WDN[t.getDay()] + " " : t.getDate() + " " + MON[t.getMonth()] + " ") + hm; }
-    if (s < 60) return "ką tik"; if (s < 3600) return "prieš " + Math.floor(s / 60) + " min.";
-    if (ymd(t) === ymd(new Date())) return "šiandien " + hm;
+    if (s < 0) { var dd = Math.round((new Date(ymd(t)) - new Date(ymd(new Date()))) / 86400000); return (dd === 0 ? "today " : dd === 1 ? "tomorrow " : dd < 7 ? WDN[t.getDay()] + " " : t.getDate() + " " + MON[t.getMonth()] + " ") + hm; }
+    if (s < 60) return "just now"; if (s < 3600) return Math.floor(s / 60) + " min ago";
+    if (ymd(t) === ymd(new Date())) return "today " + hm;
     var y = new Date(); y.setDate(y.getDate() - 1); if (ymd(t) === ymd(y)) return "vakar " + hm;
     return t.getDate() + " " + MON[t.getMonth()] + " " + hm;
   }
@@ -233,7 +233,7 @@
     root = document.createElement("div"); root.className = "ntc"; document.body.appendChild(root);
     var st = document.createElement("style"); st.textContent = CSS; document.head.appendChild(st);
     bell = document.createElement("button");
-    bell.type = "button"; bell.className = "ntc-bell"; bell.setAttribute("aria-label", "Pranešimai"); bell.title = "Pranešimai";
+    bell.type = "button"; bell.className = "ntc-bell"; bell.setAttribute("aria-label", "Notifications"); bell.title = "Notifications";
     bell.innerHTML = svg("bell") + "<b hidden></b>";
     bell.onclick = function () { togglePanel(); };
     var host = CFG.mount ? $(CFG.mount) : null;
@@ -250,7 +250,7 @@
     if (!bell) return;
     var n = unread().length, b = bell.querySelector("b");
     b.hidden = !n; b.textContent = n > 99 ? "99+" : n;
-    bell.setAttribute("aria-label", n ? "Pranešimai: " + n + " nauji" : "Pranešimai");
+    bell.setAttribute("aria-label", n ? "Notifications: " + n + " new" : "Notifications");
     var fl = bell.parentNode; if (fl && fl.classList && fl.classList.contains("ntc-float")) fl.classList.toggle("quiet", !n);
     try { if (navigator.setAppBadge) { if (n) navigator.setAppBadge(n); else navigator.clearAppBadge(); } } catch (e) {}
     placeToasts();
@@ -285,7 +285,7 @@
   function toast(n) {
     var imp = n.priority === "important";
     var el = document.createElement("div"); el.className = "ntc-toast" + (imp ? " imp" : ""); el.setAttribute("role", imp ? "alert" : "status");
-    el.innerHTML = '<div class="h"><span class="lg" aria-hidden="true"></span><div class="t">' + esc(n.title) + '</div><button type="button" class="ntc-x" aria-label="Uždaryti" style="width:26px;height:26px;font-size:17px">×</button></div>' +
+    el.innerHTML = '<div class="h"><span class="lg" aria-hidden="true"></span><div class="t">' + esc(n.title) + '</div><button type="button" class="ntc-x" aria-label="Close" style="width:26px;height:26px;font-size:17px">×</button></div>' +
       (n.body ? '<div class="b">' + esc(n.body) + "</div>" : "") +
       '<div class="m">' + esc([n.from_name, when(n.deliver_at)].filter(Boolean).join(" · ")) + "</div>" +
       '<div class="a">' + (n.url ? '<a class="ntc-btn sm" href="' + esc(n.url) + '">Atidaryti</a>' : "") + '<button type="button" class="ntc-btn sm pri" data-ok>Gerai</button></div>';
@@ -306,7 +306,7 @@
     w.innerHTML = '<div class="ntc-modal ntc-must" role="alertdialog" aria-modal="true" aria-labelledby="ntc-must-t"><header><span class="ntc-tag imp">Svarbu</span><span class="ntc-note">' +
       esc([n.from_name, when(n.deliver_at)].filter(Boolean).join(" · ")) + "</span></header>" +
       '<div class="mb"><div class="big" id="ntc-must-t">' + esc(n.title) + "</div>" + (n.body ? '<div class="txt">' + esc(n.body) + "</div>" : "") + "</div>" +
-      '<div class="mf">' + (n.url ? '<a class="ntc-btn" href="' + esc(n.url) + '" data-go>Atidaryti</a>' : "") + '<button type="button" class="ntc-btn acc" data-ack>Perskaičiau</button></div></div>';
+      '<div class="mf">' + (n.url ? '<a class="ntc-btn" href="' + esc(n.url) + '" data-go>Open</a>' : "") + '<button type="button" class="ntc-btn acc" data-ack>Got it</button></div></div>';
     root.appendChild(w);
     var done = function () { markRead([n.id], true); if (w.parentNode) w.parentNode.removeChild(w); mustOpen = false; setTimeout(nextMust, 200); };
     w.querySelector("[data-ack]").onclick = done;
@@ -337,7 +337,7 @@
     S.open = force != null ? force : !S.open;
     if (!panel) {
       scrim = document.createElement("div"); scrim.className = "ntc-scrim"; scrim.onclick = function () { togglePanel(false); };
-      panel = document.createElement("aside"); panel.className = "ntc-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "Pranešimai");
+      panel = document.createElement("aside"); panel.className = "ntc-panel"; panel.setAttribute("role", "dialog"); panel.setAttribute("aria-label", "Notifications");
       root.appendChild(scrim); root.appendChild(panel);
       panel.addEventListener("click", onPanelClick);
     }
@@ -348,22 +348,22 @@
   }
   function itemHtml(n, sent) {
     var imp = n.priority === "important" || n.needs_ack, un = !sent && forMe(n) && !isRead(n);
-    var to = { all: "Visiems", workshop: "Dirbtuvėms", office: "Biurui", user: n.target_name || "Paskyrai", member: n.target_name || "Žmogui" }[n.audience];
+    var to = { all: "Everyone", workshop: "Workshop", office: "Office", user: n.target_name || "Account", member: n.target_name || "Person" }[n.audience];
     var future = new Date(n.deliver_at).getTime() > Date.now();
     var meta = sent ? ["→ " + to, (future ? "bus " : "") + when(n.deliver_at)] : [n.from_name, when(n.deliver_at)];
     var h = '<div class="ntc-item' + (un ? " unread" : "") + '" data-id="' + esc(n.id) + '"><span class="ntc-ic' + (imp ? " imp" : "") + '">' + svg(n.kind) + "</span><div>" +
-      '<div class="ntc-it">' + (n.kind === "reminder" ? '<span class="ntc-tag">Priminimas</span>' : "") + (n.cancelled ? '<span class="ntc-tag">Atšaukta</span>' : "") + esc(n.title) + "</div>" +
+      '<div class="ntc-it">' + (n.kind === "reminder" ? '<span class="ntc-tag">Reminder</span>' : "") + (n.cancelled ? '<span class="ntc-tag">Cancelled</span>' : "") + esc(n.title) + "</div>" +
       (n.body ? '<div class="ntc-ib clamp" data-expand>' + esc(n.body) + "</div>" : "") +
       '<div class="ntc-im">' + esc(meta.filter(Boolean).join(" · ")) + "</div>";
     var acts = [];
     if (sent) {
       var rs = S.sentReads[n.id];
-      if (rs && rs.length) h += '<div class="ntc-im">Perskaitė: ' + esc(rs.map(function (r) { return r.name || "?"; }).join(", ")) + " (" + rs.length + ")</div>";
+      if (rs && rs.length) h += '<div class="ntc-im">Read by: ' + esc(rs.map(function (r) { return r.name || "?"; }).join(", ")) + " (" + rs.length + ")</div>";
       else if (n.needs_ack && !future) h += '<div class="ntc-im">Dar niekas nepatvirtino.</div>';
-      if (!n.cancelled && future) acts.push('<button type="button" class="ntc-btn sm" data-cancel="' + esc(n.id) + '">Atšaukti</button>');
+      if (!n.cancelled && future) acts.push('<button type="button" class="ntc-btn sm" data-cancel="' + esc(n.id) + '">Cancel</button>');
     } else {
-      if (n.needs_ack && !isAcked(n)) acts.push('<button type="button" class="ntc-btn sm acc" data-ack="' + esc(n.id) + '">Perskaičiau</button>');
-      else if (un) acts.push('<button type="button" class="ntc-btn sm" data-read="' + esc(n.id) + '">Pažymėti perskaitytu</button>');
+      if (n.needs_ack && !isAcked(n)) acts.push('<button type="button" class="ntc-btn sm acc" data-ack="' + esc(n.id) + '">Got it</button>');
+      else if (un) acts.push('<button type="button" class="ntc-btn sm" data-read="' + esc(n.id) + '">Mark as read</button>');
       if (n.url) acts.push('<a class="ntc-btn sm" href="' + esc(n.url) + '" data-open="' + esc(n.id) + '">Atidaryti</a>');
     }
     if (acts.length) h += '<div class="ntc-ia">' + acts.join("") + "</div>";
@@ -376,15 +376,15 @@
     if (S.tab === "sent" && !sent.length) S.tab = "in";
     var un = unread().length;
     var list = S.tab === "sent" ? sent : S.tab === "all" ? all : inbox;
-    var h = '<div class="ntc-ph"><span style="width:26px;height:26px;background:currentColor;-webkit-mask:url(' + LOGO + ') center/contain no-repeat;mask:url(' + LOGO + ') center/contain no-repeat"></span><h2>Pranešimai</h2>' +
-      '<button type="button" class="ntc-x" data-close aria-label="Uždaryti">×</button></div>' +
-      '<div class="ntc-acts"><button type="button" class="ntc-btn acc" data-compose>+ Pranešimas</button><button type="button" class="ntc-btn" data-remind>+ Priminimas sau</button>' +
-      (un ? '<button type="button" class="ntc-btn" data-readall>Visi perskaityti</button>' : "") + "</div>" +
-      '<div class="ntc-tabs" role="tablist"><button role="tab" data-tab="in" aria-selected="' + (S.tab === "in") + '">Man' + (un ? " (" + un + ")" : "") + "</button>" +
-      (sent.length ? '<button role="tab" data-tab="sent" aria-selected="' + (S.tab === "sent") + '">Išsiųsti</button>' : "") +
-      (all.length ? '<button role="tab" data-tab="all" aria-selected="' + (S.tab === "all") + '">Kitiems</button>' : "") + "</div>" +
+    var h = '<div class="ntc-ph"><span style="width:26px;height:26px;background:currentColor;-webkit-mask:url(' + LOGO + ') center/contain no-repeat;mask:url(' + LOGO + ') center/contain no-repeat"></span><h2>Notifications</h2>' +
+      '<button type="button" class="ntc-x" data-close aria-label="Close">×</button></div>' +
+      '<div class="ntc-acts"><button type="button" class="ntc-btn acc" data-compose>+ Notice</button><button type="button" class="ntc-btn" data-remind>+ Reminder for me</button>' +
+      (un ? '<button type="button" class="ntc-btn" data-readall>Mark all read</button>' : "") + "</div>" +
+      '<div class="ntc-tabs" role="tablist"><button role="tab" data-tab="in" aria-selected="' + (S.tab === "in") + '">To me' + (un ? " (" + un + ")" : "") + "</button>" +
+      (sent.length ? '<button role="tab" data-tab="sent" aria-selected="' + (S.tab === "sent") + '">Sent</button>' : "") +
+      (all.length ? '<button role="tab" data-tab="all" aria-selected="' + (S.tab === "all") + '">To others</button>' : "") + "</div>" +
       '<div class="ntc-list">' + (list.length ? list.map(function (n) { return itemHtml(n, S.tab !== "in"); }).join("")
-        : '<div class="ntc-empty">' + (S.tab === "in" ? "Pranešimų nėra." : "Nieko nėra.") + "</div>") + "</div>" +
+        : '<div class="ntc-empty">' + (S.tab === "in" ? "No notifications." : "Nothing here.") + "</div>") + "</div>" +
       '<div class="ntc-foot">' + footHtml() + "</div>";
     var y = panel.querySelector(".ntc-list"); var sy = y ? y.scrollTop : 0;
     panel.innerHTML = h;
@@ -434,13 +434,13 @@
     var sup = pushSupport(), ep = lsGet(LS_EP, null), perm = window.Notification ? Notification.permission : "default";
     var who = devicePeople(), whoNames = who.map(function (id) { var m = (S.people || []).filter(function (x) { return x.id === id; })[0]; return m ? m.name : ""; }).filter(Boolean);
     var h = "";
-    if (sup === "ios") h += '<div>Telefono pranešimai iPhone/iPad veikia, kai programa pridėta į pradžios ekraną: <b>Bendrinti → „Į pradžios ekraną“</b>, tada atidarykite iš ten ir įjunkite.</div>';
-    else if (sup === "no") h += "<div>Ši naršyklė telefono / kompiuterio pranešimų nepalaiko — pranešimai rodomi atidarius programą.</div>";
-    else if (perm === "denied") h += "<div>Pranešimai šiai svetainei užblokuoti naršyklės nustatymuose. Leiskite juos (spynos ženkliukas adreso juostoje → Pranešimai).</div>";
-    else if (ep && perm === "granted") h += '<div class="row"><span class="ntc-ok">✓ Pranešimai šiame įrenginyje įjungti</span><span><button type="button" class="ntc-btn sm" data-push-test>Išbandyti</button> <button type="button" class="ntc-btn sm" data-push-off>Išjungti</button></span></div>';
-    else h += '<div class="row"><span>Gaukite pranešimus ir kai programa uždaryta.</span><button type="button" class="ntc-btn sm pri" data-push-on>Įjungti šiame įrenginyje</button></div>';
+    if (sup === "ios") h += '<div>On iPhone/iPad, notifications work when the app is on the home screen: <b>Share → “Add to Home Screen”</b>, then open it from there and turn them on.</div>';
+    else if (sup === "no") h += "<div>This browser does not support notifications; you see them when you open the app.</div>";
+    else if (perm === "denied") h += "<div>Notifications are blocked for this site in the browser settings. Allow them (the lock icon in the address bar → Notifications).</div>";
+    else if (ep && perm === "granted") h += '<div class="row"><span class="ntc-ok">✓ Notifications are on for this device</span><span><button type="button" class="ntc-btn sm" data-push-test>Test</button> <button type="button" class="ntc-btn sm" data-push-off>Turn off</button></span></div>';
+    else h += '<div class="row"><span>Get notifications even when the app is closed.</span><button type="button" class="ntc-btn sm pri" data-push-on>Turn on for this device</button></div>';
     if (typeof CFG.person !== "function")
-      h += '<div class="row"><span>Šiuo įrenginiu naudojasi: <b>' + esc(whoNames.length ? whoNames.join(", ") : "nepasirinkta (paskyra „" + (S.me ? S.me.display_name : "") + "“)") + '</b></span><button type="button" class="ntc-btn sm" data-who>Keisti</button></div>';
+      h += '<div class="row"><span>This device is used by: <b>' + esc(whoNames.length ? whoNames.join(", ") : "not chosen (account “" + (S.me ? S.me.display_name : "") + "”)") + '</b></span><button type="button" class="ntc-btn sm" data-who>Change</button></div>';
     if (S.pushMsg) h += '<div class="ntc-err">' + esc(S.pushMsg) + "</div>";
     return h;
   }
@@ -472,18 +472,18 @@
       var p = Notification.requestPermission(function (x) { res(x); }); if (p && p.then) p.then(res);
     });
     return ask.then(function (perm) {
-      if (perm !== "granted") throw new Error("Pranešimai neleisti. Leiskite juos naršyklėje ir bandykite dar kartą.");
+      if (perm !== "granted") throw new Error("Notifications are not allowed. Allow them in the browser and try again.");
       return Promise.all([swReg(), pushKey()]);
     }).then(function (x) {
       var reg = x[0], key = x[1];
-      if (!key) throw new Error("Pranešimų siuntimas dar neįjungtas serveryje (administratorius turi įrašyti raktus).");
+      if (!key) throw new Error("Phone notifications are not switched on for worxmax yet.");
       return reg.pushManager.getSubscription().then(function (s) {
         return s || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlB64(key) });
       });
     }).then(saveSub).then(function () {
       if (people) people();
-      renderPanel(); toastText("Pranešimai įjungti šiame įrenginyje.");
-    }).catch(function (e) { S.pushMsg = e && e.message ? e.message : "Nepavyko įjungti."; renderPanel(); });
+      renderPanel(); toastText("Notifications are on for this device.");
+    }).catch(function (e) { S.pushMsg = e && e.message ? e.message : "Could not turn them on."; renderPanel(); });
   }
   function pushOff() {
     var ep = lsGet(LS_EP, null);
@@ -493,12 +493,12 @@
     }).then(function () { lsSet(LS_EP, null); lsSet(LS_SYNC, null); renderPanel(); });
   }
   function pushTest() {
-    var p = devicePeople(), body = { title: "Bandomasis pranešimas", body: "Jei matote šį pranešimą — viskas veikia.", kind: "reminder",
+    var p = devicePeople(), body = { title: "Test notification", body: "If you can see this, everything works.", kind: "reminder",
       from_name: myName(), source_endpoint: null };
     if (p.length) { body.audience = "member"; body.target_member = p[0]; body.target_name = myName(); }
     else { body.audience = "user"; body.target_user = S.uid; body.target_name = S.me.display_name; }
     return rest("notices", { method: "POST", body: JSON.stringify(body), headers: { Prefer: "return=minimal" } }).then(function () {
-      kick(); toastText("Išsiųsta — pranešimas turėtų atsirasti per kelias sekundes.");
+      kick(); toastText("Sent. It should appear in a few seconds.");
     }, function (e) { toastText("Nepavyko: " + e.message); });
   }
   function resync() {   // keep this device's subscription pointing at the current account / people
@@ -515,11 +515,11 @@
   function chooseWho() {
     people().then(function (list) {
       var members = list.filter(function (p) { return p.kind === "member"; }), cur = devicePeople();
-      modal("Kas naudoja šį įrenginį?",
-        '<div class="ntc-note">Pažymėkite save — tada asmeniniai pranešimai (paminėjimai, priskirti darbai, priminimai) ateis į šį telefoną / kompiuterį. Bendram dirbtuvių kompiuteriui nieko nežymėkite.</div>' +
+      modal("Who uses this device?",
+        '<div class="ntc-note">Tick yourself and your personal notifications (mentions, assigned jobs, reminders) come to this phone or computer. Leave it empty on a shared workshop computer.</div>' +
         '<div style="display:grid;gap:8px">' + members.map(function (m) {
           return '<label class="ntc-check"><input type="checkbox" value="' + esc(m.id) + '"' + (cur.indexOf(m.id) >= 0 ? " checked" : "") + "> " + esc(m.name) + "</label>"; }).join("") + "</div>",
-        "Išsaugoti", function (box) {
+        "Save", function (box) {
           var ids = $$("input:checked", box).map(function (i) { return i.value; });
           lsSet(LS_PEOPLE, ids); lsSet(LS_SYNC, null); resync(); load(); renderPanel();
         });
@@ -529,8 +529,8 @@
   /* ---------- compose / remind ---------- */
   function modal(title, inner, okText, onOk) {
     var w = document.createElement("div"); w.className = "ntc-mwrap";
-    w.innerHTML = '<form class="ntc-modal" novalidate><header><h3>' + esc(title) + '</h3><button type="button" class="ntc-x" data-x aria-label="Uždaryti">×</button></header><div class="mb">' + inner +
-      '<div class="ntc-err" data-err hidden></div></div><div class="mf"><button type="button" class="ntc-btn" data-x>Atšaukti</button><button type="submit" class="ntc-btn acc">' + esc(okText) + "</button></div></form>";
+    w.innerHTML = '<form class="ntc-modal" novalidate><header><h3>' + esc(title) + '</h3><button type="button" class="ntc-x" data-x aria-label="Close">×</button></header><div class="mb">' + inner +
+      '<div class="ntc-err" data-err hidden></div></div><div class="mf"><button type="button" class="ntc-btn" data-x>Cancel</button><button type="submit" class="ntc-btn acc">' + esc(okText) + "</button></div></form>";
     root.appendChild(w);
     var f = w.querySelector("form"), close = function () { if (w.parentNode) w.parentNode.removeChild(w); document.removeEventListener("keydown", onKey, true); };
     function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); close(); } }
@@ -565,36 +565,36 @@
   function compose() {
     people().then(function (list) {
       var office = isOffice();
-      var aud = office ? [["all", "Visiems"], ["workshop", "Dirbtuvėms"], ["office", "Biurui"], ["person", "Žmogui"]] : [["office", "Biurui"], ["person", "Žmogui"]];
+      var aud = office ? [["all", "Everyone"], ["workshop", "Workshop"], ["office", "Office"], ["person", "One person"]] : [["office", "Office"], ["person", "One person"]];
       var opts = list.filter(function (p) { return p.kind === "member" || (office && p.role !== "shop"); });
-      var w = modal("Naujas pranešimas",
-        '<div class="ntc-f"><span>Kam</span>' + chipGroup("aud", aud, office ? "all" : "office") + "</div>" +
-        '<label class="ntc-f" data-person hidden><span>Žmogus</span><select class="ntc-in" name="person"><option value="">— pasirinkite —</option>' +
-        opts.map(function (p) { return '<option value="' + esc(p.kind + ":" + p.id) + '">' + esc(p.name) + (p.kind === "user" ? " (paskyra)" : "") + "</option>"; }).join("") + "</select></label>" +
-        '<label class="ntc-f"><span>Antraštė *</span><input class="ntc-in" name="title" maxlength="200" placeholder="pvz. Penktadienį dirbame iki 15:00"></label>' +
-        '<label class="ntc-f"><span>Tekstas</span><textarea class="ntc-in" name="body" maxlength="4000" placeholder="Smulkiau (neprivaloma)"></textarea></label>' +
-        '<div class="ntc-f"><span>Kada</span>' + chipGroup("when", [["now", "Dabar"], ["later", "Vėliau"]], "now") +
+      var w = modal("New notice",
+        '<div class="ntc-f"><span>To</span>' + chipGroup("aud", aud, office ? "all" : "office") + "</div>" +
+        '<label class="ntc-f" data-person hidden><span>Person</span><select class="ntc-in" name="person"><option value="">— choose —</option>' +
+        opts.map(function (p) { return '<option value="' + esc(p.kind + ":" + p.id) + '">' + esc(p.name) + (p.kind === "user" ? " (account)" : "") + "</option>"; }).join("") + "</select></label>" +
+        '<label class="ntc-f"><span>Title *</span><input class="ntc-in" name="title" maxlength="200" placeholder="e.g. On Friday we finish at 15:00"></label>' +
+        '<label class="ntc-f"><span>Text</span><textarea class="ntc-in" name="body" maxlength="4000" placeholder="More detail (optional)"></textarea></label>' +
+        '<div class="ntc-f"><span>When</span>' + chipGroup("when", [["now", "Now"], ["later", "Later"]], "now") +
         '<input class="ntc-in" type="datetime-local" name="at" hidden value="' + localDT(new Date(Date.now() + 3600000)) + '"></div>' +
-        '<label class="ntc-check"><input type="checkbox" name="imp"> <span><b>Svarbu</b> — iššoks per visą ekraną ir reikės paspausti „Perskaičiau“ (matysite, kas perskaitė)</span></label>' +
-        (location.origin === "https://app.dedesbaldai.lt" ? '<label class="ntc-check" style="accent-color:currentColor"><input type="checkbox" name="link"> <span>Pridėti nuorodą į šį puslapį</span></label>' : ""),
-        "Siųsti", function (f, fail) {
+        '<label class="ntc-check"><input type="checkbox" name="imp"> <span><b>Important</b>: shows full screen and needs “Got it” (you see who read it)</span></label>' +
+        (location.origin === "https://worxmax.com" ? '<label class="ntc-check" style="accent-color:currentColor"><input type="checkbox" name="link"> <span>Add a link to this page</span></label>' : ""),
+        "Send", function (f, fail) {
           var a = chipVal(w, "aud"), title = f.elements.title.value.trim();
-          if (!title) { f.elements.title.focus(); fail("Įrašykite antraštę."); return false; }
+          if (!title) { f.elements.title.focus(); fail("Write a title."); return false; }
           var row = { kind: "notice", title: title, body: f.elements.body.value.trim(), from_name: myName(), audience: a, source_endpoint: lsGet(LS_EP, null) };
           if (a === "person") {
-            var v = f.elements.person.value; if (!v) { fail("Pasirinkite žmogų."); return false; }
+            var v = f.elements.person.value; if (!v) { fail("Choose a person."); return false; }
             var k = v.split(":")[0], id = v.slice(k.length + 1), p = opts.filter(function (x) { return x.kind === k && x.id === id; })[0];
             row.audience = k === "user" ? "user" : "member"; row[k === "user" ? "target_user" : "target_member"] = id; row.target_name = p ? p.name : "";
-            if (!office && k === "user") { fail("Paskyrai rašykite per „Biurui“."); return false; }
+            if (!office && k === "user") { fail("For an account, send it to “Office”."); return false; }
           }
           if (chipVal(w, "when") === "later") {
-            var t = new Date(f.elements.at.value); if (isNaN(t)) { fail("Nurodykite laiką."); return false; }
+            var t = new Date(f.elements.at.value); if (isNaN(t)) { fail("Choose a time."); return false; }
             row.deliver_at = t.toISOString();
           }
           if (f.elements.imp.checked) { row.priority = "important"; row.needs_ack = true; }
           if (f.elements.link && f.elements.link.checked) row.url = location.href.split("#")[0] + (location.hash || "");
           return rest("notices", { method: "POST", body: JSON.stringify(row), headers: { Prefer: "return=minimal" } }).then(function () {
-            kick(); toastText(row.deliver_at ? "Suplanuota: " + when(row.deliver_at) : "Išsiųsta"); S.tab = "sent"; load();
+            kick(); toastText(row.deliver_at ? "Scheduled: " + when(row.deliver_at) : "Sent"); S.tab = "sent"; load();
           });
         });
       wireChips(w, function (g, v) {
@@ -607,17 +607,17 @@
     var d = new Date();
     var tomorrow8 = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1, 8, 0);
     var mon8 = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (((8 - d.getDay()) % 7) || 7), 8, 0);
-    var opts = [["1h", "Po 1 val."], ["3h", "Po 3 val."], ["tom", "Rytoj 8:00"], ["mon", "Pirmadienį 8:00"], ["pick", "Pasirinkti…"]];
+    var opts = [["1h", "In 1 hour"], ["3h", "In 3 hours"], ["tom", "Tomorrow 8:00"], ["mon", "Monday 8:00"], ["pick", "Pick…"]];
     var who = myName();
-    var w = modal("Priminimas sau",
-      '<label class="ntc-f"><span>Ką priminti? *</span><input class="ntc-in" name="title" maxlength="200" placeholder="pvz. Paskambinti tiekėjui dėl plokščių"></label>' +
-      '<label class="ntc-f"><span>Pastabos</span><textarea class="ntc-in" name="body" maxlength="2000" style="min-height:60px"></textarea></label>' +
-      '<div class="ntc-f"><span>Kada</span>' + chipGroup("at", opts, "tom") + '<input class="ntc-in" type="datetime-local" name="at" hidden value="' + localDT(tomorrow8) + '"></div>' +
-      '<div class="ntc-note">Ateis: <b>' + esc(who) + "</b>" + (devicePeople().length || typeof CFG.person === "function" ? "" : " (paskyra) — į visus įrenginius, kuriuose ji prisijungusi") + ".</div>",
-      "Išsaugoti", function (f, fail) {
-        var title = f.elements.title.value.trim(); if (!title) { f.elements.title.focus(); fail("Įrašykite, ką priminti."); return false; }
+    var w = modal("Reminder for me",
+      '<label class="ntc-f"><span>What to remind? *</span><input class="ntc-in" name="title" maxlength="200" placeholder="e.g. Call the supplier about boards"></label>' +
+      '<label class="ntc-f"><span>Notes</span><textarea class="ntc-in" name="body" maxlength="2000" style="min-height:60px"></textarea></label>' +
+      '<div class="ntc-f"><span>When</span>' + chipGroup("at", opts, "tom") + '<input class="ntc-in" type="datetime-local" name="at" hidden value="' + localDT(tomorrow8) + '"></div>' +
+      '<div class="ntc-note">Goes to: <b>' + esc(who) + "</b>" + (devicePeople().length || typeof CFG.person === "function" ? "" : " (account): every device it is signed in on") + ".</div>",
+      "Save", function (f, fail) {
+        var title = f.elements.title.value.trim(); if (!title) { f.elements.title.focus(); fail("Write what to remind."); return false; }
         var c = chipVal(w, "at"), t = c === "1h" ? new Date(Date.now() + 3600000) : c === "3h" ? new Date(Date.now() + 3 * 3600000) : c === "tom" ? tomorrow8 : c === "mon" ? mon8 : new Date(f.elements.at.value);
-        if (isNaN(t)) { fail("Nurodykite laiką."); return false; }
+        if (isNaN(t)) { fail("Choose a time."); return false; }
         var p = devicePeople(), row = { kind: "reminder", title: title, body: f.elements.body.value.trim(), from_name: who, deliver_at: t.toISOString() };
         if (p.length) { row.audience = "member"; row.target_member = p[0]; row.target_name = who; } else { row.audience = "user"; row.target_user = S.uid; row.target_name = S.me.display_name; }
         return rest("notices", { method: "POST", body: JSON.stringify(row), headers: { Prefer: "return=minimal" } }).then(function () {

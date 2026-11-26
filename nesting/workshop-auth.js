@@ -228,7 +228,7 @@
         notice with a button to sign in as someone else (the session stays shared). */
     requireArea: function (area, opts) {
       opts = opts || {};
-      var lt = (opts.lang || "lt") === "lt";
+      var lt = (opts.lang || "en") === "lt";
       return (W.signedIn() ? W.me() : Promise.resolve(null)).then(function check(me) {
         if (!me) return W.gate({ lang: opts.lang, title: opts.title, opaque: true }).then(check);
         if (W.can(me, area)) return me;
@@ -259,7 +259,7 @@
       try { if (window.top !== window) { window.top.location.href = "/app/"; return new Promise(function () {}); } } catch (e) {}
       location.href = url;
       return new Promise(function () {});
-      var lt = (opts.lang || "lt") === "lt";
+      var lt = (opts.lang || "en") === "lt";
       var T = lt ? { who: "Kas jūs?", pick: "Pasirinkite savo vardą", other: "Kita paskyra", name: "Vardas", pin: "PIN",
                      pinHint: "Įveskite PIN kodą", go: "Prisijungti", back: "Atgal", notYou: "Ne jūs?", skip: "Dirbti be prisijungimo",
                      del: "Ištrinti", clr: "Išvalyti", wait: "Jungiamasi…" }

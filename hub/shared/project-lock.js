@@ -73,7 +73,7 @@
 
   function create(o) {
     var W = window.WorkshopAuth, cur = null, beatT = null, bar = null, mode = "none", title = "";
-    var lt = function () { return (typeof o.lang === "function" ? o.lang() : o.lang || "lt") !== "en"; };
+    var lt = function () { return (typeof o.lang === "function" ? o.lang() : o.lang || "en") !== "en"; };
     function rpc(fn, body) {
       if (!W || !W.signedIn || !W.signedIn()) return Promise.reject(new Error("signed-out"));
       return W.rest("rpc/" + fn, { method: "POST", body: JSON.stringify(body) });
