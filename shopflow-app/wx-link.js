@@ -31,5 +31,11 @@
       if (!App.me) App.login(m);
     }).catch(function () {});
   }
+  // files go to <workshop id>/… in storage: learn the id as early as possible
+  (function wsId(n) {
+    if (window.WorkshopAuth && WorkshopAuth.signedIn()) {
+      WorkshopAuth.me().then(function (me) { if (me && me.workshop_id) window.WX_WORKSHOP_ID = me.workshop_id; }).catch(function () {});
+    } else if (n < 40) setTimeout(function () { wsId(n + 1); }, 250);
+  })(0);
   if (document.readyState === "complete") link(); else window.addEventListener("load", link);
 })();

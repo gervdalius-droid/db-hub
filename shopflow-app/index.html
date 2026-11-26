@@ -120,8 +120,8 @@
   <script src="sheet-export.js?v=dbl1123p"></script>
   <script src="reports.js?v=dbl1123p"></script>
   <script src="insights.js?v=dbl1123p"></script>
-  <script src="files.js?v=dbl1123p"></script>
-  <script src="project-files.js?v=dbl1123p"></script>
+  <script src="files.js?v=wx2"></script>
+  <script src="project-files.js?v=wx2"></script>
   <!-- shared customers + document index. Both are optional: if the hub is not
        deployed, core.js 404s and bridge.js quietly does nothing. -->
   <script src="../hub/core.js" onerror="/* hub not deployed — ShopFlow runs alone */"></script>
@@ -142,7 +142,7 @@
     person: function () { try { return (typeof App !== "undefined" && App.me) ? { id: App.me.id, name: App.me.name } : null; } catch (e) { return null; } } };</script>
   <script src="../hub/workers/workshop-auth.js" onerror="/* hub not reachable — no notices */"></script>
   <script src="../hub/shared/notices.js" defer onerror="/* hub not reachable — no notices */"></script>
-  <script src="wx-link.js?v=wx1"></script>
+  <script src="wx-link.js?v=wx2"></script>
   <script>App.boot().catch(e => { console.error('[boot]', e); document.body.innerHTML = '<p style="font:15px system-ui;padding:40px">ShopFlow could not start: ' + (e && e.message || e) + '</p>'; })</script>
 </body>
 </html>

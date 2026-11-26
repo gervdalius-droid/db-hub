@@ -349,7 +349,7 @@ var Files = {
     return Sync.client.storage.from(this.BUCKET);
   },
   path(id) {
-    return `${typeof SYNC_CONFIG !== "undefined" && SYNC_CONFIG.workspace || "shop"}/${id}`;
+    return `${window.WX_WORKSHOP_ID || typeof SYNC_CONFIG !== "undefined" && SYNC_CONFIG.workspace || "shop"}/${id}`;   // worxmax: files live in the workshop's own folder
   },
   /* Local first — it is instant and works with no network. Then the bucket. */
   url(id) {
