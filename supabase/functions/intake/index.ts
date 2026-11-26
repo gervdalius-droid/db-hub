@@ -103,7 +103,7 @@ async function saveDemo(req: Request, b: Record<string, unknown>, ip: string) {
 
 // Email goes out from the worxmax mailbox (Hostinger SMTP, port 465). Secrets:
 //   SMTP_PASS (required), SMTP_USER (default hello@worxmax.com), SMTP_HOST (default smtp.hostinger.com),
-//   NOTIFY_EMAIL (who hears about new requests; default SMTP_USER).
+//   NOTIFY_EMAIL (who hears about new requests, comma-separated; default SMTP_USER).
 // Without SMTP_PASS it falls back to Resend if RESEND_API_KEY is set, otherwise sends nothing.
 const SMTP_USER = Deno.env.get("SMTP_USER") ?? "hello@worxmax.com";
 const FROM = `worxmax <${SMTP_USER}>`;
@@ -133,38 +133,80 @@ async function sendMail(m: Mail): Promise<boolean> {
   return res.ok;
 }
 
-const wrap = (body: string) =>
-  `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#1C1A16;max-width:560px">${body}</div>`;
+// ---------- email templates: table layout and inline styles, so Gmail and Outlook show them the same ----------
+const LOGO = "https://worxmax.com/assets/brand/worxmax-logo-email.png";
+const SITE = "https://worxmax.com";
+function layout(preheader: string, body: string) {
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>
+<body style="margin:0;padding:0;background:#F2F1ED">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(preheader)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F1ED"><tr><td align="center" style="padding:28px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#FFFFFF;border:2px solid #1C1A16;border-radius:16px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#1C1A16">
+<tr><td style="height:8px;background:#C6F24E;font-size:0;line-height:0">&nbsp;</td></tr>
+<tr><td style="padding:26px 32px 6px"><a href="${SITE}"><img src="${LOGO}" width="150" height="30" alt="worxmax" style="display:block;border:0;width:150px;height:30px"></a></td></tr>
+${body}
+<tr><td style="padding:22px 32px 26px;border-top:1px solid #E2DFD8;font-size:12px;line-height:1.6;color:#6A665D">
+worxmax · software for furniture workshops · <a href="${SITE}" style="color:#6A665D">worxmax.com</a><br>
+Questions? Reply to this email or write to <a href="mailto:${SMTP_USER}" style="color:#6A665D">${SMTP_USER}</a>.</td></tr>
+</table></td></tr></table></body></html>`;
+}
+const btn = (href: string, label: string) =>
+  `<table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="background:#C6F24E;border:2px solid #1C1A16;border-radius:12px">
+<a href="${href}" style="display:inline-block;padding:13px 22px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#1C1A16;text-decoration:none">${label}</a></td></tr></table>`;
+function steps(items: [string, string][]) {
+  return items.map(([t, d], i) => `<tr><td valign="top" style="padding:0 14px 16px 0;width:34px">
+<div style="width:30px;height:30px;line-height:30px;border-radius:15px;background:${i === 0 ? "#2D5BD8" : "#1C1A16"};color:#FFFFFF;text-align:center;font-weight:bold;font-size:14px">${i + 1}</div></td>
+<td valign="top" style="padding:4px 0 16px;font-size:15px;line-height:1.5"><b>${t}</b><br><span style="color:#47443D">${d}</span></td></tr>`).join("");
+}
 
 // 1. Tell the worxmax team. 2. Tell the person their request arrived.
 async function notify(lead: Record<string, unknown>) {
-  const team = Deno.env.get("NOTIFY_EMAIL") ?? SMTP_USER;
+  const team = (Deno.env.get("NOTIFY_EMAIL") ?? SMTP_USER).split(",").map((x) => x.trim()).filter(Boolean);
+  const name = String(lead.name), company = String(lead.company), email = String(lead.email);
+  const first = name.trim().split(/\s+/)[0];
   const pairs: [string, unknown][] = [
-    ["Name", lead.name], ["Workshop", lead.company], ["Email", lead.email], ["Phone", lead.phone || "-"],
-    ["People", lead.people ?? "-"], ["Plan", lead.plan || "-"], ["Message", lead.message || "-"],
+    ["Name", name], ["Workshop", company], ["Email", email], ["Phone", lead.phone || "-"],
+    ["People", lead.people ?? "-"], ["Plan", lead.plan || "-"], ["What to set up first", lead.message || "-"],
     ["Built in the demo", lead.demo_summary || "-"],
   ];
-  const rows = pairs.map(([k, v]) =>
-    `<tr><td style="padding:4px 12px 4px 0;color:#666;vertical-align:top">${k}</td><td style="padding:4px 0;white-space:pre-wrap">${esc(String(v))}</td></tr>`
-  ).join("");
-  const toTeam = await sendMail({
-    to: team, replyTo: String(lead.email),
-    subject: `worxmax trial request: ${lead.company}`,
-    html: wrap(`<h2 style="margin:0 0 12px">New worxmax trial request</h2><table style="font-size:14px;border-collapse:collapse">${rows}</table>
-      <p style="margin-top:16px">Reply to this email to answer ${esc(String(lead.name))} directly. Set up the workshop in the admin page: https://worxmax.com/admin/</p>`),
-    text: pairs.map(([k, v]) => `${k}: ${v}`).join("\n"),
-  });
-  const first = String(lead.name).trim().split(/\s+/)[0];
+  const shown = pairs.filter(([, v]) => v !== "-" && v !== null && v !== "");
+  const rows = shown.map(([k, v]) => `<tr><td valign="top" style="padding:9px 14px 9px 0;border-bottom:1px solid #E2DFD8;color:#6A665D;font-size:13px;width:140px">${k}</td>
+<td valign="top" style="padding:9px 0;border-bottom:1px solid #E2DFD8;font-size:15px;white-space:pre-wrap">${k === "Email" ? `<a href="mailto:${esc(email)}" style="color:#2D5BD8">${esc(email)}</a>` : esc(String(v))}</td></tr>`).join("");
+
+  let toTeam = false;
+  for (const to of team) {
+    try {
+      toTeam = await sendMail({
+        to, replyTo: email,
+        subject: `New trial request: ${company}`,
+        html: layout(`${name} from ${company} wants to try worxmax.`, `
+<tr><td style="padding:18px 32px 4px"><div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#2D5BD8">New trial request</div>
+<h1 style="margin:6px 0 4px;font-size:24px;line-height:1.25">${esc(company)}</h1>
+<p style="margin:0;font-size:15px;color:#47443D">${esc(name)} wants to try worxmax.</p></td></tr>
+<tr><td style="padding:16px 32px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table></td></tr>
+<tr><td style="padding:18px 32px 6px;font-size:15px;line-height:1.5">Reply to this email to answer ${esc(first)} directly. Create the workshop in the admin page, then send the login.</td></tr>
+<tr><td style="padding:12px 32px 26px">${btn(SITE + "/admin/", "Open the admin page")}</td></tr>`),
+        text: `New trial request: ${company}\n\n` + shown.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\nReply to this email to answer ${first}. Admin: ${SITE}/admin/`,
+      }) || toTeam;
+    } catch (_) { /* try the next address */ }
+  }
+
   try {
     await sendMail({
-      to: String(lead.email), replyTo: team,
-      subject: "We have your worxmax trial request",
-      html: wrap(`<p>Hi ${esc(first)},</p>
-        <p>Thank you for asking to try worxmax for <b>${esc(String(lead.company))}</b>. We have your request.</p>
-        <p>We set up your workshop and send your login, usually the same working day. Your 5-day free trial starts when you first sign in, and nothing is charged during it.</p>
-        <p>If you want us to start with something specific, such as your kitchen quotes or nesting for your CNC, just reply to this email.</p>
-        <p>The worxmax team<br><a href="https://worxmax.com" style="color:#2D5BD8">worxmax.com</a></p>`),
-      text: `Hi ${first},\n\nThank you for asking to try worxmax for ${lead.company}. We have your request.\n\nWe set up your workshop and send your login, usually the same working day. Your 5-day free trial starts when you first sign in, and nothing is charged during it.\n\nIf you want us to start with something specific, just reply to this email.\n\nThe worxmax team\nhttps://worxmax.com`,
+      to: email, replyTo: SMTP_USER,
+      subject: `Your worxmax trial for ${company}`,
+      html: layout(`Thanks, ${first}. We are setting up worxmax for ${company}.`, `
+<tr><td style="padding:18px 32px 6px"><h1 style="margin:0 0 12px;font-size:26px;line-height:1.2">Thanks, ${esc(first)}. Your trial is on its way.</h1>
+<p style="margin:0;font-size:16px;line-height:1.55;color:#47443D">We are setting up worxmax for <b style="color:#1C1A16">${esc(company)}</b>: all nine apps, from the first quote to the last invoice, working from the same numbers.</p></td></tr>
+<tr><td style="padding:22px 32px 4px"><div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6A665D;margin-bottom:14px">What happens next</div>
+<table role="presentation" cellpadding="0" cellspacing="0">${steps([
+        ["We set up your workshop", "Usually the same working day. You get an email with your login."],
+        ["Add your team", "Office people sign in with email. Workers get a name and a PIN. Extra people cost nothing."],
+        ["Five days on a real job", "Quote it, nest it, track it on the floor. Nothing is charged during the trial."],
+      ])}</table></td></tr>
+<tr><td style="padding:4px 32px 8px;font-size:15px;line-height:1.55">Want us to start with something specific, like your kitchen quotes or nesting for your CNC? Just reply to this email and tell us.</td></tr>
+<tr><td style="padding:14px 32px 28px">${btn(SITE + "/apps.html", "Look around the nine apps")}</td></tr>`),
+      text: `Thanks, ${first}. Your trial is on its way.\n\nWe are setting up worxmax for ${company}: all nine apps, from the first quote to the last invoice.\n\nWhat happens next\n1. We set up your workshop. Usually the same working day; you get an email with your login.\n2. Add your team. Office people sign in with email, workers get a name and a PIN. Extra people cost nothing.\n3. Five days on a real job. Nothing is charged during the trial.\n\nWant us to start with something specific? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
     });
   } catch (_) { /* the team email is what marks the lead notified */ }
   return toTeam;
