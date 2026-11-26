@@ -1160,9 +1160,9 @@ body.print-mode{background:#fff}
 <div class="startup-overlay" id="startup-overlay">
   <div class="startup-box">
     <div class="startup-brand">
-      <div class="startup-logo">🪵</div>
+      <div class="startup-logo"><span class="wxt-logo" role="img" aria-label="worxmax" style="background:#fff"></span></div>
       <div>
-        <div class="startup-title">worxmax</div>
+        <div class="startup-title">Nesting</div>
         <div class="startup-sub">Nesting &amp; cut optimization</div>
       </div>
     </div>
@@ -15884,7 +15884,7 @@ function buildPrintView(){
   var dateStr=new Date().toISOString().slice(0,10);
   var hasProjName=!!(currentProjectName && currentProjectName.trim());
   var brand=hasProjName ? (currentProjectName+' — Nesting') : 'Nesting';
-  var logoImg=document.querySelector('.hdr img');
+  var logoImg={src:location.origin+'/assets/brand/worxmax-mark.svg'};
   var logoSrc=logoImg?logoImg.src:'';
   function header(subtitle){
     return '<div class="pp-head">'
