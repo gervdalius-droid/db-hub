@@ -195,18 +195,19 @@ async function notify(lead: Record<string, unknown>) {
     await sendMail({
       to: email, replyTo: SMTP_USER,
       subject: `Your worxmax trial for ${company}`,
-      html: layout(`Thanks, ${first}. We are setting up worxmax for ${company}.`, `
-<tr><td style="padding:18px 32px 6px"><h1 style="margin:0 0 12px;font-size:26px;line-height:1.2">Thanks, ${esc(first)}. Your trial is on its way.</h1>
-<p style="margin:0;font-size:16px;line-height:1.55;color:#47443D">We are setting up worxmax for <b style="color:#1C1A16">${esc(company)}</b>: all nine apps, from the first quote to the last invoice, working from the same numbers.</p></td></tr>
-<tr><td style="padding:22px 32px 4px"><div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6A665D;margin-bottom:14px">What happens next</div>
+      html: layout(`Thanks, ${first}. Create your account at worxmax.com/app and your 5-day trial starts.`, `
+<tr><td style="padding:18px 32px 6px"><h1 style="margin:0 0 12px;font-size:26px;line-height:1.2">Thanks, ${esc(first)}. Your worxmax trial is ready to start.</h1>
+<p style="margin:0;font-size:16px;line-height:1.55;color:#47443D">All nine apps for <b style="color:#1C1A16">${esc(company)}</b>, from the first quote to the last invoice, working from the same numbers. Free for 5 days, nothing is charged.</p></td></tr>
+<tr><td style="padding:22px 32px 6px">${btn(SITE + "/app/", "Create your account")}
+<p style="margin:10px 0 0;font-size:13px;color:#6A665D">or open <a href="${SITE}/app/" style="color:#2D5BD8">worxmax.com/app</a></p></td></tr>
+<tr><td style="padding:22px 32px 4px"><div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6A665D;margin-bottom:14px">How to start</div>
 <table role="presentation" cellpadding="0" cellspacing="0">${steps([
-        ["We set up your workshop", "Usually the same working day. You get an email with your login."],
-        ["Add your team", "Office people sign in with email. Workers get a name and a PIN. Extra people cost nothing."],
-        ["Five days on a real job", "Quote it, nest it, track it on the floor. Nothing is charged during the trial."],
+        ["Create your account", `Go to worxmax.com/app, choose Create account and use ${esc(email)}. Confirm it from the email we send you.`],
+        ["Set up your workshop", "Give it your workshop name. You become the owner and every app opens for 5 days."],
+        ["Add your team", "Invite office people by email from the Team page. Extra people cost nothing."],
       ])}</table></td></tr>
-<tr><td style="padding:4px 32px 8px;font-size:15px;line-height:1.55">Want us to start with something specific, like your kitchen quotes or nesting for your CNC? Just reply to this email and tell us.</td></tr>
-<tr><td style="padding:14px 32px 28px">${btn(SITE + "/apps.html", "Look around the nine apps")}</td></tr>`),
-      text: `Thanks, ${first}. Your trial is on its way.\n\nWe are setting up worxmax for ${company}: all nine apps, from the first quote to the last invoice.\n\nWhat happens next\n1. We set up your workshop. Usually the same working day; you get an email with your login.\n2. Add your team. Office people sign in with email, workers get a name and a PIN. Extra people cost nothing.\n3. Five days on a real job. Nothing is charged during the trial.\n\nWant us to start with something specific? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
+<tr><td style="padding:4px 32px 28px;font-size:15px;line-height:1.55">Want help to start, for example importing your board and hardware prices? Just reply to this email.</td></tr>`),
+      text: `Thanks, ${first}. Your worxmax trial is ready to start.\n\nAll nine apps for ${company}, free for 5 days. Nothing is charged.\n\nHow to start\n1. Create your account: go to ${SITE}/app/, choose Create account and use ${email}. Confirm it from the email we send you.\n2. Set up your workshop: give it your workshop name. You become the owner and every app opens for 5 days.\n3. Add your team: invite office people by email from the Team page. Extra people cost nothing.\n\nWant help to start? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
     });
   } catch (_) { /* the team email is what marks the lead notified */ }
   return toTeam;

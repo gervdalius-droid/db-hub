@@ -256,10 +256,10 @@
   <div class="final sec">
     <div class="wrap">
       <div>
-        <p class="l">Leave your name and email. We set up your trial and send the login, usually the same working day.</p>
+        <p class="l">Leave your name and email. We email you straight away with how to start.</p>
         <ol>
           <li><span><b>Send the form.</b> Three fields, under a minute.</span></li>
-          <li><span><b>Get your workshop login.</b> Add your people with a name and PIN.</span></li>
+          <li><span><b>Create your account.</b> At worxmax.com/app, then add your people.</span></li>
           <li><span><b>Five days on a real job.</b> Quote it, nest it, track it. Pay only if it earns its place.</span></li>
         </ol>
         <dl class="facts" aria-label="worxmax at a glance">
@@ -1091,7 +1091,7 @@
     }).then(function (r) {
       if (!r.ok) { if (r.status === 429) { btn.disabled = false; btn.textContent = 'Start my 5-day free trial'; msg.textContent = 'We already have several requests from you. We will be in touch shortly.'; return; } return fail(); }
       f.reset(); $('fPlan').value = ''; btn.textContent = 'Request sent';   // reset() keeps a hidden field's value
-      msg.textContent = 'Thank you. We have your request and will send your workshop login, usually the same working day.';
+      msg.textContent = 'Thank you. Check your inbox: we have emailed you how to start your trial at worxmax.com/app.';
     }).catch(fail);
   });
 
