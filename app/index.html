@@ -172,6 +172,8 @@ td select{min-height:36px;padding:4px 8px}
   h1{font-size:24px}
 }
 @media (prefers-reduced-motion:reduce){.side{transition:none}}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink2,#444);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start;align-self:flex-start}
+.linkbtn:hover{color:var(--ink,#111)}
 </style>
 </head>
 <body>
@@ -192,6 +194,18 @@ td select{min-height:36px;padding:4px 8px}
       <button class="btn go" type="submit" id="authBtn">Sign in</button>
       <div class="msg" id="authMsg" role="alert"></div>
       <p class="muted" id="authHint">Invited by your workshop? Create an account with the email the invitation was sent to.</p>
+      <button type="button" class="linkbtn" id="forgot">Forgot your password?</button>
+    </form>
+  </section>
+
+  <section class="card narrow stack" id="vReset" hidden>
+    <h1>Choose a new password</h1>
+    <p class="muted">At least 8 characters. You stay signed in afterwards.</p>
+    <form class="stack" id="resetForm">
+      <label>New password<input id="rp1" type="password" minlength="8" autocomplete="new-password" required></label>
+      <label>Repeat it<input id="rp2" type="password" minlength="8" autocomplete="new-password" required></label>
+      <button class="btn go" type="submit" id="resetBtn">Save password</button>
+      <div class="msg" id="resetMsg" role="alert"></div>
     </form>
   </section>
 
@@ -232,6 +246,7 @@ td select{min-height:36px;padding:4px 8px}
 <script src="../assets/site.js?v=24"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const RECOVERY = /type=recovery/.test(location.hash + location.search);   // came from a password-reset email
 // Public address and publishable key of the worxmax database. Every table is protected by
 // rules that only show a signed-in person the rows of their own workshop.
 const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publishable_-eLlb35TXBvv_wj-UucrqA_g-nxGWd1');
@@ -271,7 +286,7 @@ const S = { collapsed: false, navOpen: false };
 try { S.collapsed = localStorage.getItem('wx.side') === '1'; } catch (e) {}
 
 function say(id, text, ok) { const el = $(id); if (!el) return; el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
-function showGate(which) { $('loading').hidden = true; $('shell').hidden = true; $('gate').hidden = false; $('vAuth').hidden = which !== 'auth'; $('vNew').hidden = which !== 'new'; $('vAdmin').hidden = which !== 'admin'; }
+function showGate(which) { $('loading').hidden = true; $('shell').hidden = true; $('gate').hidden = false; $('vAuth').hidden = which !== 'auth'; $('vNew').hidden = which !== 'new'; $('vAdmin').hidden = which !== 'admin'; $('vReset').hidden = which !== 'reset'; }
 function canUse(id) { return (RANK[me.plan] ?? 2) >= (PLAN_OF[id] ?? 0); }
 function trialDays() { return Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5); }
 function planLine() {
@@ -290,6 +305,26 @@ function setMode(m) {
   say('authMsg', '');
 }
 $('tabIn').addEventListener('click', () => setMode('in'));
+$('forgot').addEventListener('click', async () => {
+  const em = $('email').value.trim();
+  if (!em || !$('email').checkValidity()) { $('email').focus(); return say('authMsg', 'Type your email above first, then press "Forgot your password?" again.'); }
+  $('forgot').disabled = true;
+  const { error } = await db.auth.resetPasswordForEmail(em, { redirectTo: location.origin + '/app/' });
+  $('forgot').disabled = false;
+  if (error) return say('authMsg', /rate|seconds/i.test(error.message) ? 'Please wait a minute before asking again.' : error.message);
+  say('authMsg', 'If ' + em + ' has an account, a link to choose a new password is on its way. Check your inbox (and spam).', true);
+});
+$('resetForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if ($('rp1').value !== $('rp2').value) return say('resetMsg', 'The two passwords are not the same.');
+  $('resetBtn').disabled = true;
+  const { error } = await db.auth.updateUser({ password: $('rp1').value });
+  $('resetBtn').disabled = false;
+  if (error) return say('resetMsg', /weak|pwned|leaked|compromised/i.test(error.message) ? 'That password has appeared in a data leak. Please choose another.' : error.message);
+  $('rp1').value = $('rp2').value = '';
+  history.replaceState(null, '', location.pathname);
+  start();
+});
 $('tabUp').addEventListener('click', () => setMode('up'));
 $('authForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -323,6 +358,7 @@ async function signOut() { await db.auth.signOut(); me = null; $('frames').inner
 async function start() {
   const { data: { session } } = await db.auth.getSession();
   if (!session) { me = null; return showGate('auth'); }
+  if (RECOVERY && !start.recovered) { start.recovered = true; return showGate('reset'); }
   uid = session.user.id; email = session.user.email;
   let r = await db.rpc('workshop_me');
   if (r.error) { showGate('new'); return say('newMsg', 'Could not load your account: ' + r.error.message); }
@@ -570,7 +606,7 @@ document.addEventListener('submit', async (e) => {
 });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.navOpen) { S.navOpen = false; $('shell').classList.remove('nav-open'); } });
 window.addEventListener('hashchange', route);
-db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { me = null; showGate('auth'); } });
+db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { me = null; showGate('auth'); } else if (ev === 'PASSWORD_RECOVERY') showGate('reset'); });
 start();
 </script>
 </body>
