@@ -48,7 +48,7 @@
 :root[data-look="c"] .page-h,:root[data-look="c"] .legal{color:#F2F1ED}
 
 /* ---------- the preview switcher (goes away once a look is chosen) ---------- */
-.looks{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;align-items:center;gap:4px;padding:5px;background:#1C1A16;color:#fff;border-radius:12px;box-shadow:0 10px 24px -12px rgba(0,0,0,.6);font-size:13px;font-weight:700}
+.looks{position:fixed;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:70;display:flex;align-items:center;gap:4px;padding:5px;background:#1C1A16;color:#fff;border-radius:12px;box-shadow:0 10px 24px -12px rgba(0,0,0,.6);font-size:13px;font-weight:700}
 .looks span{padding:0 6px 0 4px;letter-spacing:.06em;text-transform:uppercase;font-size:11px;color:#CFCAC0}
 .looks a{display:grid;place-items:center;width:32px;height:30px;border-radius:8px;text-decoration:none;color:#fff;background:#2E2C26}
 .looks a:hover{background:#3A3731}
