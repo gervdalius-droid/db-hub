@@ -14,7 +14,7 @@
     var P = location.pathname, APPS = [["/hub/crm/", "crm"], ["/offer/", "offer"], ["/builder/", "builder"], ["/cad/", "cad"], ["/nesting/", "nesting"],
       ["/shopflow-app/", "shopflow"], ["/hub/cechas/", "cechas"], ["/hub/apzvalga/", "apzvalga"], ["/invoices/", "invoices"]];
     for (var i = 0; i < APPS.length; i++) if (P.indexOf(APPS[i][0]) === 0) { document.documentElement.classList.add("wx-top", "wx-" + APPS[i][1]); break; }
-    var ln = document.createElement("link"); ln.rel = "stylesheet"; ln.href = "/hub/shared/wx-top.css?v=2";
+    var ln = document.createElement("link"); ln.rel = "stylesheet"; ln.href = "/hub/shared/wx-top.css?v=3";
     (document.head || document.documentElement).appendChild(ln);
   } catch (e) {}
   // Inside the worxmax dashboard the dashboard is the way back: hide the apps' own "back to hub" links.
