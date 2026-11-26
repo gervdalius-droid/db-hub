@@ -101,28 +101,73 @@ async function saveDemo(req: Request, b: Record<string, unknown>, ip: string) {
   return reply(req, 200, { ok: true });
 }
 
-async function notify(lead: Record<string, unknown>) {
-  const key = Deno.env.get("RESEND_API_KEY"), to = Deno.env.get("NOTIFY_EMAIL");
-  if (!key || !to) return false;
-  const rows = [
-    ["Name", lead.name], ["Workshop", lead.company], ["Email", lead.email], ["Phone", lead.phone || "-"],
-    ["People", lead.people ?? "-"], ["Plan", lead.plan || "-"], ["Message", lead.message || "-"],
-    ["Built in the demo", lead.demo_summary || "-"],
-  ].map(([k, v]) =>
-    `<tr><td style="padding:4px 12px 4px 0;color:#666;vertical-align:top">${k}</td><td style="padding:4px 0;white-space:pre-wrap">${esc(String(v))}</td></tr>`
-  ).join("");
+// Email goes out from the worxmax mailbox (Hostinger SMTP, port 465). Secrets:
+//   SMTP_PASS (required), SMTP_USER (default hello@worxmax.com), SMTP_HOST (default smtp.hostinger.com),
+//   NOTIFY_EMAIL (who hears about new requests; default SMTP_USER).
+// Without SMTP_PASS it falls back to Resend if RESEND_API_KEY is set, otherwise sends nothing.
+const SMTP_USER = Deno.env.get("SMTP_USER") ?? "hello@worxmax.com";
+const FROM = `worxmax <${SMTP_USER}>`;
+type Mail = { to: string; subject: string; html: string; text: string; replyTo?: string };
+let mailer: { sendMail: (m: Record<string, unknown>) => Promise<unknown> } | null = null;
+
+async function sendMail(m: Mail): Promise<boolean> {
+  const pass = Deno.env.get("SMTP_PASS");
+  if (pass) {
+    if (!mailer) {
+      const nodemailer = (await import("npm:nodemailer@6.9.16")).default;
+      mailer = nodemailer.createTransport({
+        host: Deno.env.get("SMTP_HOST") ?? "smtp.hostinger.com", port: 465, secure: true,
+        auth: { user: SMTP_USER, pass },
+      });
+    }
+    await mailer.sendMail({ from: FROM, to: m.to, subject: m.subject, html: m.html, text: m.text, replyTo: m.replyTo });
+    return true;
+  }
+  const key = Deno.env.get("RESEND_API_KEY");
+  if (!key) return false;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from: Deno.env.get("NOTIFY_FROM") ?? "worxmax <onboarding@resend.dev>",
-      to: [to],
-      reply_to: String(lead.email),
-      subject: `worxmax trial request: ${lead.company}`,
-      html: `<h2 style="font-family:sans-serif">New worxmax trial request</h2><table style="font-family:sans-serif;font-size:14px">${rows}</table>`,
-    }),
+    body: JSON.stringify({ from: Deno.env.get("NOTIFY_FROM") ?? FROM, to: [m.to], reply_to: m.replyTo, subject: m.subject, html: m.html, text: m.text }),
   });
   return res.ok;
+}
+
+const wrap = (body: string) =>
+  `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#1C1A16;max-width:560px">${body}</div>`;
+
+// 1. Tell the worxmax team. 2. Tell the person their request arrived.
+async function notify(lead: Record<string, unknown>) {
+  const team = Deno.env.get("NOTIFY_EMAIL") ?? SMTP_USER;
+  const pairs: [string, unknown][] = [
+    ["Name", lead.name], ["Workshop", lead.company], ["Email", lead.email], ["Phone", lead.phone || "-"],
+    ["People", lead.people ?? "-"], ["Plan", lead.plan || "-"], ["Message", lead.message || "-"],
+    ["Built in the demo", lead.demo_summary || "-"],
+  ];
+  const rows = pairs.map(([k, v]) =>
+    `<tr><td style="padding:4px 12px 4px 0;color:#666;vertical-align:top">${k}</td><td style="padding:4px 0;white-space:pre-wrap">${esc(String(v))}</td></tr>`
+  ).join("");
+  const toTeam = await sendMail({
+    to: team, replyTo: String(lead.email),
+    subject: `worxmax trial request: ${lead.company}`,
+    html: wrap(`<h2 style="margin:0 0 12px">New worxmax trial request</h2><table style="font-size:14px;border-collapse:collapse">${rows}</table>
+      <p style="margin-top:16px">Reply to this email to answer ${esc(String(lead.name))} directly. Set up the workshop in the admin page: https://worxmax.com/admin/</p>`),
+    text: pairs.map(([k, v]) => `${k}: ${v}`).join("\n"),
+  });
+  const first = String(lead.name).trim().split(/\s+/)[0];
+  try {
+    await sendMail({
+      to: String(lead.email), replyTo: team,
+      subject: "We have your worxmax trial request",
+      html: wrap(`<p>Hi ${esc(first)},</p>
+        <p>Thank you for asking to try worxmax for <b>${esc(String(lead.company))}</b>. We have your request.</p>
+        <p>We set up your workshop and send your login, usually the same working day. Your 5-day free trial starts when you first sign in, and nothing is charged during it.</p>
+        <p>If you want us to start with something specific, such as your kitchen quotes or nesting for your CNC, just reply to this email.</p>
+        <p>The worxmax team<br><a href="https://worxmax.com" style="color:#2D5BD8">worxmax.com</a></p>`),
+      text: `Hi ${first},\n\nThank you for asking to try worxmax for ${lead.company}. We have your request.\n\nWe set up your workshop and send your login, usually the same working day. Your 5-day free trial starts when you first sign in, and nothing is charged during it.\n\nIf you want us to start with something specific, just reply to this email.\n\nThe worxmax team\nhttps://worxmax.com`,
+    });
+  } catch (_) { /* the team email is what marks the lead notified */ }
+  return toTeam;
 }
 
 async function saveLead(req: Request, b: Record<string, unknown>, ip: string) {
