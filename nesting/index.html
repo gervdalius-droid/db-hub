@@ -5392,7 +5392,7 @@ async function saveProject(){
   // Attempt cloud save
   if(supaConfigured()){
     try{
-      var r=await fetch(SUPABASE_URL+'/rest/v1/'+PROJECT_TABLE+'?on_conflict=name',{
+      var r=await fetch(SUPABASE_URL+'/rest/v1/'+PROJECT_TABLE+'?on_conflict=workshop_id,name',{
         method:'POST',
         headers:Object.assign(supaHeaders(),{'Prefer':'resolution=merge-duplicates,return=representation'}),
         body:'{"name":'+JSON.stringify(name)+',"data":'+serialized+',"updated_at":'+JSON.stringify(updatedAt)+'}'
@@ -5549,7 +5549,7 @@ async function drainPendingQueue(){
       var nm=q[i];
       var obj=await localGet(nm);if(!obj){continue;}
       try{
-        var r=await fetch(SUPABASE_URL+'/rest/v1/'+PROJECT_TABLE+'?on_conflict=name',{
+        var r=await fetch(SUPABASE_URL+'/rest/v1/'+PROJECT_TABLE+'?on_conflict=workshop_id,name',{
           method:'POST',
           headers:Object.assign(supaHeaders(),{'Prefer':'resolution=merge-duplicates,return=minimal'}),
           body:JSON.stringify({name:obj.name,data:obj.data,updated_at:obj.updated_at})

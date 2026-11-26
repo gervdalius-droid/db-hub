@@ -134,7 +134,7 @@
     for (var i = 0; i < rows.length; i += 10) batches.push(rows.slice(i, i + 10));
     return batches.reduce(function (p, b) {
       return p.then(function () {
-        return W.rest("builder_projects?on_conflict=id", {
+        return W.rest("builder_projects?on_conflict=workshop_id,id", {
           method: "POST", body: JSON.stringify(b), headers: { Prefer: "resolution=merge-duplicates,return=minimal" }
         }).then(function () {
           b.forEach(function (r) { if (r.deleted) delete meta.pushed[r.id]; else meta.pushed[r.id] = r.updated_at; });
@@ -162,7 +162,7 @@
       }
       if (localV && (!remote || lAt > rAt)) {             // this browser is newer → push
         var at = lAt || Date.now();
-        return W.rest("workspaces?on_conflict=id", {
+        return W.rest("workspaces?on_conflict=workshop_id,id", {
           method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
           body: JSON.stringify({ id: id, data: { at: at, v: localV }, updated_by: "builder" })
         }).then(function () { meta[atKey] = at; saveMeta(); });
@@ -206,7 +206,7 @@
     verTimers[pid] = setTimeout(function () {
       var slim = (list || []).map(slimVer), json = JSON.stringify(slim);
       while (slim.length > 1 && json.length > 3e6) { slim.pop(); json = JSON.stringify(slim); }
-      W.rest("workspaces?on_conflict=id", {
+      W.rest("workspaces?on_conflict=workshop_id,id", {
         method: "POST", headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
         body: JSON.stringify({ id: "builder-ver-" + pid, data: { at: Date.now(), v: slim }, updated_by: "builder" })
       }).catch(function () {});

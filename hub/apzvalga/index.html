@@ -272,7 +272,7 @@ function putNote(id,text){
   return W.rest("workspaces?id=eq.dedes-apzvalga&select=data").then(function(rows){
     var cur=((rows||[])[0]||{}).data||{};var notes=Object.assign({},cur.notes||{});
     if(text)notes[id]={t:text,by:ME?ME.display_name:"",at:Date.now()};else delete notes[id];
-    return W.rest("workspaces?on_conflict=id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+    return W.rest("workspaces?on_conflict=workshop_id,id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
       body:JSON.stringify({id:"dedes-apzvalga",data:Object.assign({},cur,{notes:notes}),updated_by:ME?ME.display_name:"apzvalga"})})
       .then(function(){NOTES=notes;});
   });
