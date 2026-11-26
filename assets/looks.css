@@ -73,3 +73,16 @@
 @media (min-width:1180px){:root[data-look="b"] .top .wrap{padding-left:clamp(20px,3vw,56px);padding-right:clamp(20px,3vw,56px)}
   :root[data-look="b"] main .wrap{padding-left:clamp(20px,3vw,56px);padding-right:clamp(20px,3vw,56px)}}
 :root[data-look="b"] .hero{margin-right:0!important}
+
+/* B, full width, one grid: every front (the open drawer and the demo included) spans the
+   window; the content inside every front sits on the same centred column as the header.
+   The open drawer is the same width as the others, nudged right so it reads as pulled out. */
+:root[data-look="b"]{--col:1720px;--side:clamp(20px,3vw,56px)}
+:root[data-look="b"] .hero{margin-left:28px!important;margin-right:-28px!important}
+@media (max-width:760px){:root[data-look="b"] .hero{margin-left:10px!important;margin-right:-10px!important}}
+:root[data-look="b"] .hero .wrap{max-width:var(--col);margin:0 auto;padding-left:var(--side);padding-right:var(--side)}
+:root[data-look="b"] .plate,:root[data-look="b"] .glance-w{max-width:none;padding-left:0;padding-right:0}
+:root[data-look="b"] .plate .bench{padding-inline:max(0px,calc((100% - var(--col)) / 2 + var(--side) - 18px))}
+:root[data-look="b"] .glance{padding-inline:max(8px,calc((100% - var(--col)) / 2 + var(--side) - 16px))}
+:root[data-look="b"] main .wrap.plate,:root[data-look="b"] main .wrap.glance-w{max-width:none;padding-left:0;padding-right:0}
+:root[data-look="b"] .hero{margin-left:22px!important;margin-right:-12px!important}
