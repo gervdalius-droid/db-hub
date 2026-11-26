@@ -30,8 +30,8 @@
   color:var(--ink);background:var(--front)}
 :root[data-look="c"] main > section:not(#top) .cta.primary,
 :root[data-look="c"] main > section:not(#top) .mini.go{color:#1C1A16;border-color:#C6F24E}
-:root[data-look="c"] main > section:not(#top) .plans-av span.on{color:#fff}
-:root[data-look="c"] main > section:not(#top) .plans-key i{color:#fff}
+:root[data-look="c"] main > section:not(#top) .plans-av span.on{color:#1C1A16}
+:root[data-look="c"] main > section:not(#top) .plans-key i{color:#1C1A16}
 :root[data-look="c"] main > section:not(#top) .tag{background:#F2F1ED;color:#1C1A16}
 :root[data-look="c"] main > section:not(#top) .plan .plan-top .tag{background:var(--blue);color:#fff}
 :root[data-look="c"] main > section:not(#top) .cmp-r a{background:transparent}
