@@ -129,7 +129,7 @@ html.wx-shopflow .topbar .icon-btn{width:36px;height:36px;border-radius:4px}
 html.wx-shopflow[data-theme="dark"] .topbar,html.wx-shopflow .dark .topbar{background:var(--bg-elevated)}
 
 /* ================= Shopfloor plan ================= */
-html.wx-cechas body>header{min-height:var(--wxt-h);background:var(--wxt-bg);border:0;border-bottom:1px solid var(--wxt-line);border-radius:0;box-shadow:none;padding:0 16px;gap:10px;font-family:var(--wxt-f)}
+html.wx-cechas body>header{margin:-10px calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0;flex-wrap:nowrap;min-height:var(--wxt-h);background:var(--wxt-bg);border:0;border-bottom:1px solid var(--wxt-line);border-radius:0;box-shadow:none;padding:0 16px;gap:10px;font-family:var(--wxt-f)}
 html.wx-cechas body>header #ttl{display:flex;align-items:center;gap:9px;font:800 18px var(--wxt-f);letter-spacing:-.01em;text-transform:none;color:var(--wxt-ink)}
 html.wx-cechas body>header #ttl::before{content:"";display:inline-block;width:28px;height:28px;background:var(--wxt-ink);
   -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
@@ -137,11 +137,15 @@ html.wx-cechas body>header .counts span{font:600 12px var(--wxt-f);letter-spacin
 html.wx-cechas body>header .sync{font:500 12.5px var(--wxt-f);letter-spacing:0;text-transform:none}
 html.wx-cechas body>header .btn{min-height:36px;padding:0 12px;border:1px solid var(--wxt-line2);border-radius:4px;background:var(--wxt-raise);color:var(--wxt-ink);font:500 14px var(--wxt-f)}
 html.wx-cechas body>header .btn:hover{background:var(--wxt-hover);border-color:var(--wxt-line2)}
-html.wx-cechas body>header .btn[aria-pressed="true"],html.wx-cechas body>header #btnRadio.on,html.wx-cechas body>header #btnTv{background:var(--wxt-lime);border-color:var(--wxt-lime);color:var(--wxt-on-lime);font-weight:600}
+html.wx-cechas body>header .btn[aria-pressed="true"],html.wx-cechas body>header #btnRadio.on,html.wx-cechas body>header #btnTv{background:var(--wxt-lime)!important;border-color:var(--wxt-lime)!important;color:var(--wxt-on-lime)!important;font-weight:600}
+html.wx-cechas body>header .tools{flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none}
+html.wx-cechas body>header .tools::-webkit-scrollbar{display:none}
+html.wx-cechas body>header .counts{flex-wrap:nowrap;white-space:nowrap}
+@media(max-width:1250px){html.wx-cechas body>header .counts{display:none}}
 html.wx-cechas body>header .clock{font:600 16px var(--wxt-f);color:var(--wxt-muted)}
 
 /* ================= Project Overview ================= */
-html.wx-apzvalga .nav{margin:0 calc(50% - 50vw) 18px;padding:0 max(16px,calc(50vw - 50%));min-height:var(--wxt-h);background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-apzvalga .nav{margin:-20px calc(50% - 50vw) 0;padding:0 max(16px,calc(50vw - 50%));min-height:var(--wxt-h);background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
 html.wx-apzvalga .nav::before{content:"";display:inline-block;width:28px;height:28px;background:var(--wxt-ink);
   -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
 html.wx-apzvalga .nav .wxt-name{font:800 18px var(--wxt-f);letter-spacing:-.01em;color:var(--wxt-ink);margin-right:6px}

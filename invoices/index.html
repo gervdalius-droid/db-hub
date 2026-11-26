@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <script src="/hub/shared/gate.js"></script>
-<script src="/hub/shared/wx.js?v=2"></script>
+<script src="/hub/shared/wx.js?v=3"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sąskaitos faktūros</title>
 <style>
@@ -1052,16 +1052,21 @@ function blankBrand(){
     titles:{invoice:"",simple:"",proforma:"",credit:""}
   };
 }
+function hasWork(st){
+  st=st||{};const n=k=>(st[k]||[]).length;
+  const sel=st.seller||{};
+  return !!(n('invoices')||n('waybills')||n('customers')||n('items')||n('timesheets')||n('employees')||n('fleet')||n('drivers')||sel.name||sel.code||sel.address);
+}
 function blankState(){
   return {
     v:STATE_V,
     seller:{name:"",code:"",vat:"",address:"",email:"",phone:"",web:"",director:"",logo:"",
             banks:[{bank:"",iban:"",swift:""}]},
     settings:{series:"INV",next:1,format:"{S}-{YYYY}-{NNNN}",vatRate:21,vatPayer:true,
-              currency:"EUR",term:14,unit:"vnt",note:"",footer:"",
+              currency:"EUR",term:14,unit:"pcs",note:"",footer:"",
               showDisc:false,
               /* važtaraštis gets its own series so the two never collide */
-              wbSeries:"VŽ",wbNext:1,wbFormat:"{S}-{YYYY}-{NNNN}",
+              wbSeries:"WB",wbNext:1,wbFormat:"{S}-{YYYY}-{NNNN}",
               wbPlace:"",wbNote:"",
               /* žiniaraštis: the working day this employer counts on */
               tsHours:8,tsDept:"",tsMadeBy:"",tsMadeByPos:""},
@@ -1406,6 +1411,8 @@ const Cloud={
       const row=await this.fetchRemote();
       /* no idea which remote version we last held, but this device has unsent
          work: that is exactly the case where guessing loses somebody's day */
+      /* nothing typed in yet on this device (a fresh start): just take the cloud copy, no question */
+      if(row&&this.dirty&&!force&&!hasWork(S)){this.dirty=false;}
       if(row&&!this.seen&&this.dirty&&!force){
         this.status='conflict';this.remote=row;this.busy=false;paintCloud();
         conflictModal(row);
