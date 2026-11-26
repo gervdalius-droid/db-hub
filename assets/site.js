@@ -4,7 +4,7 @@ document.documentElement.classList.add('js');
 window.DBHUB = (function () {
   'use strict';
   /* ===== Edit before going live. Empty values are simply left off the pages. ===== */
-  var CONTACT_EMAIL = 'info@dedesbaldai.lt';
+  var CONTACT_EMAIL = 'hello@worxmax.com';
   var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
   var COMPANY_LINE = 'MB SUVESIU';
 
@@ -97,7 +97,7 @@ window.DBHUB = (function () {
   if (COMPANY_LINE && $('footLine')) $('footLine').textContent = COMPANY_LINE;
   // privacy.html names whoever runs the site, once the details above are filled in
   if ($('ctrl') && (COMPANY_LINE || CONTACT_EMAIL)) {
-    $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs db-hub is responsible for this data.') +
+    $('ctrl').textContent = (COMPANY_LINE ? COMPANY_LINE + ' is responsible for this data.' : 'The company that runs worxmax is responsible for this data.') +
       (CONTACT_EMAIL ? ' Write to ' + CONTACT_EMAIL + ' about anything on this page.' : '');
   }
   if ('IntersectionObserver' in window) {

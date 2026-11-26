@@ -1,4 +1,4 @@
-// db-hub website intake: the only way the public site writes to the database.
+// worxmax website intake: the only way the public site writes to the database.
 //   POST { kind: "demo", session, cabinets, parts, sheets, quote, summary, csv, form }
 //   POST { kind: "lead", name, company, email, phone, people, plan, message, session, attach }
 // Tables are closed to the public key; this function validates, rate-limits and
@@ -10,7 +10,7 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
   auth: { persistSession: false },
 });
 
-const ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://gervdalius-droid.github.io")
+const ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://worxmax.com,https://www.worxmax.com,https://gervdalius-droid.github.io")
   .split(",").map((s) => s.trim()).filter(Boolean);
 
 function cors(req: Request): Record<string, string> {
@@ -115,11 +115,11 @@ async function notify(lead: Record<string, unknown>) {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: Deno.env.get("NOTIFY_FROM") ?? "db-hub <onboarding@resend.dev>",
+      from: Deno.env.get("NOTIFY_FROM") ?? "worxmax <onboarding@resend.dev>",
       to: [to],
       reply_to: String(lead.email),
-      subject: `db-hub trial request: ${lead.company}`,
-      html: `<h2 style="font-family:sans-serif">New db-hub trial request</h2><table style="font-family:sans-serif;font-size:14px">${rows}</table>`,
+      subject: `worxmax trial request: ${lead.company}`,
+      html: `<h2 style="font-family:sans-serif">New worxmax trial request</h2><table style="font-family:sans-serif;font-size:14px">${rows}</table>`,
     }),
   });
   return res.ok;

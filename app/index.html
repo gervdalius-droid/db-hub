@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>db-hub — your workshop</title>
+<title>worxmax — your workshop</title>
 <meta name="theme-color" content="#FFF9F0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='3' fill='%233355F0'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Same look as the db-hub website (assets/site.css): warm paper, white cards, blue for actions. */
+/* Same look as the worxmax website (assets/site.css): warm paper, white cards, blue for actions. */
 :root{--paper:#FFF9F0;--sheet:#fff;--tray:#F8F1E5;--ink:#1B2140;--ink2:#474E6B;--ink3:#6C7391;--rule:#ECE3D4;--rule2:#D9CEBB;
   --brand:#3355F0;--brand-dark:#2643CF;--brand-soft:#E6EBFF;--sun:#FFC53D;--sun-soft:#FFF0C7;--ok:#1F9D5B;--bad:#C8341B;
   --display:'Bricolage Grotesque',system-ui,sans-serif;--body:'Instrument Sans',system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -77,7 +77,7 @@ tr:last-child td{border-bottom:0}
   <div class="top">
     <a class="logo" href="../">
       <svg aria-hidden="true" width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="5" fill="#3355F0"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
-      db-hub
+      worxmax
     </a>
     <div id="who" hidden><span class="muted" id="whoMail"></span> <button class="btn small" id="out" type="button">Sign out</button></div>
   </div>
@@ -149,10 +149,10 @@ tr:last-child td{border-bottom:0}
   </section>
 </div>
 
-<script src="../assets/site.js?v=11"></script>
+<script src="../assets/site.js?v=12"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-// Public address and publishable key of the db-hub database. Every table is protected by
+// Public address and publishable key of the worxmax database. Every table is protected by
 // rules that only show a signed-in person the rows of their own workshop.
 const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publishable_-eLlb35TXBvv_wj-UucrqA_g-nxGWd1');
 const $ = (id) => document.getElementById(id);
