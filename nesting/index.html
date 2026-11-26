@@ -17587,7 +17587,7 @@ async function lqSendAndWait(p, sheet, range){
 }
 // ── label station loop (label PC only) ──
 var _lqSt={on:false, busy:false, printed:0, failed:0, timer:null, beat:0, last:''};
-function lqStationId(){ try{ return localStorage.getItem('nest.labelStationName')||'Lipdukų PC'; }catch(e){ return 'Lipdukų PC'; } }
+function lqStationId(){ try{ return localStorage.getItem('nest.labelStationName')||'Label PC'; }catch(e){ return 'Label PC'; } }
 function lqStationWanted(){ try{ return localStorage.getItem('nest.labelStation')!=='0'; }catch(e){ return true; } }
 function lqStationToggle(on){ try{ localStorage.setItem('nest.labelStation', on?'1':'0'); }catch(e){} lqStationStart(); }
 async function lqStationTick(){
