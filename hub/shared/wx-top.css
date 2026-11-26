@@ -1,0 +1,154 @@
+/* worxmax — one top bar for every app, modelled on the CRM bar.
+   Light bar, thin bottom line, 58 px tall, the worxmax mark + the app name in bold,
+   tabs underlined in lime, outlined buttons, the main action filled lime.
+   Loaded by hub/shared/wx.js, which also puts html.wx-<app> on the page. */
+@import url("https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap");
+
+html.wx-top{
+  --wxt-bg:#F6F6F3; --wxt-raise:#FFFFFF; --wxt-hover:#ECEBE6; --wxt-line:#DEDBD3; --wxt-line2:#C4BFB4;
+  --wxt-ink:#1C1A16; --wxt-muted:#6A665D; --wxt-lime:#C6F24E; --wxt-lime2:#B4E236; --wxt-on-lime:#1C1A16;
+  --wxt-ok:#1E7F47; --wxt-h:58px;
+  --wxt-f:'Schibsted Grotesk','Helvetica Neue',Arial,sans-serif;
+}
+
+/* ---------- shared pieces (applied per app below) ---------- */
+/* the worxmax mark, one colour, like CRM */
+html.wx-top .wxt-logo{display:inline-block;flex:none;width:28px;height:28px;background:var(--wxt-ink);
+  -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
+
+/* ================= Offers ================= */
+html.wx-offer body>header{background:var(--wxt-bg);color:var(--wxt-ink);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-offer body>header .hwrap{min-height:var(--wxt-h);padding:0 16px;gap:10px;max-width:none}
+html.wx-offer body>header .brand{gap:9px}
+html.wx-offer body>header .brand .brandlogo{height:28px;width:28px;filter:none;object-fit:contain}
+html.wx-offer body>header .brand h1{font:800 18px var(--wxt-f);letter-spacing:-.01em;color:var(--wxt-ink)}
+html.wx-offer #projName{background:var(--wxt-raise)!important;border:1px solid var(--wxt-line2)!important;color:var(--wxt-ink)!important;border-radius:4px!important;height:36px;padding:0 11px!important;font:500 14px var(--wxt-f)!important}
+html.wx-offer body>header .hbtns{gap:8px}
+html.wx-offer body>header .hbtns button{min-height:36px;padding:0 13px;border:1px solid var(--wxt-line2);background:var(--wxt-raise);color:var(--wxt-ink);border-radius:4px;font:500 14px var(--wxt-f)}
+html.wx-offer body>header .hbtns button:hover{background:var(--wxt-hover)}
+html.wx-offer body>header .lang{border:1px solid var(--wxt-line2);border-radius:4px;gap:0}
+html.wx-offer body>header .lang button{border:0;border-radius:0;min-height:34px;padding:0 10px;font:600 12.5px var(--wxt-f);background:var(--wxt-raise)}
+html.wx-offer body>header .lang button.on{background:var(--wxt-ink);color:#fff}
+html.wx-offer nav.tabs{top:var(--wxt-h);background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-offer nav.tabs .twrap{max-width:none;padding:0 16px}
+html.wx-offer nav.tabs button{font:600 14.5px var(--wxt-f);color:var(--wxt-muted);padding:0 12px;height:46px;border-bottom:3px solid transparent}
+html.wx-offer nav.tabs button:hover{color:var(--wxt-ink)}
+html.wx-offer nav.tabs button.on{color:var(--wxt-ink);border-bottom-color:var(--wxt-lime)}
+html.wx-offer nav.tabs button .ic,html.wx-offer nav.tabs button.on .ic{color:var(--wxt-muted)}
+html.wx-offer .tabsummary .offer{background:var(--wxt-lime);color:var(--wxt-on-lime);border-radius:4px}
+html.wx-offer .tabsummary .offer:hover{background:var(--wxt-lime2)}
+html.wx-offer .tabsummary .offer .sk,html.wx-offer .tabsummary .offer .sv{color:var(--wxt-on-lime)}
+
+/* ================= Invoices ================= */
+html.wx-invoices body>header{background:var(--wxt-bg);color:var(--wxt-ink);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-invoices body>header .hwrap{min-height:var(--wxt-h);padding:0 16px;gap:10px;max-width:none}
+html.wx-invoices body>header .brand{gap:9px}
+html.wx-invoices body>header .brand .logo{padding:0;background:var(--wxt-ink);color:transparent;font-size:0;width:28px;height:28px;border-radius:0;
+  -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
+html.wx-invoices body>header .brand h1{font:800 18px var(--wxt-f);letter-spacing:-.01em;color:var(--wxt-ink)}
+html.wx-invoices body>header .brand .sub{display:none}
+html.wx-invoices body>header .hbtns{gap:8px}
+html.wx-invoices body>header .hbtns button{min-height:36px;padding:0 13px;border:1px solid var(--wxt-line2);background:var(--wxt-raise);color:var(--wxt-ink);border-radius:4px;font:500 14px var(--wxt-f)}
+html.wx-invoices body>header .hbtns button:hover{background:var(--wxt-hover)}
+html.wx-invoices body>header .hbtns button.go{background:var(--wxt-lime);border-color:var(--wxt-lime);color:var(--wxt-on-lime);font-weight:600}
+html.wx-invoices body>header .hbtns button.go:hover{background:var(--wxt-lime2)}
+html.wx-invoices body>header .lang{border:1px solid var(--wxt-line2);border-radius:4px}
+html.wx-invoices body>header .lang button{border:0;border-radius:0;min-height:34px;padding:0 10px;font:600 12.5px var(--wxt-f)}
+html.wx-invoices body>header .lang button.on{background:var(--wxt-ink);color:#fff}
+html.wx-invoices nav.tabs{top:var(--wxt-h);background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-invoices nav.tabs .twrap{max-width:none;padding:0 16px}
+html.wx-invoices nav.tabs button{font:600 14.5px var(--wxt-f);color:var(--wxt-muted);padding:0 12px;height:46px;border-bottom:3px solid transparent}
+html.wx-invoices nav.tabs button:hover{color:var(--wxt-ink)}
+html.wx-invoices nav.tabs button.on{color:var(--wxt-ink);border-bottom-color:var(--wxt-lime)}
+
+/* ================= Cabinet Studio ================= */
+html.wx-builder .nv-top{background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-builder .nv-top-in{min-height:var(--wxt-h);padding-top:0;padding-bottom:0;gap:10px;max-width:none}
+html.wx-builder .nv-brand{padding:4px 6px 4px 2px;border-radius:4px;gap:9px}
+html.wx-builder .nv-brand .logo{width:28px;height:28px;border-radius:0;background:transparent}
+html.wx-builder .nv-brand .logo .dbl{display:inline-block;width:28px;height:28px;background:var(--wxt-ink);
+  -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
+html.wx-builder .nv-brand-t,html.wx-builder .nv-top-home .nv-brand-t{font:800 18px var(--wxt-f);letter-spacing:-.01em;color:var(--wxt-ink)}
+html.wx-builder .nv-proj input{height:36px;border:1px solid var(--wxt-line2);background:var(--wxt-raise);border-radius:4px;padding:0 11px;font:500 14px var(--wxt-f)}
+html.wx-builder .nv-stages{align-self:stretch;gap:2px;padding:0}
+html.wx-builder .nv-stage-sep{display:none}
+html.wx-builder .nv-stage{position:relative;border-radius:0;padding:0 12px;height:100%;background:none;font:600 14.5px var(--wxt-f);color:var(--wxt-muted)}
+html.wx-builder .nv-stage:hover{background:none;color:var(--wxt-ink)}
+html.wx-builder .nv-stage.on{background:none;color:var(--wxt-ink)}
+html.wx-builder .nv-stage.on::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:3px;background:var(--wxt-lime);border-radius:2px 2px 0 0}
+html.wx-builder .nv-stage-n{width:20px;height:20px;font-size:11px;background:var(--wxt-raise);border-color:var(--wxt-line2);color:var(--wxt-muted)}
+html.wx-builder .nv-stage.on .nv-stage-n{background:var(--wxt-ink);border-color:var(--wxt-ink);color:#fff}
+html.wx-builder .nv-stage.on .nv-sb{background:var(--wxt-hover);border-color:var(--wxt-line);color:var(--wxt-ink)}
+html.wx-builder .nv-status{min-height:36px;border-radius:4px;border-color:var(--wxt-line2);background:var(--wxt-raise);font:600 13.5px var(--wxt-f)}
+html.wx-builder .nv-ic{width:36px;height:36px;border-radius:4px}
+html.wx-builder .nv-ic.on{background:var(--wxt-ink)}
+html.wx-builder .nv-top .lang button{min-height:36px;padding:0 10px;font:600 12.5px var(--wxt-f);border-color:var(--wxt-line2)}
+html.wx-builder .nv-top .lang button:first-child{border-radius:4px 0 0 4px}
+html.wx-builder .nv-top .lang button:last-child{border-radius:0 4px 4px 0}
+
+/* ================= DXF Editor ================= */
+html.wx-cad .top{min-height:var(--wxt-h);padding:0 16px;gap:8px;background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-cad .top .brand{align-items:center;gap:9px}
+html.wx-cad .top .brand .dblogo{width:28px;height:28px;margin-right:0;color:var(--wxt-ink)}
+html.wx-cad .top .brand b{font:800 18px var(--wxt-f);letter-spacing:-.01em}
+html.wx-cad .top .brand .ver{display:none}
+html.wx-cad .top .btn{height:36px;padding:0 13px;border:1px solid var(--wxt-line2);background:var(--wxt-raise);color:var(--wxt-ink);font:500 14px var(--wxt-f)}
+html.wx-cad .top .btn:hover{background:var(--wxt-hover);border-color:var(--wxt-line2)}
+html.wx-cad .top .btn.icon{width:36px;padding:0;justify-content:center}
+html.wx-cad .top .btn.primary{background:var(--wxt-lime);border-color:var(--wxt-lime);color:var(--wxt-on-lime);font-weight:600}
+html.wx-cad .top .btn.primary:hover{background:var(--wxt-lime2)}
+html.wx-cad .top .seg{border-color:var(--wxt-line2)}
+html.wx-cad .top .seg button{height:34px;padding:0 11px;font:600 13px var(--wxt-f);background:var(--wxt-raise);color:var(--wxt-ink)}
+html.wx-cad .top .seg button.on{background:var(--wxt-ink);color:#fff}
+html.wx-cad .top .sep{height:24px;background:var(--wxt-line)}
+:root[data-theme="dark"] .wx-cad .top{background:inherit}
+
+/* ================= Nesting ================= */
+html.wx-nesting .hdr{min-height:var(--wxt-h);padding:0 16px!important;gap:9px!important;background:var(--wxt-bg)!important;border-bottom:1px solid var(--wxt-line)!important;font-family:var(--wxt-f)}
+html.wx-nesting .hdr .ht{font:800 18px var(--wxt-f)!important;letter-spacing:-.01em;color:var(--wxt-ink)!important}
+html.wx-nesting .hdr .hs{display:none!important}
+html.wx-nesting .hdr label[data-i18n="project"],html.wx-nesting #albl{display:none!important}
+html.wx-nesting .hdr button,html.wx-nesting .hdr select{min-height:36px!important;padding:0 12px!important;border:1px solid var(--wxt-line2)!important;background:var(--wxt-raise)!important;color:var(--wxt-ink)!important;border-radius:4px!important;font:500 14px var(--wxt-f)!important}
+html.wx-nesting .hdr button:hover:not(:disabled){background:var(--wxt-hover)!important}
+html.wx-nesting .hdr .urbtn{width:36px;padding:0!important;font-size:16px!important}
+html.wx-nesting .hdr #projName{height:36px!important;width:220px!important;border:1px solid var(--wxt-line2)!important;border-radius:4px!important;padding:0 11px!important;font:500 14px var(--wxt-f)!important;color:var(--wxt-ink)!important}
+html.wx-nesting .hdr .save-status{font:500 12.5px var(--wxt-f);background:none!important;color:var(--wxt-muted);min-width:0}
+html.wx-nesting .hdr .save-status.saved{color:var(--wxt-ok)}
+html.wx-nesting .hdr #auth-chip{min-height:34px;background:var(--wxt-raise)!important;border:1px solid var(--wxt-line2)!important;color:var(--wxt-ink)!important;border-radius:999px!important;padding:0 6px 0 10px!important;font:600 13px var(--wxt-f)!important}
+html.wx-nesting .hdr #auth-chip button{min-height:0!important;border:0!important;background:none!important;padding:0 4px!important}
+
+/* ================= ShopFlow ================= */
+html.wx-shopflow .topbar{height:var(--wxt-h);background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);backdrop-filter:none;-webkit-backdrop-filter:none;padding:0 16px;gap:10px;font-family:var(--wxt-f)}
+html.wx-shopflow .topbar h1{font:800 18px var(--wxt-f);letter-spacing:-.01em;color:var(--wxt-ink)}
+html.wx-shopflow .topbar .search-box{height:36px;min-width:210px;border:1px solid var(--wxt-line2);border-radius:4px;background:var(--wxt-raise);color:var(--wxt-muted);font:400 14px var(--wxt-f)}
+html.wx-shopflow .topbar .btn{min-height:36px;border:1px solid var(--wxt-line2);border-radius:4px;background:var(--wxt-raise);color:var(--wxt-ink);font:500 14px var(--wxt-f);box-shadow:none}
+html.wx-shopflow .topbar .btn:hover{background:var(--wxt-hover)}
+html.wx-shopflow .topbar .btn.primary{background:var(--wxt-lime);border-color:var(--wxt-lime);color:var(--wxt-on-lime);font-weight:600}
+html.wx-shopflow .topbar .btn.primary:hover{background:var(--wxt-lime2);filter:none}
+html.wx-shopflow .topbar .icon-btn{width:36px;height:36px;border-radius:4px}
+html.wx-shopflow[data-theme="dark"] .topbar,html.wx-shopflow .dark .topbar{background:var(--bg-elevated)}
+
+/* ================= Shopfloor plan ================= */
+html.wx-cechas body>header{min-height:var(--wxt-h);background:var(--wxt-bg);border:0;border-bottom:1px solid var(--wxt-line);border-radius:0;box-shadow:none;padding:0 16px;gap:10px;font-family:var(--wxt-f)}
+html.wx-cechas body>header #ttl{display:flex;align-items:center;gap:9px;font:800 18px var(--wxt-f);letter-spacing:-.01em;text-transform:none;color:var(--wxt-ink)}
+html.wx-cechas body>header #ttl::before{content:"";display:inline-block;width:28px;height:28px;background:var(--wxt-ink);
+  -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
+html.wx-cechas body>header .counts span{font:600 12px var(--wxt-f);letter-spacing:0;text-transform:none;background:var(--wxt-raise);border-color:var(--wxt-line)}
+html.wx-cechas body>header .sync{font:500 12.5px var(--wxt-f);letter-spacing:0;text-transform:none}
+html.wx-cechas body>header .btn{min-height:36px;padding:0 12px;border:1px solid var(--wxt-line2);border-radius:4px;background:var(--wxt-raise);color:var(--wxt-ink);font:500 14px var(--wxt-f)}
+html.wx-cechas body>header .btn:hover{background:var(--wxt-hover);border-color:var(--wxt-line2)}
+html.wx-cechas body>header .btn[aria-pressed="true"],html.wx-cechas body>header #btnRadio.on,html.wx-cechas body>header #btnTv{background:var(--wxt-lime);border-color:var(--wxt-lime);color:var(--wxt-on-lime);font-weight:600}
+html.wx-cechas body>header .clock{font:600 16px var(--wxt-f);color:var(--wxt-muted)}
+
+/* ================= Project Overview ================= */
+html.wx-apzvalga .nav{margin:0 calc(50% - 50vw) 18px;padding:0 max(16px,calc(50vw - 50%));min-height:var(--wxt-h);background:var(--wxt-bg);border-bottom:1px solid var(--wxt-line);font-family:var(--wxt-f)}
+html.wx-apzvalga .nav::before{content:"";display:inline-block;width:28px;height:28px;background:var(--wxt-ink);
+  -webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
+html.wx-apzvalga .nav .wxt-name{font:800 18px var(--wxt-f);letter-spacing:-.01em;color:var(--wxt-ink);margin-right:6px}
+html.wx-apzvalga .nav a{min-height:36px;padding:0 13px;border:1px solid var(--wxt-line2);border-radius:4px;background:var(--wxt-raise);color:var(--wxt-ink);font:500 14px var(--wxt-f)}
+html.wx-apzvalga .nav a:hover{background:var(--wxt-hover);border-color:var(--wxt-line2)}
+html.wx-apzvalga .head .btn.pdf{background:var(--wxt-lime);border-color:var(--wxt-lime);color:var(--wxt-on-lime)}
+
+/* ================= CRM (the model): already this design ================= */
+
+@media print{html.wx-top .nv-top,html.wx-top .topbar,html.wx-apzvalga .nav,html.wx-nesting .hdr{display:none!important}}
