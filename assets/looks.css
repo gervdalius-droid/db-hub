@@ -86,3 +86,4 @@
 :root[data-look="b"] .glance{padding-inline:max(8px,calc((100% - var(--col)) / 2 + var(--side) - 16px))}
 :root[data-look="b"] main .wrap.plate,:root[data-look="b"] main .wrap.glance-w{max-width:none;padding-left:0;padding-right:0}
 :root[data-look="b"] .hero{margin-left:22px!important;margin-right:-12px!important}
+:root[data-look="b"] .hero{margin-left:0!important;margin-right:0!important}
