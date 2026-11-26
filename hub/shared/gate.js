@@ -22,8 +22,8 @@
 
   function toSignIn() {
     var next = location.pathname + location.search + location.hash;
-    try { if (window.top !== window) { window.top.location.href = "/app/"; return; } } catch (e) {}
-    location.replace("/app/?next=" + encodeURIComponent(next));
+    try { if (window.top !== window) { window.top.location.href = "/"; return; } } catch (e) {}
+    location.replace("/?next=" + encodeURIComponent(next));
   }
   function session() {
     try { var s = JSON.parse(localStorage.getItem(SESS) || "null"); return s && s.access_token ? s : null; } catch (e) { return null; }

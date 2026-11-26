@@ -27,6 +27,7 @@
       <a class="link keep" href="apps.html">The nine apps</a>
       <a class="link" href="#pricing">Prices</a>
       <a class="link" href="#faq">Questions</a>
+      <a class="link keep" href="https://app.worxmax.com/">Sign in</a>
       <a class="cta primary sm" href="#start">Start free trial</a>
     </nav>
   </div>
@@ -1082,7 +1083,7 @@
     }).then(function (r) {
       if (!r.ok) { if (r.status === 429) { btn.disabled = false; btn.textContent = 'Start my 5-day free trial'; msg.textContent = 'We already have several requests from you. We will be in touch shortly.'; return; } return fail(); }
       f.reset(); $('fPlan').value = ''; btn.textContent = 'Request sent';   // reset() keeps a hidden field's value
-      msg.textContent = 'Thank you. Check your inbox: we have emailed you how to start your trial at worxmax.com/app.';
+      msg.textContent = 'Thank you. Check your inbox: we have emailed you how to start your trial at app.worxmax.com.';
     }).catch(fail);
   });
 

@@ -255,8 +255,8 @@
       opts = opts || {};
       // worxmax: sign-in lives on /app/. Go there (the whole window, also from inside the
       // dashboard) and come back to this app afterwards.
-      var next = location.pathname + location.search + location.hash, url = "/app/?next=" + encodeURIComponent(next);
-      try { if (window.top !== window) { window.top.location.href = "/app/"; return new Promise(function () {}); } } catch (e) {}
+      var next = location.pathname + location.search + location.hash, url = "/?next=" + encodeURIComponent(next);
+      try { if (window.top !== window) { window.top.location.href = "/"; return new Promise(function () {}); } } catch (e) {}
       location.href = url;
       return new Promise(function () {});
       var lt = (opts.lang || "en") === "lt";

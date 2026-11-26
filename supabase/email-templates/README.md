@@ -2,7 +2,7 @@
 
 Pasted into Supabase → Authentication → Emails → Templates for the db-hub project.
 Sent through custom SMTP: worxmax <hello@worxmax.com>, smtp.hostinger.com:465.
-Subjects are in subjects.json. Site URL is https://worxmax.com/app/ and https://worxmax.com/** is an allowed redirect.
+Subjects are in subjects.json. Site URL is https://app.worxmax.com/ ; allowed redirects: https://app.worxmax.com/** and https://worxmax.com/**.
 
 confirm.html      → Confirm sign up
 invite.html       → Invite user

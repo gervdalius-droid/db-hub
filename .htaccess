@@ -3,11 +3,37 @@
 Options -Indexes
 DirectoryIndex index.html
 
-# Always HTTPS, and worxmax.com without www.
 RewriteEngine On
+
+# Two addresses share this folder:
+#   worxmax.com      the website (index, apps, privacy)
+#   app.worxmax.com  the product (dashboard at /, the nine apps, admin)
+
+# --- app.worxmax.com ---------------------------------------------------------
+RewriteCond %{HTTP_HOST} ^app\.worxmax\.com$ [NC]
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://app.worxmax.com%{REQUEST_URI} [R=301,L]
+# old /app/ address → the root (keeps ?next=… and the rest)
+RewriteCond %{HTTP_HOST} ^app\.worxmax\.com$ [NC]
+RewriteCond %{THE_REQUEST} \s/app/?(index\.html)?[\s?]
+RewriteRule ^app/?(index\.html)?$ / [R=301,L]
+# website pages live on worxmax.com
+RewriteCond %{HTTP_HOST} ^app\.worxmax\.com$ [NC]
+RewriteRule ^(index\.html|apps\.html|privacy\.html)$ https://worxmax.com/$1 [R=301,L]
+# the dashboard is the home page here
+RewriteCond %{HTTP_HOST} ^app\.worxmax\.com$ [NC]
+RewriteRule ^$ app/index.html [L]
+
+# --- worxmax.com (and www) ---------------------------------------------------
+RewriteCond %{HTTP_HOST} !^app\.worxmax\.com$ [NC]
 RewriteCond %{HTTPS} !=on [OR]
 RewriteCond %{HTTP_HOST} ^www\. [NC]
 RewriteRule ^ https://worxmax.com%{REQUEST_URI} [R=301,L]
+# the product moved to app.worxmax.com: old links keep working
+RewriteCond %{HTTP_HOST} !^app\.worxmax\.com$ [NC]
+RewriteRule ^app/?(index\.html)?$ https://app.worxmax.com/ [R=301,L]
+RewriteCond %{HTTP_HOST} !^app\.worxmax\.com$ [NC]
+RewriteRule ^((offer|builder|cad|nesting|shopflow-app|hub|invoices|admin)(/.*)?|leads\.html)$ https://app.worxmax.com/$1 [R=301,L]
 
 # Not for visitors: git data, design notes, server code, screenshot origin notes.
 RewriteRule (^|/)\.(?!well-known/) - [F,L]

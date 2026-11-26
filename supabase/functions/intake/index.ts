@@ -10,7 +10,7 @@ const db = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SE
   auth: { persistSession: false },
 });
 
-const ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://worxmax.com,https://www.worxmax.com,https://gervdalius-droid.github.io")
+const ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") ?? "https://worxmax.com,https://www.worxmax.com,https://app.worxmax.com,https://gervdalius-droid.github.io")
   .split(",").map((s) => s.trim()).filter(Boolean);
 
 function cors(req: Request): Record<string, string> {
@@ -136,6 +136,7 @@ async function sendMail(m: Mail): Promise<boolean> {
 // ---------- email templates: table layout and inline styles, so Gmail and Outlook show them the same ----------
 const LOGO = "https://worxmax.com/assets/brand/worxmax-logo-email.png";
 const SITE = "https://worxmax.com";
+const APP = "https://app.worxmax.com";
 function layout(preheader: string, body: string) {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"></head>
 <body style="margin:0;padding:0;background:#F2F1ED">
@@ -185,8 +186,8 @@ async function notify(lead: Record<string, unknown>) {
 <p style="margin:0;font-size:15px;color:#47443D">${esc(name)} wants to try worxmax.</p></td></tr>
 <tr><td style="padding:16px 32px 6px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table></td></tr>
 <tr><td style="padding:18px 32px 6px;font-size:15px;line-height:1.5">Reply to this email to answer ${esc(first)} directly. Create the workshop in the admin page, then send the login.</td></tr>
-<tr><td style="padding:12px 32px 26px">${btn(SITE + "/admin/", "Open the admin page")}</td></tr>`),
-        text: `New trial request: ${company}\n\n` + shown.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\nReply to this email to answer ${first}. Admin: ${SITE}/admin/`,
+<tr><td style="padding:12px 32px 26px">${btn(APP + "/admin/", "Open the admin page")}</td></tr>`),
+        text: `New trial request: ${company}\n\n` + shown.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\nReply to this email to answer ${first}. Admin: ${APP}/admin/`,
       }) || toTeam;
     } catch (_) { /* try the next address */ }
   }
@@ -195,19 +196,19 @@ async function notify(lead: Record<string, unknown>) {
     await sendMail({
       to: email, replyTo: SMTP_USER,
       subject: `Your worxmax trial for ${company}`,
-      html: layout(`Thanks, ${first}. Create your account at worxmax.com/app and your 5-day trial starts.`, `
+      html: layout(`Thanks, ${first}. Create your account at app.worxmax.com and your 5-day trial starts.`, `
 <tr><td style="padding:18px 32px 6px"><h1 style="margin:0 0 12px;font-size:26px;line-height:1.2">Thanks, ${esc(first)}. Your worxmax trial is ready to start.</h1>
 <p style="margin:0;font-size:16px;line-height:1.55;color:#47443D">All nine apps for <b style="color:#1C1A16">${esc(company)}</b>, from the first quote to the last invoice, working from the same numbers. Free for 5 days, nothing is charged.</p></td></tr>
-<tr><td style="padding:22px 32px 6px">${btn(SITE + "/app/", "Create your account")}
-<p style="margin:10px 0 0;font-size:13px;color:#6A665D">or open <a href="${SITE}/app/" style="color:#2D5BD8">worxmax.com/app</a></p></td></tr>
+<tr><td style="padding:22px 32px 6px">${btn(APP + "/", "Create your account")}
+<p style="margin:10px 0 0;font-size:13px;color:#6A665D">or open <a href="${APP}/" style="color:#2D5BD8">app.worxmax.com</a></p></td></tr>
 <tr><td style="padding:22px 32px 4px"><div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6A665D;margin-bottom:14px">How to start</div>
 <table role="presentation" cellpadding="0" cellspacing="0">${steps([
-        ["Create your account", `Go to worxmax.com/app, choose Create account and use ${esc(email)}. Confirm it from the email we send you.`],
+        ["Create your account", `Go to app.worxmax.com, choose Create account and use ${esc(email)}. Confirm it from the email we send you.`],
         ["Set up your workshop", "Give it your workshop name. You become the owner and every app opens for 5 days."],
         ["Add your team", "Invite office people by email from the Team page. Extra people cost nothing."],
       ])}</table></td></tr>
 <tr><td style="padding:4px 32px 28px;font-size:15px;line-height:1.55">Want help to start, for example importing your board and hardware prices? Just reply to this email.</td></tr>`),
-      text: `Thanks, ${first}. Your worxmax trial is ready to start.\n\nAll nine apps for ${company}, free for 5 days. Nothing is charged.\n\nHow to start\n1. Create your account: go to ${SITE}/app/, choose Create account and use ${email}. Confirm it from the email we send you.\n2. Set up your workshop: give it your workshop name. You become the owner and every app opens for 5 days.\n3. Add your team: invite office people by email from the Team page. Extra people cost nothing.\n\nWant help to start? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
+      text: `Thanks, ${first}. Your worxmax trial is ready to start.\n\nAll nine apps for ${company}, free for 5 days. Nothing is charged.\n\nHow to start\n1. Create your account: go to ${APP}/, choose Create account and use ${email}. Confirm it from the email we send you.\n2. Set up your workshop: give it your workshop name. You become the owner and every app opens for 5 days.\n3. Add your team: invite office people by email from the Team page. Extra people cost nothing.\n\nWant help to start? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
     });
   } catch (_) { /* the team email is what marks the lead notified */ }
   return toTeam;

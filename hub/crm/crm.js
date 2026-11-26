@@ -690,7 +690,7 @@
     m.innerHTML = '<div class="who"><b>' + esc(meName()) + "</b><span>" + esc(S.me.role === "admin" ? "Owner" : S.me.role === "manager" ? "Manager" : "Team") + "</span></div>" +
       '<button data-act="csv" data-v="deals">' + ic("doc") + " Deals → Excel (CSV)</button>" +
       '<button data-act="csv" data-v="clients">' + ic("doc") + " Clients → Excel (CSV)</button><hr>" +
-      '<a href="/app/" target="_top">' + ic("ext") + " All apps</a>" +
+      '<a href="/" target="_top">' + ic("ext") + " All apps</a>" +
       (W.officeComputer ? '<label><input type="checkbox" data-act="officepc"' + (pc ? " checked" : "") + "> Office computer (stay signed in)</label>" : "") +
       '<hr><button data-act="logout">' + ic("x") + " Sign out</button>";
   }
