@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="lt">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <script src="/hub/shared/gate.js"></script>
@@ -331,16 +331,16 @@ body.drag,body.drag *{cursor:grabbing!important}
 <div id="app" hidden>
   <header class="top">
     <div class="top-in">
-      <a class="brand" href="../shopfloor/" title="Į programų sąrašą"><span class="dblogo" role="img" aria-label="worxmax"></span><b>CRM</b></a>
-      <nav class="tabs" role="tablist" aria-label="Skiltys">
-        <button role="tab" data-view="today">Šiandien <span class="n" id="n-today" hidden></span></button>
-        <button role="tab" data-view="pipe">Sandoriai</button>
-        <button role="tab" data-view="clients">Klientai</button>
+      <a class="brand" href="/app/" target="_top" title="All apps"><span class="dblogo" role="img" aria-label="worxmax"></span><b>CRM</b></a>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button role="tab" data-view="today">Today <span class="n" id="n-today" hidden></span></button>
+        <button role="tab" data-view="pipe">Deals</button>
+        <button role="tab" data-view="clients">Clients</button>
       </nav>
       <span class="spacer"></span>
-      <button class="searchbtn" data-act="palette" aria-label="Ieškoti"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Ieškoti klientų, sandorių…</span><kbd>/</kbd></button>
-      <button class="btn accent" data-act="quick"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="newlbl">Nauja užklausa</span><kbd>N</kbd></button>
-      <button class="sync" id="sync" data-act="sync" data-s="busy"><i></i><span>Jungiamasi…</span></button>
+      <button class="searchbtn" data-act="palette" aria-label="Search"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Search clients, deals…</span><kbd>/</kbd></button>
+      <button class="btn accent" data-act="quick"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="newlbl">New enquiry</span><kbd>N</kbd></button>
+      <button class="sync" id="sync" data-act="sync" data-s="busy"><i></i><span>Connecting…</span></button>
       <span id="ntc-mount" style="display:inline-flex"></span>
       <div class="me">
         <button class="avatar" id="meBtn" data-act="menu" aria-haspopup="true" aria-expanded="false">?</button>
@@ -348,13 +348,13 @@ body.drag,body.drag *{cursor:grabbing!important}
       </div>
     </div>
   </header>
-  <main class="page" id="view"><div class="loading">Kraunama…</div></main>
+  <main class="page" id="view"><div class="loading">Loading…</div></main>
 </div>
 <div class="scrim" id="scrim" data-act="close"></div>
-<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Kortelė"></aside>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Card"></aside>
 <div class="closezones" id="zones" aria-hidden="true">
-  <div class="zone" data-zone="won" data-st="won">✓ Laimėta</div>
-  <div class="zone" data-zone="lost" data-st="lost">✕ Pralaimėta</div>
+  <div class="zone" data-zone="won" data-st="won">✓ Won</div>
+  <div class="zone" data-zone="lost" data-st="lost">✕ Lost</div>
 </div>
 <div id="layer"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
