@@ -5,7 +5,7 @@ document.documentElement.classList.add('js');
 window.DBHUB = (function () {
   'use strict';
   /* ===== Edit before going live. Empty values are simply left off the pages. ===== */
-  var CONTACT_EMAIL = 'info@dedesbaldai.lt';
+  var CONTACT_EMAIL = 'hello@worxmax.com';
   var CONTACT_PHONE = '';   // e.g. '+370 600 00000'
   var COMPANY_LINE = 'MB SUVESIU';
 

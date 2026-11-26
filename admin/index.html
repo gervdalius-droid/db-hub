@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>db-hub admin</title>
+<title>worxmax admin</title>
 <meta name="theme-color" content="#FFF9F0">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Crect width='30' height='30' rx='5' fill='%231B2140'/%3E%3Crect x='5' y='5' width='11' height='9' fill='%23fff'/%3E%3Crect x='18' y='5' width='7' height='20' fill='%23FFC53D'/%3E%3Crect x='5' y='16' width='11' height='9' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,500..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* Same look as the db-hub site and app/index.html. */
+/* Same look as the worxmax site and app/index.html. */
 :root{--paper:#FFF9F0;--sheet:#fff;--tray:#F8F1E5;--ink:#1B2140;--ink2:#474E6B;--ink3:#6C7391;--rule:#ECE3D4;--rule2:#D9CEBB;
   --brand:#3355F0;--brand-dark:#2643CF;--brand-soft:#E6EBFF;--sun:#FFC53D;--sun-soft:#FFF0C7;--ok:#1F7F4B;--ok-soft:#DDF5E6;--bad:#B42E17;--bad-soft:#FFE4DA;
   --display:'Bricolage Grotesque',system-ui,sans-serif;--body:'Instrument Sans',system-ui,-apple-system,"Segoe UI",sans-serif}
@@ -107,7 +107,7 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
   <div class="top">
     <a class="logo" href="../">
       <svg aria-hidden="true" width="28" height="28" viewBox="0 0 30 30"><rect width="30" height="30" rx="5" fill="#1B2140"/><rect x="5" y="5" width="11" height="9" fill="#fff"/><rect x="18" y="5" width="7" height="20" fill="#FFC53D"/><rect x="5" y="16" width="11" height="9" fill="#fff"/></svg>
-      db-hub <small>Admin</small>
+      worxmax <small>Admin</small>
     </a>
     <div class="who" id="who" hidden>
       <span class="muted" id="stamp"></span>
@@ -125,12 +125,12 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
     <label>Password<input id="pass" type="password" autocomplete="current-password" required></label>
     <button class="btn go" type="submit" id="authBtn">Sign in</button>
     <div class="msg" id="authMsg" role="alert"></div>
-    <p class="muted">Use your db-hub account. Only emails on the admin list get in.</p>
+    <p class="muted">Use your worxmax account. Only emails on the admin list get in.</p>
   </form>
 
   <section class="card narrow stack" id="vDenied" hidden>
     <h1>Not an admin</h1>
-    <p id="deniedText">This account is not on the db-hub admin list.</p>
+    <p id="deniedText">This account is not on the worxmax admin list.</p>
   </section>
 
   <main id="vMain" hidden>
@@ -175,7 +175,7 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
       </div>
       <div class="card stack" style="margin-top:16px" id="unassignedCard">
         <h2>Accounts without a workshop</h2>
-        <p class="muted">People who created a db-hub account but never set up or joined a workshop.</p>
+        <p class="muted">People who created a worxmax account but never set up or joined a workshop.</p>
         <div class="scroll"><table><thead><tr><th>Email</th><th>Signed up</th><th>Confirmed</th><th>Last sign-in</th><th></th></tr></thead><tbody id="unRows"></tbody></table></div>
       </div>
     </section>
@@ -222,7 +222,7 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
   <form id="newForm">
     <div class="dh"><h2 id="dNewT">Add a workshop</h2><button class="btn small" type="button" data-close>Close</button></div>
     <div class="db">
-      <p class="muted">The owner gets the workshop when they create a db-hub account with this email (or straight away if they already have one). Nothing is emailed yet, so send them the sign-up link yourself: <b id="signupLink"></b></p>
+      <p class="muted">The owner gets the workshop when they create a worxmax account with this email (or straight away if they already have one). Nothing is emailed yet, so send them the sign-up link yourself: <b id="signupLink"></b></p>
       <div class="row">
         <label>Workshop name<input name="name" required minlength="2" maxlength="80"></label>
         <label>Country<input name="country" maxlength="60"></label>
@@ -364,7 +364,7 @@ async function load() {
   const r = await db.rpc('admin_overview');
   if (r.error) {
     if (r.error.code === '42501' || /admins only/i.test(r.error.message)) {
-      $('deniedText').textContent = 'This account (' + $('whoMail').textContent + ') is not on the db-hub admin list.';
+      $('deniedText').textContent = 'This account (' + $('whoMail').textContent + ') is not on the worxmax admin list.';
       return view('vDenied');
     }
     view('vMain'); return say('mainMsg', 'Could not load the dashboard: ' + r.error.message);
@@ -462,7 +462,7 @@ $('csv').addEventListener('click', () => {
   const cell = (v) => { const s = String(v ?? ''); return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const csv = [head.join(',')].concat(D.payments.map((p) => head.map((h) => cell(p[h])).join(','))).join('\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
-  a.download = 'db-hub-payments-' + today() + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  a.download = 'worxmax-payments-' + today() + '.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 });
 
 /* ---------- leads & demo ---------- */
