@@ -32,7 +32,7 @@
   var LS_READ = "notices.read.v1", LS_POP = "notices.popped.v1", LS_PEOPLE = "notices.people.v1", LS_EP = "notices.endpoint.v1", LS_SYNC = "notices.subsync.v1";
   var IS_SF = /\/shopflow-app\//.test(location.pathname);
   var SW_URL = "/hub/notify-sw.js", SW_SCOPE = "/hub/";
-  var LOGO = "/assets/brand/worxmax-mark.svg";
+  var LOGO = "/assets/brand/worxmax-mask.svg";
 
   /* ---------- helpers ---------- */
   function esc(v) { return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }

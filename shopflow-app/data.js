@@ -1036,7 +1036,7 @@ function seedPlanner(members) {
   };
   return [mk("Website relaunch", "WEB", "blue", "sparkles", [["Finalise sitemap", 4, by(0), -2, "high", [["Home", true], ["Products", true], ["Contact", false]]], ["Write homepage copy", 2, by(1), 3, "normal"], ["Design system in Figma", 2, by(1), 5, "high"], ["Set up CMS", 1, by(0), 9, "normal"], ["Photo shoot — workshop", 3, by(1), 1, "high", [["Book photographer", true], ["Shot list", false]]], ["Migrate old blog posts", 0, null, 14, "low"], ["Launch checklist", 1, by(0), 12, "normal"]]), mk("Q3 marketing", "MKT", "orange", "flame", [["Plan autumn campaign", 2, by(0), 2, "high"], ["Instagram content calendar", 1, by(1), 6, "normal", [["Week 1", true], ["Week 2", false], ["Week 3", false]]], ["Email newsletter #8", 3, by(1), -1, "high"], ["Trade fair booth brief", 0, by(0), 20, "normal"], ["Review ad budget", 4, by(0), -3, "normal"]]), mk("Office move", "OPS", "teal", "building", [["Get quotes from movers", 4, by(0), -5, "normal"], ["New floor plan", 2, by(1), 4, "normal", [["Measure space", true], ["Desk layout", false]]], ["Update address everywhere", 1, by(0), 10, "low"], ["Internet + phones", 1, by(0), 7, "high"]])];
 }
-function seedData() {
+function demoSeedData() {
   var now = Date.now();
   var members = [{
     id: "m1",
@@ -1570,6 +1570,30 @@ function seedData() {
   };
 }
 
+/* worxmax: a new workshop starts empty — no sample people, orders or suppliers.
+   The person signed in to worxmax becomes the first member (see wx-link.js).
+   The demo stays available from Settings ("Load demo"). */
+function seedData() {
+  var s = demoSeedData();
+  s.members = [];
+  s.orders = [];
+  s.activity = [];
+  s.notifications = [];
+  s.todos = [];
+  s.portfolios = [];
+  s.purchases = [];
+  s.stockMoves = [];
+  s.suppliers = [];
+  s.materials = [];
+  s.gprojects = [];
+  s.boards = [];
+  s.oneDrive = { baseUrl: "", template: "{base}/{code}" };
+  s.orderSeq = 1001;
+  s.engSeq = 2001;
+  s.poSeq = 1001;
+  return s;
+}
+
 /* ============================================================
    Store
    ============================================================ */
@@ -1723,7 +1747,7 @@ var Store = {
   },
   loadDemo() {
     this._backup("before loading demo");
-    this.state = seedData();
+    this.state = demoSeedData();
     this.save();
   },
   /* Upgrade older saved states in place (never lose user edits) */

@@ -11,4 +11,9 @@
   } catch (e) {}
   // Inside the worxmax dashboard the dashboard is the way back: hide the apps' own "back to hub" links.
   try { if (window.top !== window) document.documentElement.classList.add("in-wx"); } catch (e) {}
+  try {
+    var st = document.createElement("style");
+    st.textContent = "html.in-wx .wx-back,html.in-wx #btnHub,html.in-wx a[href*='/hub/shopfloor'],html.in-wx a[href*='../shopfloor']{display:none!important}";
+    (document.head || document.documentElement).appendChild(st);
+  } catch (e) {}
 })();

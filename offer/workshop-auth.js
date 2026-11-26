@@ -371,7 +371,7 @@
   };
 
   /* ---------- sign-in screen look (one style for every app, light + dark) ---------- */
-  var LOGO = "/assets/brand/worxmax-mark.svg";
+  var LOGO = "/assets/brand/worxmax-mask.svg";
   var ICON_BACK = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   var AV = ["#ff7a1a", "#1f6fe0", "#21a35a", "#9a4fd8", "#e2364f", "#2a9fd0", "#c99400", "#5452d6", "#d8402f", "#22919f"];
   function esc(s) { return String(s == null ? "" : s).replace(/[<&>"']/g, function (c) { return "&#" + c.charCodeAt(0) + ";"; }); }

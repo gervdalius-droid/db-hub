@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#e6e8e3">
-<title>Projektų apžvalga · worxmax</title>
+<title>Project overview · worxmax</title>
 <link rel="icon" type="image/png" href="https://app.dedesbaldai.lt/hub/shared/favicon-64.png">
 <link rel="apple-touch-icon" href="https://app.dedesbaldai.lt/hub/shared/touch-180.png">
 <link rel="manifest" href="../manifest.webmanifest">
@@ -183,19 +183,19 @@ textarea.copy{position:absolute;left:-9999px}
 <body>
 
 <div class="wrap">
-  <nav class="nav" aria-label="Navigacija"><a href="/hub/shopfloor/">← Hub</a><a href="/shopflow-app/">ShopFlow</a><span class="who" id="who"></span></nav>
+  <nav class="nav" aria-label="Navigation"><a href="/app/" target="_top" class="wx-back">← worxmax</a><a href="/shopflow-app/">ShopFlow</a><span class="who" id="who"></span></nav>
   <header class="head">
     <div>
-      <h1>Projektų apžvalga<span id="today">Project overview</span></h1>
-      <div class="src" id="src">Kraunama iš ShopFlow… / Loading from ShopFlow…</div>
+      <h1>Project overview<span id="today"></span></h1>
+      <div class="src" id="src">Loading from ShopFlow…</div>
     </div>
     <div class="ctl">
-      <div class="seg" role="group" aria-label="Kalba / Language">
+      <div class="seg" role="group" aria-label="Report language">
         <button type="button" data-lang="both" aria-pressed="true">LT + EN</button>
         <button type="button" data-lang="lt" aria-pressed="false">LT</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
-      <button type="button" class="btn" id="copy">Kopijuoti tekstą / Copy text</button>
+      <button type="button" class="btn" id="copy">Copy text</button>
       <button type="button" class="btn pdf" id="pdf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14"/></svg>PDF</button>
     </div>
   </header>
@@ -204,7 +204,7 @@ textarea.copy{position:absolute;left:-9999px}
   <div class="find" role="search">
     <div class="tabs" id="tabs" role="tablist" aria-label="Rodyti / Show"></div>
     <label for="q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-      <input type="search" id="q" autocomplete="off" spellcheck="false" placeholder="Ieškoti projekto, kliento, numerio… / Search project, client, number…" aria-label="Ieškoti projektų / Search projects"></label>
+      <input type="search" id="q" autocomplete="off" spellcheck="false" placeholder="Search project, client, number…" aria-label="Search projects"></label>
     <div class="res" id="res" aria-live="polite"></div>
   </div>
   <div class="sums" id="sum" aria-label="Santrauka / Summary"></div>
@@ -217,10 +217,9 @@ textarea.copy{position:absolute;left:-9999px}
     <span><i style="background:var(--queued)"></i>laukia / waiting</span>
   </div>
 
-  <main id="groups" style="display:flex;flex-direction:column;gap:26px"><div class="state">Kraunama… / Loading…</div></main>
+  <main id="groups" style="display:flex;flex-direction:column;gap:26px"><div class="state">Loading…</div></main>
 
-  <p class="foot">Tekstas sudaromas automatiškai iš ShopFlow etapų, užblokavimo priežasčių ir komentarų. „Ko trūksta?“ – jūsų pastaba, kurios ShopFlow nežino (pvz. trūksta stalviršio).<br>
-  The text is written automatically from ShopFlow steps, block reasons and comments. “What's missing?” is your own note for things ShopFlow doesn't know (e.g. the countertop hasn't arrived). Notes are shared with everyone in the office. Free text (reasons, comments, notes) is shown as written.</p>
+  <p class="foot">  The text is written automatically from ShopFlow steps, block reasons and comments. “What's missing?” is your own note for things ShopFlow doesn't know (e.g. the countertop hasn't arrived). Notes are shared with everyone in the office. Free text (reasons, comments, notes) is shown as written.</p>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>window.WORKSHOP_CLOUD = { slot: "office" };</script>
@@ -256,16 +255,16 @@ function load(quiet){
     if(editing===null)render();
     head();
   }).catch(function(e){
-    if(!quiet){document.getElementById("groups").innerHTML='<div class="state">Nepavyko įkelti ShopFlow duomenų. Patikrinkite ryšį ir atnaujinkite puslapį.<br>Could not load ShopFlow data. Check the connection and reload.</div>';}
-    document.getElementById("src").textContent="Nėra ryšio / Offline"+(LOADED?" · paskutinį kartą "+hm(LOADED):"");
+    if(!quiet){document.getElementById("groups").innerHTML='<div class="state">Could not load ShopFlow data. Check the connection and reload.</div>';}
+    document.getElementById("src").textContent="Offline"+(LOADED?" · last updated "+hm(LOADED):"");
     console.error(e);
   });
 }
 function head(){
   var d=new Date(),LTD=["sekmadienis","pirmadienis","antradienis","trečiadienis","ketvirtadienis","penktadienis","šeštadienis"],END=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  document.getElementById("today").textContent="Project overview · "+TODAY+", "+LTD[d.getDay()]+" / "+END[d.getDay()];
-  if(LOADED)document.getElementById("src").innerHTML="ShopFlow · atnaujinta / updated <b>"+hm(LOADED)+"</b>";
-  document.getElementById("who").innerHTML=ME?esc(ME.display_name)+'<button type="button" id="out">Atsijungti</button>':"";
+  document.getElementById("today").textContent=TODAY+", "+END[d.getDay()];
+  if(LOADED)document.getElementById("src").innerHTML="ShopFlow · updated <b>"+hm(LOADED)+"</b>";
+  document.getElementById("who").innerHTML=ME?esc(ME.display_name)+'':"";
   var o=document.getElementById("out");if(o)o.onclick=function(){W.logout();location.reload();};
 }
 /* notes are one small shared document (dedes-apzvalga, office only): re-read, change one entry, write back */
@@ -378,6 +377,7 @@ function dueTxt(d,lang){var n=days(d),lt=lang==="lt";
   if(n<=3)return lt?"po "+n+" d.":"in "+n+" days";
   return d.slice(5);}
 
+function lbl(lt,en,sep){return L==='lt'?lt:L==='en'?en:lt+(sep||' <em>/ ')+en+(sep?'':'</em>');}
 var STAGES=[
  {id:"eng",lt:"Projektavimas",en:"Engineering",groups:["stuck","design","waiting"]},
  {id:"prod",lt:"Gamyba",en:"Manufacturing",groups:["stuck","almost","prod","waiting"]}
@@ -403,10 +403,10 @@ function card(x){
   a.blocked.forEach(function(g){if(!g.note)return;
     h+='<div class="need"><span class="h">Reikia / Needed · '+esc(g.name)+'</span><div class="free">'+esc(g.note)+'</div></div>';});
   var nt=NOTES[p.id];
-  if(nt&&nt.t&&editing!==p.id)h+='<div class="need note"><span class="h">Trūksta / Missing</span><div class="free">'+esc(nt.t)+'</div><div class="by">'+esc([nt.by,nt.at?md(nt.at):""].filter(Boolean).join(" · "))+'</div></div>';
+  if(nt&&nt.t&&editing!==p.id)h+='<div class="need note"><span class="h">Missing</span><div class="free">'+esc(nt.t)+'</div><div class="by">'+esc([nt.by,nt.at?md(nt.at):""].filter(Boolean).join(" · "))+'</div></div>';
   if(p.k)h+='<div class="cmt"><span class="h">Paskutinis komentaras / Last comment'+(p.kt?' · '+esc(p.kt):'')+'</span><div class="free">'+esc(p.k)+'</div></div>';
-  if(editing===p.id)h+='<form class="ned" data-id="'+esc(p.id)+'"><input id="note-'+esc(p.id)+'" maxlength="160" autocomplete="off" placeholder="pvz. trūksta stalviršio, spintelės jau surinktos" value="'+esc(nt&&nt.t||"")+'" aria-label="Ko trūksta / What is missing"><button type="submit">Išsaugoti</button><button type="button" class="x" data-cancel>Atšaukti</button></form>';
-  else h+='<button type="button" class="addn" data-edit="'+esc(p.id)+'">'+(nt&&nt.t?"Keisti pastabą / Edit note":"+ Ko trūksta? / What's missing?")+'</button>';
+  if(editing===p.id)h+='<form class="ned" data-id="'+esc(p.id)+'"><input id="note-'+esc(p.id)+'" maxlength="160" autocomplete="off" placeholder="e.g. worktop missing, cabinets already assembled" value="'+esc(nt&&nt.t||"")+'" aria-label="Ko trūksta / What is missing"><button type="submit">Išsaugoti</button><button type="button" class="x" data-cancel>Atšaukti</button></form>';
+  else h+='<button type="button" class="addn" data-edit="'+esc(p.id)+'">'+(nt&&nt.t?"Edit note":"+ What's missing?")+'</button>';
   return h+'</article>';
 }
 /* search: every word must appear somewhere (number, name, client, the sentences, reasons, comments, your note);
@@ -439,28 +439,28 @@ function render(){
     var lateS=all.filter(function(x){return days(x.p.d)<0;}).length,cells="",body="";
     S.groups.forEach(function(gid){
       var G=grp(gid),xs=inS.filter(function(x){return x.a.grp===gid;}).sort(byDue),anchor="g-"+S.id+"-"+gid;
-      cells+='<a href="#'+anchor+'"><b>'+xs.length+'</b><small><i style="background:'+G.c+'"></i>'+(G.sLt||G.lt)+'<br>'+(G.sEn||G.en)+'</small></a>';
+      cells+='<a href="#'+anchor+'"><b>'+xs.length+'</b><small><i style="background:'+G.c+'"></i>'+lbl(G.sLt||G.lt,G.sEn||G.en,'<br>')+'</small></a>';
       if(!xs.length)return;
-      body+='<section id="'+anchor+'" style="--g:'+G.c+'"><h3>'+G.lt+' <em>/ '+G.en+'</em><span class="n">'+xs.length+'</span></h3>'+
-        (G.subLt&&!Q?'<p class="gsub"><span class="lt">'+G.subLt+'</span> <span class="en">'+G.subEn+'</span></p>':"")+xs.map(function(x){return mark(card(x));}).join("")+'</section>';
+      body+='<section id="'+anchor+'" style="--g:'+G.c+'"><h3>'+lbl(G.lt,G.en)+'<span class="n">'+xs.length+'</span></h3>'+
+        (G.subLt&&!Q?'<p class="gsub">'+(L==='lt'?G.subLt:L==='en'?G.subEn:'<span class="lt">'+G.subLt+'</span> <span class="en">'+G.subEn+'</span>')+'</p>':"")+xs.map(function(x){return mark(card(x));}).join("")+'</section>';
     });
-    sum+='<div class="ssum"><a class="st" href="#st-'+S.id+'">'+S.lt+' <em>/ '+S.en+'</em><b>'+all.length+'</b>'+(lateS?'<span class="lt8">'+lateS+' vėluoja / late</span>':'')+'</a>'+
-         '<nav class="sum" style="--n:'+S.groups.length+'" aria-label="'+S.lt+' / '+S.en+'">'+cells+'</nav></div>';
-    if(inS.length)g+='<div class="stage" id="st-'+S.id+'"><h2 class="stage-h">'+S.lt+' <em>/ '+S.en+'</em><span class="n">'+inS.length+(Q?' / '+all.length:'')+'</span></h2>'+body+'</div>';
+    sum+='<div class="ssum"><a class="st" href="#st-'+S.id+'">'+lbl(S.lt,S.en)+'<b>'+all.length+'</b>'+(lateS?'<span class="lt8">'+lateS+' late</span>':'')+'</a>'+
+         '<nav class="sum" style="--n:'+S.groups.length+'" aria-label="'+S.en+'">'+cells+'</nav></div>';
+    if(inS.length)g+='<div class="stage" id="st-'+S.id+'"><h2 class="stage-h">'+lbl(S.lt,S.en)+'<span class="n">'+inS.length+(Q?' / '+all.length:'')+'</span></h2>'+body+'</div>';
   });
   document.getElementById("sum").innerHTML=sum;
-  document.getElementById("late").innerHTML='<b>'+late+'</b> iš '+B.length+' atvirų projektų vėluoja · '+late+' of '+B.length+' open projects are past due';
-  if(!Q&&!B.length&&data.length)g='<div class="state">Šioje dalyje atvirų projektų nėra / No open projects here</div>';
-  if(!Q&&!data.length)g='<div class="state">Atvirų projektų nėra / No open projects</div>';
+  document.getElementById("late").innerHTML='<b>'+late+'</b> of '+B.length+' open projects are past due';
+  if(!Q&&!B.length&&data.length)g='<div class="state">No open projects here</div>';
+  if(!Q&&!data.length)g='<div class="state">No open projects yet. They appear here as soon as orders are added in ShopFlow.</div>';
   if(Q&&!list.length)g='<div class="none">Nieko nerasta pagal „'+esc(Q)+'“<br>Nothing found for “'+esc(Q)+'”<br><button type="button" class="btn" data-clear>Rodyti visus / Show all</button></div>';
   document.getElementById("groups").innerHTML=g;
-  document.getElementById("res").innerHTML=Q?(list.length?'Rasta <b>'+list.length+'</b> iš '+B.length+' · Found '+list.length+' of '+B.length:''):'';
+  document.getElementById("res").innerHTML=Q?(list.length?'Found <b>'+list.length+'</b> of '+B.length:''):'';
 }
 /* language */
 function setLang(l){document.body.classList.remove("both","lang-lt","lang-en");document.body.classList.add(l==="both"?"both":"lang-"+l);
   [].forEach.call(document.querySelectorAll("[data-lang]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.lang===l));});
   try{localStorage.setItem("pa.lang",l);}catch(e){} }
-var L="both";try{L=localStorage.getItem("pa.lang")||"both";}catch(e){}
+var L="en";try{L=localStorage.getItem("pa.lang")||"en";}catch(e){}
 setLang(L);head();
 document.getElementById("tabs").addEventListener("click",function(e){var b=e.target.closest("[data-view]");if(!b||b.dataset.view===VIEW)return;
   VIEW=b.dataset.view;try{localStorage.setItem("pa.view",VIEW);}catch(err){}editing=null;render();
@@ -477,7 +477,7 @@ document.getElementById("groups").addEventListener("click",function(e){
 });
 document.getElementById("groups").addEventListener("submit",function(e){e.preventDefault();var f=e.target,id=f.dataset.id,v=f.querySelector("input").value.trim().slice(0,160);
   var btn=f.querySelector("button[type=submit]");btn.disabled=true;
-  putNote(id,v).then(function(){editing=null;render();toast("Išsaugota / Saved");},function(err){btn.disabled=false;toast("Nepavyko išsaugoti / Not saved");console.error(err);});});
+  putNote(id,v).then(function(){editing=null;render();toast("Saved");},function(err){btn.disabled=false;toast("Not saved");console.error(err);});});
 /* plain text for WhatsApp / e-mail */
 function plain(){
   var langs=L==="both"?["lt","en"]:[L],out=[];
@@ -502,8 +502,8 @@ function plain(){
 document.getElementById("pdf").addEventListener("click",function(){
   var Sv=STAGES.filter(function(S){return S.id===VIEW;})[0], n=shown().length, q=Q.trim();
   var bits=["<span>Rodoma / Showing: <b>"+esc(Sv?Sv.lt+" / "+Sv.en:"Visi / All")+"</b></span>",
-    "<span>Projektų / Projects: <b>"+n+"</b></span>"];
-  if(q)bits.push("<span>Paieška / Search: <b>„"+esc(q)+"“</b></span>");
+    "<span>Projects: <b>"+n+"</b></span>"];
+  if(q)bits.push("<span>Search: <b>“"+esc(q)+"”</b></span>");
   if(ME)bits.push("<span>"+esc(ME.display_name)+"</span>");
   document.getElementById("prh").innerHTML=bits.join("");
   var t0=document.title;
@@ -515,10 +515,10 @@ function toast(t){var el=document.getElementById("toast");el.textContent=t;el.cl
 document.getElementById("copy").addEventListener("click",function(){
   var txt=plain();
   function fallback(){var ta=document.createElement("textarea");ta.className="copy";ta.value=txt;document.body.appendChild(ta);ta.select();
-    try{document.execCommand("copy");toast("Nukopijuota / Copied");}catch(e){toast("Pažymėta – kopijuokite / Selected – copy it");}setTimeout(function(){ta.remove();},500);}
-  try{navigator.clipboard.writeText(txt).then(function(){toast("Nukopijuota / Copied");},fallback);}catch(e){fallback();}
+    try{document.execCommand("copy");toast("Copied");}catch(e){toast("Selected – copy it");}setTimeout(function(){ta.remove();},500);}
+  try{navigator.clipboard.writeText(txt).then(function(){toast("Copied");},fallback);}catch(e){fallback();}
 });
-W.requireArea("apzvalga",{title:"Projektų apžvalga"}).then(function(me){
+W.requireArea("apzvalga",{title:"Project overview",lang:"en"}).then(function(me){
   ME=me;head();load();
   setInterval(function(){if(!document.hidden&&editing===null)load(true);},120000);
   document.addEventListener("visibilitychange",function(){if(!document.hidden&&LOADED&&Date.now()-LOADED>60000&&editing===null)load(true);});

@@ -612,7 +612,7 @@ body.tv .btn{font-size:2.4vh}
 body.tv .mapwrap{border-radius:1.4vh}
 #auth{position:fixed;inset:0;z-index:30;background:rgba(20,24,22,.55);display:flex;align-items:center;justify-content:center;padding:16px}
 .authbox{background:#fff;color:#161a17;border-radius:14px;padding:26px 26px 20px;width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;box-shadow:0 20px 50px rgba(0,0,0,.3);font-family:var(--body)}
-.authbox .logo{width:52px;height:52px;background:#161a17;-webkit-mask:url(/assets/brand/worxmax-mark.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mark.svg) center/contain no-repeat}
+.authbox .logo{width:52px;height:52px;background:#161a17;-webkit-mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat;mask:url(/assets/brand/worxmax-mask.svg) center/contain no-repeat}
 .authbox h2{margin:4px 0 0;font-size:22px}.authbox label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:#5b625d}
 .authbox input,.authbox select{font:inherit;font-size:17px;color:#161a17;background:#fff;border:1px solid #cfd3cf;border-radius:8px;padding:9px 11px}
 .authbox .err{color:#b3261e;font-size:14px;min-height:1em}.authbox .note{font-size:13px;color:#5b625d}
@@ -628,7 +628,7 @@ body.tv .mapwrap{border-radius:1.4vh}
   <span class="sp"></span>
   <span class="sync" id="sync"></span>
   <div class="tools">
-    <a class="btn" id="btnHub" href="../shopfloor/">← Hub</a>
+    <a class="btn" id="btnHub" href="/app/" target="_top">← worxmax</a>
     <button class="btn" id="btnAuth" type="button" hidden></button>
     <button class="btn" id="btnRadio" type="button" aria-haspopup="dialog">📻</button>
     <button class="btn" id="btnTime" type="button" aria-haspopup="dialog"></button>
@@ -897,12 +897,12 @@ const tname=T=>typeof T.name==='string'?T.name:T.name[lang];
 
 /* ---------- data ---------- */
 const DEF_LAYOUT={hall:{w:2400,h:1350},items:{
-  r1:{t:'rack',x:220,y:200,r:0,n:'Stelažas 1'},r2:{t:'rack',x:560,y:200,r:0,n:'Stelažas 2'},r3:{t:'rack',x:220,y:500,r:0,n:'Stelažas 3'},
+  r1:{t:'rack',x:220,y:200,r:0,n:'Rack 1'},r2:{t:'rack',x:560,y:200,r:0,n:'Rack 2'},r3:{t:'rack',x:220,y:500,r:0,n:'Rack 3'},
   altendorf:{t:'altendorf',x:330,y:960,r:0},felder:{t:'felder',x:760,y:960,r:0},
   volter:{t:'volter',x:1040,y:270,r:0},laser:{t:'laser',x:1560,y:220,r:0},
   olimpic:{t:'olimpic',x:1260,y:650,r:0},startech:{t:'startech',x:1260,y:980,r:0},
-  d1:{t:'desk',x:1720,y:700,r:0,n:'Surinkimo stalas 1'},d2:{t:'desk',x:2040,y:700,r:0,n:'Surinkimo stalas 2'},
-  d3:{t:'desk',x:1720,y:1020,r:0,n:'Surinkimo stalas 3'},d4:{t:'desk',x:2040,y:1020,r:0,n:'Surinkimo stalas 4'},
+  d1:{t:'desk',x:1720,y:700,r:0,n:'Assembly desk 1'},d2:{t:'desk',x:2040,y:700,r:0,n:'Assembly desk 2'},
+  d3:{t:'desk',x:1720,y:1020,r:0,n:'Assembly desk 3'},d4:{t:'desk',x:2040,y:1020,r:0,n:'Assembly desk 4'},
   booth:{t:'booth',x:2110,y:260,r:0}}};
 const DEF_STATE={st:{},people:{},stock:{},inst:{},projects:[]};   /* radio: shared favourite stations [{n,u}], unset until someone edits the list */
 const docs={layout:{key:'layout',data:clone(DEF_LAYOUT),exists:false,loaded:false,ref:null,q:Promise.resolve()},
@@ -1090,8 +1090,9 @@ async function boot(){
   for(const k in docs){try{const v=JSON.parse(lsGet('cp.'+k)||'null');if(isObj(v))docs[k].data=v}catch(e){}}
   normalize();mode='local';render();
   if(!WA)return;
-  if(!WA.signedIn()||(!person&&!tvOn())){await authOpen()}
-  if(!WA.signedIn()){render();return}
+  // worxmax: the person signed in at /app/ is who uses this screen; no separate name + PIN here.
+  if(WA.signedIn()&&!person){try{const me=await WA.me();if(me&&me.display_name)setPerson({name:me.display_name})}catch(e){}}
+  if(!WA.signedIn()){WA.gate({});return}
   if(person)who=String(person.name).slice(0,40);
   loadTeam().catch(()=>{});meLoad();
   mode='db';render();

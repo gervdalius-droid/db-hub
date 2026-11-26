@@ -120,7 +120,7 @@ function icon(name, size = 16, cls = "", sw = 1.8) {
   if (name === "logo") {
     // worxmax logo (drawn in the current text colour, like the other icons)
     var m = "url(icons/logo-mask.png) center/contain no-repeat";
-    return '<span class="ic dblogo ' + cls + '" role="img" aria-label="D\u0117d\u0117s Baldai" style="display:inline-block;vertical-align:middle;flex:none;width:' + size + 'px;height:' + size + 'px;background:currentColor;-webkit-mask:' + m + ';mask:' + m + '"></span>';
+    return '<span class="ic dblogo ' + cls + '" role="img" aria-label="worxmax" style="display:inline-block;vertical-align:middle;flex:none;width:' + size + 'px;height:' + size + 'px;background:currentColor;-webkit-mask:' + m + ';mask:' + m + '"></span>';
   }
   var body = ICONS[name] || ICONS.box;
   var fillIcons = {
