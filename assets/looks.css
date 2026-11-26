@@ -64,3 +64,12 @@
 :root[data-look="c"] .glance dd{color:#F2F1ED}
 :root[data-look="c"] .glance dt{color:#ABA59A}
 :root[data-look="c"] .glance > div{border-left-color:#3B3831}
+
+/* B, full width: the drawers span the whole window (a small margin at the edges);
+   content inside gets a wider measure on big screens, running text keeps its own limits */
+:root[data-look="b"] main{max-width:none;margin:8px clamp(12px,2vw,32px) 0;padding:0}
+:root[data-look="b"] main .wrap,:root[data-look="b"] .top .wrap,:root[data-look="b"] footer .wrap{max-width:1720px}
+:root[data-look="b"] footer{max-width:none;margin:24px clamp(12px,2vw,32px) 0}
+@media (min-width:1180px){:root[data-look="b"] .top .wrap{padding-left:clamp(20px,3vw,56px);padding-right:clamp(20px,3vw,56px)}
+  :root[data-look="b"] main .wrap{padding-left:clamp(20px,3vw,56px);padding-right:clamp(20px,3vw,56px)}}
+:root[data-look="b"] .hero{margin-right:0!important}
