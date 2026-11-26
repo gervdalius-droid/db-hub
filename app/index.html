@@ -2,85 +2,180 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>worxmax — your workshop</title>
-<meta name="theme-color" content="#1C1A16">
+<meta name="theme-color" content="#F2F1ED">
 <link rel="icon" href="../assets/brand/favicon.ico" sizes="any">
 <link rel="icon" href="../assets/brand/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="../assets/brand/apple-touch-icon.png">
 <link rel="preload" href="../assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* Same world as the worxmax website (assets/site.css): catalogue paper, graphite ink, signal yellow on what you press. */
+/* Same world as the worxmax website (assets/site.css): catalogue paper, graphite ink, signal lime on what you press. */
 @font-face{font-family:"Sora";font-style:normal;font-weight:100 800;font-display:swap;src:url("../assets/fonts/sora-latin.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Sora";font-style:normal;font-weight:100 800;font-display:swap;src:url("../assets/fonts/sora-latin-ext.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1E00-1E9F,U+20A0-20AB,U+20AD-20C4,U+2C60-2C7F,U+A720-A7FF}
-:root{--paper:#F2F1ED;--sheet:#fff;--tray:#F4F3EF;--ink:#1C1A16;--ink2:#47443D;--ink3:#6A665D;--rule:#E2DFD8;--rule2:#BDB8AD;
-  --brand:#C6F24E;--brand-dark:#1C1A16;--brand-soft:#F1FBD6;--sun:#C6F24E;--sun-soft:#F1FBD6;--blue:#2D5BD8;--ok:#1E7F47;--bad:#B3261E;
-  --display:"Sora",system-ui,sans-serif;--body:"Sora",system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{--paper:#F2F1ED;--sheet:#fff;--tray:#E9E7E1;--ink:#1C1A16;--ink2:#47443D;--ink3:#6A665D;--rule:#E2DFD8;--rule2:#BDB8AD;
+  --lime:#C6F24E;--lime-soft:#F1FBD6;--blue:#2D5BD8;--blue-soft:#E7EDFB;--ok:#1E7F47;--bad:#B3261E;
+  --font:"Sora",system-ui,-apple-system,"Segoe UI",sans-serif;--side:264px}
 *{box-sizing:border-box}
-body{margin:0;font-family:var(--body);font-size:16px;line-height:1.5;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
-body::before{content:'';position:fixed;inset:0 0 auto;height:8px;background:var(--sun);pointer-events:none;z-index:-1}
+html,body{height:100%}
+body{margin:0;font-family:var(--font);font-size:15px;line-height:1.5;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
 a{color:var(--ink)}
-h1,h2,p{margin:0}
-h1{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-h2{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.01em}
+h1,h2,h3,p{margin:0}
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+h2{font-size:18px;font-weight:700;letter-spacing:-.01em}
 button,input,select{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--ink);outline-offset:2px;box-shadow:0 0 0 6px var(--sun)}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
 [hidden]{display:none!important}
-.wrap{max-width:980px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
-.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px}
-.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:23px;letter-spacing:-.02em;text-decoration:none;color:var(--ink)}
-#who{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.card{background:var(--sheet);border:2px solid var(--ink);border-radius:12px;padding:24px;box-shadow:none}
-.narrow{max-width:440px;margin:6vh auto 0}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+.muted{color:var(--ink3);font-size:14px}
+.msg{min-height:22px;font-size:14px;color:var(--bad)}
+.msg.ok{color:var(--ok)}
+
+/* ---------- forms and buttons ---------- */
 .stack{display:flex;flex-direction:column;gap:14px}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
 label{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600;color:var(--ink2);min-width:0}
 .row label{flex:1 1 180px}
-input,select{min-height:46px;background:#fff;color:var(--ink);border:1.5px solid var(--rule2);border-radius:12px;padding:8px 12px;width:100%;font-weight:400;transition:border-color .15s,box-shadow .15s}
-input:focus,select:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px var(--sun)}
-.btn{min-height:46px;padding:0 20px;border-radius:12px;border:2px solid var(--ink);background:var(--sheet);color:var(--ink);cursor:pointer;font-weight:600;transition:background .15s,border-color .15s,color .15s}
-.btn:hover{border-color:var(--ink);background:var(--brand-soft)}
-.btn.go{background:var(--brand);border-color:var(--ink);color:var(--ink)}
-.btn.go:hover{background:#FFD52E;color:var(--ink)}
-.btn.small{min-height:36px;padding:0 14px;font-weight:600;font-size:14px}
+input,select{min-height:44px;background:#fff;color:var(--ink);border:1.5px solid var(--rule2);border-radius:12px;padding:8px 12px;width:100%;font-weight:400}
+input:focus,select:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px var(--lime)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:12px;border:2px solid var(--ink);background:var(--sheet);color:var(--ink);cursor:pointer;font-weight:600;text-decoration:none;white-space:nowrap}
+.btn:hover{background:var(--lime-soft)}
+.btn.go{background:var(--lime)}
+.btn.go:hover{background:#B5E33A}
+.btn.small{min-height:36px;padding:0 13px;font-size:14px}
 .btn:disabled{opacity:.6;cursor:default}
+.iconbtn{all:unset;cursor:pointer;display:grid;place-items:center;width:38px;height:38px;border-radius:10px;color:var(--ink2)}
+.iconbtn:hover{background:var(--tray);color:var(--ink)}
+.iconbtn:focus-visible{outline:3px solid var(--ink)}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:20px;padding:3px 9px;background:var(--tray);color:var(--ink2)}
+.tag.dark{background:var(--ink);color:#fff}
+.tag.lime{background:var(--lime);color:var(--ink)}
+
+/* ---------- signed out and first set-up: one centred card ---------- */
+.gate{min-height:100%;display:flex;flex-direction:column;align-items:center;padding:28px 16px 48px}
+.gate .logo{margin:2vh 0 5vh}
+.card{background:var(--sheet);border:2px solid var(--ink);border-radius:16px;padding:24px}
+.narrow{width:100%;max-width:440px}
 .tabs{display:flex;background:#fff;border:1.5px solid var(--ink);border-radius:12px;overflow:hidden}
-.tabs button{flex:1;min-height:42px;border:0;border-left:1.5px solid var(--ink);border-radius:0;background:transparent;color:var(--ink2);font-weight:700;cursor:pointer}
+.tabs button{flex:1;min-height:42px;border:0;border-left:1.5px solid var(--ink);background:transparent;color:var(--ink2);font-weight:700;cursor:pointer}
 .tabs button:first-child{border-left:0}
-.tabs button[aria-pressed="true"]{background:var(--blue);color:#fff;box-shadow:none}
-.msg{min-height:22px;font-size:14px;color:var(--bad)}
-.msg.ok{color:var(--ok)}
-.muted{color:var(--ink3);font-size:14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:16px}
-.big{font-family:var(--display);font-size:30px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.tabs button[aria-pressed="true"]{background:var(--blue);color:#fff}
+
+/* ---------- the dashboard: sidebar + page ---------- */
+.shell{display:grid;grid-template-columns:var(--side) minmax(0,1fr);min-height:100%}
+.shell.collapsed{--side:76px}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:2px;padding:14px 12px 12px max(12px,env(safe-area-inset-left,0px));overflow-y:auto;background:var(--paper);border-right:1.5px solid var(--rule)}
+.side-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 4px 14px}
+.side-top img{height:26px;width:auto;display:block}
+.side-top .mark{display:none}
+.collapsed .side-top .mark{display:block}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav-h{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);padding:14px 12px 4px}
+.nav button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 12px;min-height:40px;border-radius:12px;font-weight:600;font-size:14.5px;color:var(--ink);white-space:nowrap;width:100%}
+.nav button:hover{background:var(--tray)}
+.nav button[aria-current="page"]{background:var(--sheet);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.nav button[aria-current="page"] svg.i{color:var(--blue)}
+.nav button:focus-visible{outline:3px solid var(--ink)}
+.nav .lbl{flex:1;overflow:hidden;text-overflow:ellipsis}
+.nav .lock{width:15px;height:15px;color:var(--ink3)}
+.side-bottom{margin-top:auto;padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.ws{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:var(--sheet);border:1.5px solid var(--rule)}
+.av{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--ink);color:var(--lime);font-weight:800;font-size:14px}
+.ws b{display:block;font-size:14px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ws small{display:block;font-size:12px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ws .txt{min-width:0;flex:1}
+.collapsed .lbl,.collapsed .nav-h,.collapsed .ws .txt,.collapsed .side-top .full,.collapsed .nav .lock{display:none}
+.collapsed .nav button{justify-content:center;padding:8px}
+.collapsed .side-top{flex-direction:column;justify-content:center}
+.collapsed .ws{justify-content:center;padding:8px;flex-direction:column}
+.topbar{display:none}
+.scrim{display:none}
+
+.page{max-width:1160px;margin:0 auto;padding:32px clamp(16px,3vw,40px) 64px}
+.phead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:24px}
+.phead .sub{margin-top:6px;font-size:15px}
+.banner{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;border-radius:14px;background:var(--lime-soft);border:1.5px solid var(--ink);margin-bottom:24px}
+.banner.end{background:#FBE9E7}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.box{background:var(--sheet);border:1.5px solid var(--rule);border-radius:16px;padding:20px}
+.box > h2{margin-bottom:14px}
+.stage{margin-bottom:18px}
+.stage:last-child{margin-bottom:0}
+.stage-h{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;font-size:13px;color:var(--ink3)}
+.stage-h b{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:42px minmax(0,1fr);gap:12px;align-items:start;padding:14px;border-radius:14px;border:1.5px solid var(--rule);background:var(--sheet);min-width:0}
+.tile:hover{border-color:var(--ink);background:var(--lime-soft)}
+.tile:focus-visible{outline:3px solid var(--ink)}
+.tile b{display:flex;align-items:center;gap:6px;font-size:15.5px;line-height:1.25}
+.tile p{font-size:13px;color:var(--ink2);line-height:1.4;margin-top:3px}
+.tile.locked{background:var(--paper)}
+.ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--paper);border:1.5px solid var(--ink)}
+.ico svg.i{width:22px;height:22px}
+.ico.big{width:56px;height:56px;border-radius:16px;background:var(--lime)}
+.ico.big svg.i{width:28px;height:28px}
+.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.check li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:14px}
+.check li:last-child{border-bottom:0}
+.check .dot{width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;border:1.5px solid var(--rule2)}
+.check .done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.check .done span{color:var(--ink3);text-decoration:line-through}
+.check a,.check button.link{margin-left:auto;font-size:13px;font-weight:600}
+button.link{all:unset;cursor:pointer;text-decoration:underline}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;font-size:14px}
+.kv dt{color:var(--ink3)}
+.kv dd{margin:0;font-weight:600}
+.side-stack{display:flex;flex-direction:column;gap:20px}
+
+/* one app */
+.apphead{display:flex;align-items:center;gap:16px}
+.apphead .crumb{font-size:13px;color:var(--ink3);margin-bottom:4px}
+.soon{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:14px;background:var(--blue-soft);border:1.5px solid var(--blue);margin-bottom:20px}
+.soon svg.i{color:var(--blue);margin-top:2px}
+.soon b{display:block}
+.shots{display:grid;gap:14px}
+figure{margin:0}
+figure img{display:block;width:100%;height:auto;border-radius:12px;border:1.5px solid var(--rule)}
+figcaption{font-size:13px;color:var(--ink3);margin-top:6px}
+.gets{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px}
+.gets li{display:flex;gap:10px}
+.gets svg.i{color:var(--ok);width:18px;height:18px;margin-top:2px}
+
+/* tables (team) */
 .scroll{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:560px}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+table{border-collapse:collapse;width:100%;min-width:520px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--rule);vertical-align:middle;font-size:14px}
 th{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
 tr:last-child td{border-bottom:0}
-.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:12px;padding:3px 8px;background:var(--ink);color:#fff}
-.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
-.app{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:start;padding:16px;border:1.5px solid var(--rule2);border-radius:12px;background:var(--sheet);min-width:0}
-.app b{display:block;font-family:var(--display);font-size:18px;letter-spacing:-.01em;line-height:1.2}
-.app p{font-size:14px;color:var(--ink2);line-height:1.4;margin-top:3px}
-.app small{display:inline-block;margin-top:8px;font-size:12px;font-weight:600;color:var(--ink3);background:var(--tray);border-radius:12px;padding:2px 9px}
-.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:#fff;border:1.5px solid var(--ink);color:var(--ink)}
-.ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
+td select{min-height:36px;padding:4px 8px}
+
+@media (max-width:1080px){.cols{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){
+  .shell,.shell.collapsed{grid-template-columns:minmax(0,1fr);--side:264px}
+  .side{position:fixed;inset:0 auto 0 0;width:min(300px,86vw);z-index:30;transform:translateX(-105%);transition:transform .2s;visibility:hidden;box-shadow:0 0 40px rgba(0,0,0,.2)}
+  .nav-open .side{transform:none;visibility:visible}
+  .nav-open .scrim{display:block;position:fixed;inset:0;z-index:25;background:rgba(28,26,22,.35)}
+  .collapse-btn{display:none!important}
+  .collapsed .lbl,.collapsed .nav-h,.collapsed .ws .txt,.collapsed .side-top .full,.collapsed .nav .lock{display:revert}
+  .collapsed .side-top .mark{display:none}
+  .collapsed .side-top{flex-direction:row}
+  .collapsed .nav button{justify-content:flex-start;padding:8px 12px}
+  .topbar{display:flex;position:sticky;top:0;z-index:20;align-items:center;gap:10px;background:var(--paper);border-bottom:1.5px solid var(--rule);padding:10px max(12px,env(safe-area-inset-right,0px)) 10px max(12px,env(safe-area-inset-left,0px))}
+  .topbar img{height:24px;width:auto}
+  .page{padding-top:22px}
+  h1{font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){.side{transition:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <a class="logo" href="../">
-      <img src="../assets/brand/worxmax-logo.svg" alt="worxmax" width="160" height="32" style="height:32px;width:auto">
-    </a>
-    <div id="who" hidden><span class="muted" id="whoMail"></span> <button class="btn small" id="out" type="button">Sign out</button></div>
-  </div>
+<p class="muted" id="loading" style="padding:24px">Loading…</p>
 
-  <p class="muted" id="loading">Loading…</p>
+<!-- Signed out, or signed in without a workshop yet -->
+<div class="gate" id="gate" hidden>
+  <a class="logo" href="../"><img src="../assets/brand/worxmax-logo.svg" alt="worxmax" width="160" height="32" style="height:32px;width:auto"></a>
 
-  <!-- 1. Signed out -->
   <section class="card narrow stack" id="vAuth" hidden>
     <div class="tabs" role="group" aria-label="Sign in or create an account">
       <button type="button" id="tabIn" aria-pressed="true">Sign in</button>
@@ -95,7 +190,6 @@ tr:last-child td{border-bottom:0}
     </form>
   </section>
 
-  <!-- 2. Signed in, no workshop yet -->
   <section class="card narrow stack" id="vNew" hidden>
     <h1>Set up your workshop</h1>
     <p class="muted">You get every app free for 5 days. You will be the owner and can add your team next.</p>
@@ -104,68 +198,69 @@ tr:last-child td{border-bottom:0}
       <label>Your name<input id="myName" maxlength="80" required autocomplete="name"></label>
       <button class="btn go" type="submit" id="newBtn">Create workshop</button>
       <div class="msg" id="newMsg" role="alert"></div>
+      <button class="btn small" type="button" id="out2">Sign out</button>
     </form>
-  </section>
-
-  <!-- 3. Workshop home -->
-  <section id="vHome" hidden>
-    <div class="grid">
-      <div class="card stack">
-        <span class="muted">Workshop</span>
-        <div class="big" id="hName"></div>
-        <span class="muted">You are signed in as <b id="hMe"></b> · <span id="hRole"></span></span>
-      </div>
-      <div class="card stack">
-        <span class="muted">Plan</span>
-        <div class="big" id="hPlan"></div>
-        <span class="muted" id="hTrial"></span>
-      </div>
-    </div>
-
-    <div class="card stack" style="margin-bottom:16px">
-      <h2>Your apps</h2>
-      <p class="muted">The apps are being connected to workshop accounts. They will open from here.</p>
-      <div class="apps" id="apps"></div>
-    </div>
-
-    <div class="card stack" id="teamCard" hidden>
-      <h2>Team</h2>
-      <div class="scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody id="team"></tbody></table></div>
-      <h2 style="margin-top:8px">Invite someone</h2>
-      <p class="muted">They create their own account with this email and land in your workshop. Sign-in by name and PIN for workers without email comes with the apps.</p>
-      <form class="row" id="invForm">
-        <label>Name<input id="invName" maxlength="80" required></label>
-        <label>Email<input id="invEmail" type="email" required></label>
-        <label style="flex:0 1 150px">Role<select id="invRole"><option value="worker">Worker</option><option value="manager">Manager</option><option value="shop">Shared shop screen</option></select></label>
-        <button class="btn go" type="submit">Invite</button>
-      </form>
-      <div class="msg" id="teamMsg" role="alert"></div>
-      <div class="scroll" id="invWrap" hidden><table><thead><tr><th>Invited</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody id="invites"></tbody></table></div>
-    </div>
   </section>
 </div>
 
-<script src="../assets/site.js?v=23"></script>
+<!-- Signed in: one dashboard, every app in the sidebar -->
+<div class="shell" id="shell" hidden>
+  <aside class="side" id="side" aria-label="Main menu"></aside>
+  <div class="scrim" data-act="closenav"></div>
+  <div>
+    <header class="topbar">
+      <button type="button" class="iconbtn" data-act="opennav" aria-label="Open menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      <img src="../assets/brand/worxmax-logo.svg" alt="worxmax" width="120" height="24">
+    </header>
+    <main id="main"></main>
+  </div>
+</div>
+
+<script src="../assets/site.js?v=24"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-// Public address and publishable key of the db-hub database. Every table is protected by
+// Public address and publishable key of the worxmax database. Every table is protected by
 // rules that only show a signed-in person the rows of their own workshop.
 const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publishable_-eLlb35TXBvv_wj-UucrqA_g-nxGWd1');
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const W = window.DBHUB || {};
+const APPS = W.APPS || [], STAGES = W.STAGES || [], PLAN_OF = W.PLAN_OF || {}, byId = W.byId || {}, stageOf = W.stageOf || {};
+const CONTACT = W.CONTACT_EMAIL || 'hello@worxmax.com';
 const ROLES = { admin: 'Owner', manager: 'Manager', worker: 'Worker', shop: 'Shared shop screen' };
-// The nine apps, in the order a job passes through them; shared with the website (assets/site.js).
-const APPS = (window.DBHUB && window.DBHUB.APPS) || [];
-function renderApps() {
-  $('apps').innerHTML = APPS.map((a) => `<div class="app"><span class="ico" data-st="${a.st}"><svg viewBox="0 0 24 24" aria-hidden="true">${a.ico}</svg></span>` +
-    `<span><b>${esc(a.name)}</b><p>${esc(a.short)}</p><small>Coming to your account</small></span></div>`).join('');
+const PLANS = { trial: 'Free trial', office: 'Office', workshop: 'Workshop', complete: 'Complete' };
+const RANK = { office: 0, workshop: 1, complete: 2, trial: 2 };
+
+const svg = (d, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const I = {
+  home: '<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',
+  team: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3 3 0 0 1 0 6M18 14c2 .8 3 2.8 3 6"/>',
+  acct: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  out: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+  lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  collapse: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 10l-2 2 2 2"/>',
+  expand: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  tick: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+};
+
+let mode = 'in', me = null, uid = null, email = '', team = { members: [], invites: [] };
+const S = { collapsed: false, navOpen: false };
+try { S.collapsed = localStorage.getItem('wx.side') === '1'; } catch (e) {}
+
+function say(id, text, ok) { const el = $(id); if (!el) return; el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
+function showGate(which) { $('loading').hidden = true; $('shell').hidden = true; $('gate').hidden = false; $('vAuth').hidden = which !== 'auth'; $('vNew').hidden = which !== 'new'; }
+function canUse(id) { return (RANK[me.plan] ?? 2) >= (PLAN_OF[id] ?? 0); }
+function trialDays() { return Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5); }
+function planLine() {
+  if (me.plan !== 'trial') return PLANS[me.plan] || me.plan;
+  const d = trialDays();
+  return d > 0 ? `Free trial · ${d} ${d === 1 ? 'day' : 'days'} left` : 'Trial ended';
 }
-renderApps();
-let mode = 'in', me = null, uid = null;
+function initials(s) { return String(s || '?').trim().split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase(); }
 
-function view(name) { ['vAuth', 'vNew', 'vHome'].forEach((v) => { $(v).hidden = v !== name; }); $('loading').hidden = true; }
-function say(id, text, ok) { const el = $(id); el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
-
+/* ---------------- sign in / sign up ---------------- */
 function setMode(m) {
   mode = m;
   $('tabIn').setAttribute('aria-pressed', String(m === 'in')); $('tabUp').setAttribute('aria-pressed', String(m === 'up'));
@@ -175,27 +270,23 @@ function setMode(m) {
 }
 $('tabIn').addEventListener('click', () => setMode('in'));
 $('tabUp').addEventListener('click', () => setMode('up'));
-
 $('authForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const email = $('email').value.trim(), password = $('pass').value;
+  const em = $('email').value.trim(), password = $('pass').value;
   $('authBtn').disabled = true; say('authMsg', '');
   try {
     if (mode === 'in') {
-      const { error } = await db.auth.signInWithPassword({ email, password });
+      const { error } = await db.auth.signInWithPassword({ email: em, password });
       if (error) return say('authMsg', /confirm/i.test(error.message) ? 'Please confirm your email first: open the link we sent you.' : 'Sign-in failed. Check the email and password.');
     } else {
-      const { data, error } = await db.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + location.pathname } });
+      const { data, error } = await db.auth.signUp({ email: em, password, options: { emailRedirectTo: location.origin + location.pathname } });
       if (error) return say('authMsg', error.message);
-      if (!data.session) return say('authMsg', 'Almost there: open the confirmation link we sent to ' + email + ', then sign in here.', true);
+      if (!data.session) return say('authMsg', 'Almost there: open the confirmation link we sent to ' + em + ', then sign in here.', true);
     }
     $('pass').value = '';
     await start();
   } finally { $('authBtn').disabled = false; }
 });
-
-$('out').addEventListener('click', async () => { await db.auth.signOut(); start(); });
-
 $('newForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('newBtn').disabled = true; say('newMsg', '');
@@ -204,76 +295,238 @@ $('newForm').addEventListener('submit', async (e) => {
   if (error) return say('newMsg', error.message);
   start();
 });
+$('out2').addEventListener('click', signOut);
+async function signOut() { await db.auth.signOut(); me = null; location.hash = ''; start(); }
 
 async function start() {
   const { data: { session } } = await db.auth.getSession();
-  $('who').hidden = !session;
-  if (!session) { me = null; return view('vAuth'); }
-  uid = session.user.id; $('whoMail').textContent = session.user.email;
+  if (!session) { me = null; return showGate('auth'); }
+  uid = session.user.id; email = session.user.email;
   let r = await db.rpc('workshop_me');
-  if (r.error) { view('vNew'); return say('newMsg', 'Could not load your account: ' + r.error.message); }
+  if (r.error) { showGate('new'); return say('newMsg', 'Could not load your account: ' + r.error.message); }
   if (!r.data || !r.data.length) {
     // No workshop yet: join one if this email was invited, otherwise offer to create one.
     const inv = await db.rpc('accept_invite');
     if (!inv.error) r = await db.rpc('workshop_me');
-    if (!r.data || !r.data.length) return view('vNew');
+    if (!r.data || !r.data.length) return showGate('new');
   }
   me = r.data[0];
-  home();
+  $('loading').hidden = true; $('gate').hidden = true; $('shell').hidden = false;
+  await loadTeam();
+  route();
 }
 
-async function home() {
-  view('vHome');
-  $('hName').textContent = me.workshop_name; $('hMe').textContent = me.display_name; $('hRole').textContent = ROLES[me.role] || me.role;
-  const days = Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5);
-  $('hPlan').textContent = me.plan === 'trial' ? 'Free trial' : me.plan.charAt(0).toUpperCase() + me.plan.slice(1);
-  $('hTrial').textContent = me.plan !== 'trial' ? '' : days > 0 ? days + (days === 1 ? ' day' : ' days') + ' left in your trial' : 'Your trial has ended. Contact us to continue.';
-  $('teamCard').hidden = me.role !== 'admin';
-  if (me.role === 'admin') team();
+/* ---------------- dashboard ---------------- */
+function current() {
+  const h = location.hash.replace(/^#\/?/, '');
+  if (h.startsWith('app/') && byId[h.slice(4)]) return { v: 'app', id: h.slice(4) };
+  if (h === 'team' && me.role === 'admin') return { v: 'team' };
+  if (h === 'account') return { v: 'account' };
+  return { v: 'home' };
+}
+function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
+
+function renderSide(cur) {
+  const item = (hash, ico, label, on, extra = '') =>
+    `<button type="button" data-go="${hash}" ${on ? 'aria-current="page"' : ''} title="${esc(label)}">${svg(ico)}<span class="lbl">${esc(label)}</span>${extra}</button>`;
+  let nav = item('#/', I.home, 'Home', cur.v === 'home');
+  STAGES.forEach((s) => {
+    const apps = APPS.filter((a) => a.st === s.id);
+    nav += `<div class="nav-h">${esc(s.t)}</div>` + apps.map((a) =>
+      item('#/app/' + a.id, a.ico, a.name, cur.v === 'app' && cur.id === a.id, canUse(a.id) ? '' : svg(I.lock, 'i lock'))).join('');
+  });
+  nav += `<div class="nav-h">Workshop</div>`;
+  if (me.role === 'admin') nav += item('#/team', I.team, 'Team', cur.v === 'team');
+  nav += item('#/account', I.acct, 'Account', cur.v === 'account');
+  $('side').innerHTML = `
+    <div class="side-top"><a href="#/" data-go="#/" class="brand"><img class="full" src="../assets/brand/worxmax-logo.svg" alt="worxmax" width="130" height="26"><img class="mark" src="../assets/brand/worxmax-mark.svg" alt="worxmax" width="26" height="26"></a>
+      <button type="button" class="iconbtn collapse-btn" data-act="collapse" aria-label="${S.collapsed ? 'Expand menu' : 'Collapse menu'}" title="${S.collapsed ? 'Expand menu' : 'Collapse menu'}">${svg(S.collapsed ? I.expand : I.collapse)}</button></div>
+    <nav class="nav">${nav}</nav>
+    <div class="side-bottom">
+      <div class="ws"><span class="av" aria-hidden="true">${esc(initials(me.workshop_name))}</span>
+        <span class="txt"><b>${esc(me.workshop_name)}</b><small>${esc(planLine())}</small></span>
+        <button type="button" class="iconbtn" data-act="signout" aria-label="Sign out" title="Sign out">${svg(I.out)}</button></div>
+    </div>`;
+  $('shell').classList.toggle('collapsed', S.collapsed);
+  $('shell').classList.toggle('nav-open', S.navOpen);
 }
 
-async function team() {
-  const [M, I] = await Promise.all([
+function route() {
+  if (!me) return;
+  const cur = current();
+  S.navOpen = false;
+  renderSide(cur);
+  const main = $('main');
+  main.innerHTML = cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : homeHTML();
+  if (cur.v === 'app') { try { localStorage.setItem('wx.opened', '1'); } catch (e) {} }
+  document.title = (cur.v === 'app' ? byId[cur.id].name : cur.v === 'team' ? 'Team' : cur.v === 'account' ? 'Account' : me.workshop_name) + ' — worxmax';
+  window.scrollTo(0, 0);
+  const h1 = main.querySelector('h1'); if (h1 && cur.v !== 'home') { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
+}
+
+function trialBanner() {
+  if (me.plan !== 'trial') return '';
+  const d = trialDays(), end = new Date(me.trial_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+  const mail = `mailto:${CONTACT}?subject=${encodeURIComponent('Plan for ' + me.workshop_name)}`;
+  return d > 0
+    ? `<div class="banner"><span><b>Free trial: ${d} ${d === 1 ? 'day' : 'days'} left.</b> Every app is open until ${esc(end)}.</span><a class="btn small go" href="${mail}">Choose a plan</a></div>`
+    : `<div class="banner end"><span><b>Your trial ended on ${esc(end)}.</b> Write to us to keep your workshop running.</span><a class="btn small go" href="${mail}">Choose a plan</a></div>`;
+}
+
+function homeHTML() {
+  const hr = new Date().getHours(), hi = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
+  const first = String(me.display_name || '').split(/\s+/)[0];
+  const stages = STAGES.map((s) => {
+    const apps = APPS.filter((a) => a.st === s.id);
+    return `<div class="stage"><div class="stage-h"><b>${esc(s.t)}</b><span>${esc(s.d)}</span></div><div class="tiles">${apps.map((a) => {
+      const ok = canUse(a.id);
+      return `<button type="button" class="tile${ok ? '' : ' locked'}" data-go="#/app/${a.id}"><span class="ico">${svg(a.ico)}</span><span><b>${esc(a.name)}${ok ? '' : svg(I.lock, 'i lock')}</b><p>${esc(a.short)}</p></span></button>`;
+    }).join('')}</div></div>`;
+  }).join('');
+  let opened = false; try { opened = localStorage.getItem('wx.opened') === '1'; } catch (e) {}
+  const people = team.members.length, invited = team.invites.length;
+  const steps = [
+    [true, 'Create your workshop', ''],
+    [people > 1 || invited > 0, 'Add your team', me.role === 'admin' ? '<button type="button" class="link" data-go="#/team">Invite</button>' : ''],
+    [opened, 'Open your first app', '<button type="button" class="link" data-go="#/app/offers">Open Offers</button>']
+  ];
+  const teamBox = me.role === 'admin'
+    ? `<div class="box"><h2>Team</h2><dl class="kv"><dt>People</dt><dd>${people}</dd><dt>Invited</dt><dd>${invited}</dd></dl>
+        <button type="button" class="btn small" style="margin-top:14px" data-go="#/team">Manage team</button></div>` : '';
+  return `<div class="page">
+    <div class="phead"><div><h1>${esc(hi)}${first ? ', ' + esc(first) : ''}</h1><p class="muted sub">${esc(me.workshop_name)} · ${esc(ROLES[me.role] || me.role)}</p></div></div>
+    ${trialBanner()}
+    <div class="cols">
+      <section class="box" aria-labelledby="appsH"><h2 id="appsH">Your apps</h2>${stages}</section>
+      <div class="side-stack">
+        <div class="box"><h2>Getting started</h2><ul class="check">${steps.map(([d, t, a]) =>
+          `<li class="${d ? 'done' : ''}"><span class="dot">${d ? svg(I.tick) : ''}</span><span>${esc(t)}</span>${d ? '' : a}</li>`).join('')}</ul></div>
+        ${teamBox}
+        <div class="box"><h2>Help</h2><p class="muted">Questions, or want us to import your price lists? Write to <a href="mailto:${esc(CONTACT)}">${esc(CONTACT)}</a>.</p></div>
+      </div>
+    </div></div>`;
+}
+
+function appHTML(a) {
+  const s = stageOf[a.st] || {}, ok = canUse(a.id), nx = a.next && byId[a.next[0]];
+  const need = (W.PLAN_NAMES || [])[PLAN_OF[a.id]] || '';
+  const notice = ok
+    ? `<div class="soon">${svg(I.info)}<div><b>${esc(a.name)} is being connected to your workshop account.</b><span class="muted">It will open right here, with your own data. Until then, this is what it looks like with sample data.</span></div></div>`
+    : `<div class="banner end"><span><b>${esc(a.name)} is not in your ${esc(PLANS[me.plan] || me.plan)} plan.</b> It comes with the ${esc(need)} plan.</span><a class="btn small go" href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Upgrade ' + me.workshop_name + ' to ' + need)}">Ask to upgrade</a></div>`;
+  return `<div class="page">
+    <div class="phead"><div class="apphead"><span class="ico big">${svg(a.ico)}</span><div><div class="crumb">${esc(a.art)} · ${esc(s.t || '')}</div><h1>${esc(a.name)}</h1></div></div>
+      ${nx ? `<button type="button" class="btn small" data-go="#/app/${nx.id}">Next: ${esc(nx.name)} ${svg(I.arrow)}</button>` : ''}</div>
+    <p class="muted" style="font-size:16px;margin:-10px 0 20px;max-width:70ch">${esc(a.one)}</p>
+    ${notice}
+    <div class="cols">
+      <div class="box shots">${(a.shots || []).map(([f, cap]) => `<figure><img src="../assets/apps/${esc(f)}.webp" alt="${esc(a.name)}: ${esc(cap)}" loading="lazy"><figcaption>${esc(cap)} · sample data</figcaption></figure>`).join('')}</div>
+      <div class="side-stack">
+        <div class="box"><h2>What it does for you</h2><ul class="gets">${(a.get || []).map((g) => `<li>${svg(I.tick)}<span>${esc(g)}</span></li>`).join('')}</ul></div>
+        ${a.next ? `<div class="box"><h2>Then</h2><p class="muted">${esc(a.next[1])}.</p></div>` : ''}
+      </div>
+    </div></div>`;
+}
+
+function teamHTML() {
+  const M = team.members, I2 = team.invites;
+  const rows = M.map((m) => {
+    const self = m.user_id === uid;
+    const role = self ? esc(ROLES[m.role]) : `<select data-u="${m.user_id}" aria-label="Role of ${esc(m.display_name)}">${['admin', 'manager', 'worker', 'shop'].map((k) => `<option value="${k}"${k === m.role ? ' selected' : ''}>${ROLES[k]}</option>`).join('')}</select>`;
+    return `<tr><td>${esc(m.display_name)}${self ? ' <span class="tag dark">you</span>' : ''}</td><td>${role}</td>
+      <td>${m.active ? 'Active' : '<span class="tag">Blocked</span>'}</td>
+      <td>${self ? '' : `<button class="btn small" type="button" data-u="${m.user_id}" data-member="${m.active ? 'block' : 'unblock'}">${m.active ? 'Block' : 'Unblock'}</button>`}</td></tr>`;
+  }).join('');
+  const inv = I2.map((i) => `<tr><td>${esc(i.display_name)}</td><td>${esc(i.email)}</td><td>${esc(ROLES[i.role])}</td>
+    <td><button class="btn small" type="button" data-inv="${i.id}">Cancel invite</button></td></tr>`).join('');
+  return `<div class="page">
+    <div class="phead"><div><h1>Team</h1><p class="muted sub">Everyone in ${esc(me.workshop_name)}. Extra people cost nothing.</p></div></div>
+    <div class="side-stack">
+      <section class="box"><h2>People</h2><div class="scroll"><table><thead><tr><th>Name</th><th>Role</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div></section>
+      <section class="box stack"><h2 style="margin:0">Invite someone</h2>
+        <p class="muted">They create their own account with this email and land in your workshop. Sign-in by name and PIN for workers without email comes with the apps.</p>
+        <form class="row" id="invForm">
+          <label>Name<input id="invName" maxlength="80" required></label>
+          <label>Email<input id="invEmail" type="email" required></label>
+          <label style="flex:0 1 170px">Role<select id="invRole"><option value="worker">Worker</option><option value="manager">Manager</option><option value="shop">Shared shop screen</option></select></label>
+          <button class="btn go" type="submit">Invite</button>
+        </form>
+        <div class="msg" id="teamMsg" role="alert"></div>
+        ${I2.length ? `<div class="scroll"><table><thead><tr><th>Invited</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>${inv}</tbody></table></div>` : ''}
+      </section>
+    </div></div>`;
+}
+
+function accountHTML() {
+  return `<div class="page">
+    <div class="phead"><div><h1>Account</h1><p class="muted sub">Your workshop, your plan and your sign-in.</p></div></div>
+    ${trialBanner()}
+    <div class="cols">
+      <div class="side-stack">
+        <section class="box"><h2>Workshop</h2><dl class="kv"><dt>Name</dt><dd>${esc(me.workshop_name)}</dd><dt>Plan</dt><dd>${esc(planLine())}</dd><dt>Your role</dt><dd>${esc(ROLES[me.role] || me.role)}</dd></dl></section>
+        <section class="box stack"><h2 style="margin:0">Change password</h2>
+          <form class="row" id="pwForm"><label>New password<input id="pw1" type="password" minlength="8" autocomplete="new-password" required></label><button class="btn go" type="submit">Save password</button></form>
+          <div class="msg" id="pwMsg" role="alert"></div></section>
+      </div>
+      <section class="box"><h2>You</h2><dl class="kv"><dt>Name</dt><dd>${esc(me.display_name)}</dd><dt>Email</dt><dd>${esc(email)}</dd></dl>
+        <button type="button" class="btn small" style="margin-top:16px" data-act="signout">${svg(I.out)} Sign out</button></section>
+    </div></div>`;
+}
+
+async function loadTeam() {
+  if (me.role !== 'admin') { team = { members: [], invites: [] }; return; }
+  const [M, Iv] = await Promise.all([
     db.from('workshop_members').select('user_id, display_name, role, active, created_at').order('created_at'),
     db.from('workshop_invites').select('id, display_name, email, role, accepted_at').is('accepted_at', null).order('created_at'),
   ]);
-  if (M.error || I.error) return say('teamMsg', 'Could not load the team: ' + (M.error || I.error).message);
-  $('team').innerHTML = M.data.map((m) => {
-    const self = m.user_id === uid;
-    const role = self ? ROLES[m.role] : `<select data-u="${m.user_id}" data-f="role" aria-label="Role of ${esc(m.display_name)}">${['admin', 'manager', 'worker', 'shop'].map((k) => `<option value="${k}"${k === m.role ? ' selected' : ''}>${ROLES[k]}</option>`).join('')}</select>`;
-    return `<tr><td>${esc(m.display_name)}${self ? ' <span class="tag">you</span>' : ''}</td><td>${role}</td>
-      <td>${m.active ? 'Active' : '<span class="tag">Blocked</span>'}</td>
-      <td>${self ? '' : `<button class="btn small" type="button" data-u="${m.user_id}" data-act="${m.active ? 'block' : 'unblock'}">${m.active ? 'Block' : 'Unblock'}</button>`}</td></tr>`;
-  }).join('');
-  $('invWrap').hidden = !I.data.length;
-  $('invites').innerHTML = I.data.map((i) => `<tr><td>${esc(i.display_name)}</td><td>${esc(i.email)}</td><td>${ROLES[i.role]}</td>
-    <td><button class="btn small" type="button" data-inv="${i.id}">Cancel invite</button></td></tr>`).join('');
+  team = { members: M.data || [], invites: Iv.data || [], error: M.error || Iv.error };
 }
+async function refreshTeam(msg, ok) { await loadTeam(); route(); say('teamMsg', msg, ok); }
 
-$('invForm').addEventListener('submit', async (e) => {
-  e.preventDefault(); say('teamMsg', '');
-  const { error } = await db.from('workshop_invites').insert({ display_name: $('invName').value.trim(), email: $('invEmail').value.trim().toLowerCase(), role: $('invRole').value });
-  if (error) return say('teamMsg', error.code === '23505' ? 'That email is already invited.' : error.message);
-  say('teamMsg', 'Invited. Ask them to create an account at this page with that email.', true);
-  $('invForm').reset(); team();
+/* ---------------- one listener for the whole dashboard ---------------- */
+document.addEventListener('click', async (e) => {
+  const g = e.target.closest('[data-go]');
+  if (g) { e.preventDefault(); return go(g.dataset.go); }
+  const a = e.target.closest('[data-act]');
+  if (a) {
+    const act = a.dataset.act;
+    if (act === 'collapse') { S.collapsed = !S.collapsed; try { localStorage.setItem('wx.side', S.collapsed ? '1' : '0'); } catch (x) {} return renderSide(current()); }
+    if (act === 'opennav') { S.navOpen = true; $('shell').classList.add('nav-open'); return; }
+    if (act === 'closenav') { S.navOpen = false; $('shell').classList.remove('nav-open'); return; }
+    if (act === 'signout') return signOut();
+  }
+  const b = e.target.closest('button[data-member]');
+  if (b) {
+    const { error } = await db.from('workshop_members').update({ active: b.dataset.member === 'unblock' }).eq('user_id', b.dataset.u);
+    return refreshTeam(error ? error.message : 'Saved.', !error);
+  }
+  const iv = e.target.closest('button[data-inv]');
+  if (iv) {
+    const { error } = await db.from('workshop_invites').delete().eq('id', iv.dataset.inv);
+    return refreshTeam(error ? error.message : 'Invite cancelled.', !error);
+  }
 });
-$('invites').addEventListener('click', async (e) => {
-  const b = e.target.closest('[data-inv]'); if (!b) return;
-  const { error } = await db.from('workshop_invites').delete().eq('id', b.dataset.inv);
-  say('teamMsg', error ? error.message : ''); team();
-});
-$('team').addEventListener('change', async (e) => {
+document.addEventListener('change', async (e) => {
   const el = e.target.closest('select[data-u]'); if (!el) return;
   const { error } = await db.from('workshop_members').update({ role: el.value }).eq('user_id', el.dataset.u);
-  say('teamMsg', error ? error.message : 'Saved.', !error); team();
+  refreshTeam(error ? error.message : 'Saved.', !error);
 });
-$('team').addEventListener('click', async (e) => {
-  const b = e.target.closest('button[data-act]'); if (!b) return;
-  const { error } = await db.from('workshop_members').update({ active: b.dataset.act === 'unblock' }).eq('user_id', b.dataset.u);
-  say('teamMsg', error ? error.message : 'Saved.', !error); team();
+document.addEventListener('submit', async (e) => {
+  if (e.target.id === 'invForm') {
+    e.preventDefault();
+    const { error } = await db.from('workshop_invites').insert({ display_name: $('invName').value.trim(), email: $('invEmail').value.trim().toLowerCase(), role: $('invRole').value });
+    if (error) return say('teamMsg', error.code === '23505' ? 'That email is already invited.' : error.message);
+    return refreshTeam('Invited. Ask them to create an account at worxmax.com/app with that email.', true);
+  }
+  if (e.target.id === 'pwForm') {
+    e.preventDefault();
+    const { error } = await db.auth.updateUser({ password: $('pw1').value });
+    say('pwMsg', error ? error.message : 'Password changed.', !error);
+    if (!error) $('pw1').value = '';
+  }
 });
-
-db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') view('vAuth'); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && S.navOpen) { S.navOpen = false; $('shell').classList.remove('nav-open'); } });
+window.addEventListener('hashchange', route);
+db.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { me = null; showGate('auth'); } });
 start();
 </script>
 </body>
