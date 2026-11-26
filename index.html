@@ -219,7 +219,7 @@
 </section>
 
 <section id="pricing">
-  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>5-day free trial on every plan. Prices excl. VAT.</p></div></header>
+  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>5-day free trial on every plan. Prices excl. VAT. Pay by card through Stripe; cancel any time. <a href="terms.html#data">How long data is kept</a>.</p></div></header>
   <div class="wrap sec">
     <div class="controls">
       <div class="seg big" role="group" aria-label="Billing period">
@@ -245,6 +245,7 @@
       <details><summary>Can we use our own prices and materials?</summary><p>Yes. Quotes and cut lists use your own boards, edging, hardware and labour rates. Guided setup can import them for you.</p></details>
       <details><summary>Which languages?</summary><p>English and Lithuanian, switchable per person. Need another? Tell us.</p></details>
       <details><summary>Where is our data kept?</summary><p>On EU servers (Ireland), separate from every other workshop. Export it any time.</p></details>
+      <details><summary>How long are our projects kept?</summary><p>As long as you use them. A project nobody has changed for 12 months (Office), 24 months (Workshop) or 36 months (Complete) is removed, and you see it coming 30 days ahead. Invoices and clients stay while your plan is active. If you stop, everything stays readable for 60 days to download, then it is deleted. <a href="terms.html#data">Details</a>.</p></details>
     </div>
   </div>
 </section>
@@ -271,7 +272,7 @@
         <input type="hidden" name="plan" id="fPlan" value="">
         <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
         <div class="full"><button class="cta primary" type="submit" id="formBtn">Start my 5-day free trial</button></div>
-        <p class="fine full" id="formMsg" role="status">No charge during the trial. <a href="privacy.html">Privacy</a>.</p>
+        <p class="fine full" id="formMsg" role="status">No charge during the trial. <a href="terms.html">Terms</a><a href="privacy.html">Privacy</a>.</p>
       </form>
     </div>
   </div>
@@ -1017,11 +1018,11 @@
 
   /* ===================== PRICING ===================== */
   var PLANS = [
-    { name: 'Office', tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Try Office free', also: 'Four apps',
+    { name: 'Office', keep: 12, tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Try Office free', also: 'Four apps',
       has: ['Offers', 'CRM', 'Project Overview', 'Invoices'] },
-    { name: 'Workshop', tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, also: 'Everything in Office, and',
+    { name: 'Workshop', keep: 24, tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, also: 'Everything in Office, and',
       has: ['ShopFlow', 'Shopfloor plan', 'Nesting', 'DXF Editor', 'Label printing'] },
-    { name: 'Complete', tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Try Complete free', also: 'Everything in Workshop, and',
+    { name: 'Complete', keep: 36, tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Try Complete free', also: 'Everything in Workshop, and',
       has: ['Cabinet Studio', 'CNC program export', 'Priority support'] }
   ];
   var yearly = false;
@@ -1033,7 +1034,8 @@
         '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Includes the shop floor</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
         '<div><div class="price"><b>€' + (yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (yearly ? '/ year' : '/ month') + '</span></div>' +
         '<div class="muted" style="font-size:13px;margin-top:6px">' + (yearly ? 'Two months free' : 'Cancel any time') + '</div></div>' +
-        '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul></div>' +
+        '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' +
+        '<p class="muted" style="font-size:13px;margin-top:10px">Projects kept ' + p.keep + ' months after their last change.</p></div>' +
         '<a class="cta ' + (p.feat ? 'primary' : 'line') + '" href="#start" data-plan="' + p.name + '">' + p.cta + '</a></div>';
     }).join('');
   }

@@ -140,6 +140,7 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
       <button type="button" data-tab="payments" aria-pressed="false">Payments</button>
       <button type="button" data-tab="leads" aria-pressed="false">Leads &amp; demo</button>
       <button type="button" data-tab="activity" aria-pressed="false">Activity</button>
+      <button type="button" data-tab="billing" aria-pressed="false">Billing &amp; data</button>
     </div>
     <div class="msg" id="mainMsg" role="alert"></div>
 
@@ -212,6 +213,49 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
         <h2>Everything that happened</h2>
         <p class="muted">Sign-ups, new workshops, people joining, payments, trial requests, sign-ins (30 days) and demo use (30 days).</p>
         <ul class="feed" id="feedAll"></ul>
+      </div>
+    </section>
+
+    <!-- BILLING & DATA -->
+    <section data-panel="billing" hidden>
+      <div class="cols">
+        <div class="card stack">
+          <h2>Stripe</h2>
+          <p class="muted" id="bilState">Loading…</p>
+          <form class="stack" id="bilKeyForm" autocomplete="off">
+            <label>Stripe secret key<input id="bilKey" type="password" autocomplete="off" spellcheck="false" placeholder="sk_test_… or sk_live_… (or a restricted rk_ key)"></label>
+            <div class="row"><button class="btn go" type="submit">Save key</button><button class="btn small" type="button" id="bilKeyClear">Remove key</button></div>
+            <p class="muted small">Stored encrypted in the database vault. Only the billing functions can read it; this page never shows it again.</p>
+          </form>
+          <div class="row"><button class="btn" type="button" id="bilSetup">Set up Stripe</button></div>
+          <p class="muted small">Creates or updates the products and prices, the customer billing page and the webhook in your Stripe account. Safe to press again after a price change.</p>
+          <div class="msg" id="bilMsg" role="alert"></div>
+        </div>
+        <div class="card stack">
+          <h2>Data retention</h2>
+          <form class="stack" id="bilRet">
+            <div class="row">
+              <label>Office, months<input type="number" min="1" max="120" id="rOffice"></label>
+              <label>Workshop, months<input type="number" min="1" max="120" id="rWorkshop"></label>
+              <label>Complete, months<input type="number" min="1" max="120" id="rComplete"></label>
+            </div>
+            <div class="row">
+              <label>ShopFlow parts lists, months<input type="number" min="1" max="60" id="rParts"></label>
+              <label>Grace after a missed payment, days<input type="number" min="0" max="60" id="rGrace"></label>
+            </div>
+            <div class="row">
+              <label>Kept after a trial, days<input type="number" min="1" max="365" id="rTrial"></label>
+              <label>Kept after cancel / unpaid, days<input type="number" min="1" max="365" id="rClosed"></label>
+            </div>
+            <label class="row" style="align-items:center;gap:10px"><input type="checkbox" id="rEnforce" style="width:auto;min-height:0"> <span><b>Delete for real.</b> Off: the nightly job only lists what it would remove.</span></label>
+            <div class="row"><button class="btn go" type="submit">Save</button><button class="btn small" type="button" id="bilReport">Run report now</button></div>
+            <p class="muted small">The customer-facing wording is on worxmax.com/terms.html and the Plan &amp; billing page: change it there too if you change these numbers.</p>
+          </form>
+        </div>
+      </div>
+      <div class="cols" style="margin-top:20px">
+        <div class="card stack"><h2>Latest Stripe events</h2><div class="scroll"><table><thead><tr><th>When</th><th>Event</th><th>Workshop</th><th>Result</th></tr></thead><tbody id="bilEvents"></tbody></table></div></div>
+        <div class="card stack"><h2>Retention log</h2><div class="scroll"><table><thead><tr><th>When</th><th>Workshop</th><th>What</th><th>Deleted?</th></tr></thead><tbody id="bilLog"></tbody></table></div></div>
       </div>
     </section>
   </main>
@@ -388,6 +432,70 @@ document.querySelector('.nav').addEventListener('click', (e) => {
   document.querySelectorAll('.nav [data-tab]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
   document.querySelectorAll('[data-panel]').forEach((p) => { p.hidden = p.dataset.panel !== tab; });
 });
+
+/* ---------- billing & data ---------- */
+let BIL = null;
+async function loadBilling() {
+  const { data, error } = await db.rpc('admin_billing_status');
+  if (error) { $('bilState').textContent = /does not exist|schema cache/i.test(error.message) ? 'The billing update is not in the database yet.' : error.message; return; }
+  BIL = data; paintBilling();
+}
+function paintBilling() {
+  const b = BIL, st = b.settings || {}, km = st.keep_months || {};
+  $('bilState').innerHTML = b.key_set
+    ? `Key <b>${esc(b.key_hint)}</b> · <span class="b ${b.mode === 'live' ? 'b-green' : 'b-amber'}">${b.mode === 'live' ? 'Live — real payments' : 'Test mode'}</span> · webhook ${b.webhook_set ? '<span class="b b-green">connected</span>' : '<span class="b b-red">not set up</span>'}`
+    : 'No Stripe key yet. Paste the secret key from Stripe → Developers → API keys.';
+  $('rOffice').value = km.office ?? 12; $('rWorkshop').value = km.workshop ?? 24; $('rComplete').value = km.complete ?? 36;
+  $('rParts').value = st.parts_months ?? 6; $('rGrace').value = st.grace_days ?? 7;
+  $('rTrial').value = st.trial_keep_days ?? 30; $('rClosed').value = st.closed_keep_days ?? 60; $('rEnforce').checked = !!st.enforce;
+  const when = (t) => t ? new Date(t).toLocaleString('lt-LT', { dateStyle: 'short', timeStyle: 'short' }) : '';
+  const wsName = (id) => (D && D.workshops.find((w) => w.id === id) || {}).name || (id ? id.slice(0, 8) : '');
+  $('bilEvents').innerHTML = (b.events || []).map((e) => `<tr><td>${when(e.received_at)}</td><td>${esc(e.type)}</td><td>${esc(wsName(e.workshop_id))}</td><td>${e.error ? `<span class="b b-red">${esc(e.error)}</span>` : e.processed_at ? 'OK' : '…'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">None yet</td></tr>';
+  $('bilLog').innerHTML = (b.retention || []).map((r) => `<tr><td>${when(r.ran_at)}</td><td>${esc(wsName(r.workshop_id))}</td><td>${r.kind === 'wipe' ? 'Whole workshop' : esc((r.detail || []).length + ' items: ' + (r.detail || []).slice(0, 3).map((x) => x.app + ' ' + x.item).join(', '))}</td><td>${r.applied ? '<span class="b b-red">Deleted</span>' : 'Report only'}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Nothing due</td></tr>';
+}
+$('bilKeyForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const v = $('bilKey').value.trim();
+  if (!/^(sk|rk)_(test|live)_/.test(v)) return say('bilMsg', 'That does not look like a Stripe secret key (sk_… or rk_…).');
+  const { data, error } = await db.rpc('admin_billing_secret_set', { p_name: 'stripe_secret_key', p_value: v });
+  $('bilKey').value = '';
+  if (error) return say('bilMsg', error.message);
+  BIL = data; paintBilling(); say('bilMsg', 'Key saved. Now press "Set up Stripe".', true);
+});
+$('bilKeyClear').addEventListener('click', async () => {
+  if (!confirm('Remove the Stripe key? Customers cannot pay until a key is added again.')) return;
+  const { data, error } = await db.rpc('admin_billing_secret_set', { p_name: 'stripe_secret_key', p_value: '' });
+  if (error) return say('bilMsg', error.message);
+  BIL = data; paintBilling(); say('bilMsg', 'Key removed.', true);
+});
+$('bilSetup').addEventListener('click', async (e) => {
+  e.target.disabled = true; say('bilMsg', 'Setting up Stripe…', true);
+  const { data, error } = await db.functions.invoke('billing', { body: { action: 'setup' } });
+  e.target.disabled = false;
+  let m = data && (data.error || data.message);
+  if (!m && error && error.context && error.context.json) { try { const j = await error.context.json(); m = j.message || j.error; } catch (x) {} }
+  if (data && data.ok) { say('bilMsg', `Done (${data.mode} mode). ${data.done.length ? 'Created: ' + data.done.join(', ') + '.' : 'Everything was already in place.'}`, true); loadBilling(); }
+  else say('bilMsg', m || (error && error.message) || 'Setup failed.');
+});
+$('bilRet').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const enforce = $('rEnforce').checked;
+  if (enforce && !(BIL && BIL.settings && BIL.settings.enforce) &&
+      !confirm('Switch on real deletion? From tonight, old projects and lapsed workshops are deleted for good, as the terms say. Run the report first to see what that means today.')) return;
+  const n = (id) => Number($(id).value);
+  const { data, error } = await db.rpc('admin_billing_settings', { p: {
+    keep_months: { office: n('rOffice'), workshop: n('rWorkshop'), complete: n('rComplete'), trial: n('rComplete') },
+    parts_months: n('rParts'), grace_days: n('rGrace'), trial_keep_days: n('rTrial'), closed_keep_days: n('rClosed'), enforce } });
+  if (error) return say('bilMsg', error.message);
+  BIL = data; paintBilling(); say('bilMsg', 'Saved.', true);
+});
+$('bilReport').addEventListener('click', async () => {
+  const { data, error } = await db.rpc('admin_retention_run');
+  if (error) return say('bilMsg', error.message);
+  say('bilMsg', `Report: ${data.items_due} old items and ${data.workshops_due} lapsed workshops are due. Nothing was deleted.`, true);
+  loadBilling();
+});
+document.querySelector('.nav [data-tab="billing"]').addEventListener('click', () => { if (!BIL) loadBilling(); });
 
 function render() { renderOverview(); renderWorkshops(); renderPayments(); renderLeads(); renderFeed(); }
 // Open a section straight from a link, e.g. admin/#leads.

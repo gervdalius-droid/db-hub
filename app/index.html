@@ -172,6 +172,28 @@ td select{min-height:36px;padding:4px 8px}
   h1{font-size:24px}
 }
 @media (prefers-reduced-motion:reduce){.side{transition:none}}
+/* plan & billing */
+.robar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 16px;background:#FBE9E7;border-bottom:1.5px solid var(--bad);font-size:14px}
+.robar b{color:var(--bad)}
+.robar .btn{min-height:34px;padding:0 12px;font-size:13px;margin-left:auto}
+.ro #frames{height:calc(100vh - 46px)}
+.seg2{display:inline-flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg2 button{all:unset;cursor:pointer;padding:8px 16px;font-weight:600;font-size:14px}
+.seg2 button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.seg2 small{font-weight:500;opacity:.8;margin-left:4px}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:16px}
+.plan{display:flex;flex-direction:column;gap:10px;border:1.5px solid var(--rule);border-radius:16px;padding:18px;background:var(--sheet)}
+.plan.cur{border:2px solid var(--ink);background:var(--lime-soft)}
+.plan h3{margin:0;font-size:18px}
+.plan .pr{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.plan .pr small{font-size:14px;font-weight:500;color:var(--ink3);letter-spacing:0}
+.plan ul{margin:0;padding:0;list-style:none;font-size:13.5px;display:flex;flex-direction:column;gap:5px;flex:1}
+.plan li{display:flex;gap:7px}.plan li svg.i{width:16px;height:16px;color:var(--ok);flex:none;margin-top:1px}
+.plan .keep{font-size:12.5px;color:var(--ink3)}
+.agree{display:flex!important;flex-direction:row!important;gap:10px;align-items:flex-start;font-weight:400;font-size:14px;line-height:1.45;padding:14px;border-radius:12px;background:var(--paper);border:1.5px solid var(--rule)}
+.agree input{width:20px!important;height:20px!important;min-height:0!important;margin:0!important;flex:none;accent-color:var(--ink)}
+.rules{margin:0;padding:0 0 0 18px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:6px}
+.soonpay{padding:12px 14px;border-radius:12px;background:var(--blue-soft);border:1.5px solid var(--blue);font-size:14px}
 .linkbtn{background:none;border:0;padding:0;color:var(--ink2,#444);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start;align-self:flex-start}
 .linkbtn:hover{color:var(--ink,#111)}
 </style>
@@ -238,6 +260,7 @@ td select{min-height:36px;padding:4px 8px}
       <button type="button" class="iconbtn" data-act="opennav" aria-label="Open menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
       <img src="/assets/brand/worxmax-logo.svg" alt="worxmax" width="120" height="24">
     </header>
+    <div class="robar" id="roBar" hidden></div>
     <main id="main"></main>
     <div id="frames" hidden></div>
   </div>
@@ -265,6 +288,8 @@ const I = {
   team: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3 3 0 0 1 0 6M18 14c2 .8 3 2.8 3 6"/>',
   acct: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   out: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>',
+  card: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  down: '<path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/>',
   lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   collapse: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 10l-2 2 2 2"/>',
   expand: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/>',
@@ -290,7 +315,8 @@ function showGate(which) { $('loading').hidden = true; $('shell').hidden = true;
 function canUse(id) { return (RANK[me.plan] ?? 2) >= (PLAN_OF[id] ?? 0); }
 function trialDays() { return Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5); }
 function planLine() {
-  if (me.plan !== 'trial') return PLANS[me.plan] || me.plan;
+  if (access() === 'read') return (PLANS[me.plan] || me.plan) + ' · read-only';
+  if (me.plan !== 'trial') return (PLANS[me.plan] || me.plan) + (me.billing === 'licence' ? ' licence' : me.billing === 'yearly' ? ', yearly' : me.billing === 'monthly' ? ', monthly' : '');
   const d = trialDays();
   return d > 0 ? `Free trial · ${d} ${d === 1 ? 'day' : 'days'} left` : 'Trial ended';
 }
@@ -385,6 +411,7 @@ function current() {
   if (h.startsWith('app/') && byId[h.slice(4)]) return { v: 'app', id: h.slice(4) };
   if (h === 'team' && me.role === 'admin') return { v: 'team' };
   if (h === 'account') return { v: 'account' };
+  if (h.startsWith('billing')) return { v: 'billing', paid: /paid=1/.test(h) };
   return { v: 'home' };
 }
 function go(hash) { if (location.hash === hash) route(); else location.hash = hash; }
@@ -400,6 +427,7 @@ function renderSide(cur) {
   });
   nav += `<div class="nav-h">Workshop</div>`;
   if (me.role === 'admin') nav += item('#/team', I.team, 'Team', cur.v === 'team');
+  nav += item('#/billing', I.card, 'Plan & billing', cur.v === 'billing');
   nav += item('#/account', I.acct, 'Account', cur.v === 'account');
   $('side').innerHTML = `
     <div class="side-top"><a href="#/" data-go="#/" class="brand"><img class="full" src="/assets/brand/worxmax-logo.svg" alt="worxmax" width="130" height="26"><img class="mark" src="/assets/brand/worxmax-mark.svg" alt="worxmax" width="26" height="26"></a>
@@ -420,12 +448,14 @@ function route() {
   S.navOpen = false;
   renderSide(cur);
   const main = $('main');
-  const live = cur.v === 'app' && APP_URL[cur.id] && canUse(cur.id) && !trialOver();
+  const live = cur.v === 'app' && APP_URL[cur.id] && canUse(cur.id) && access() !== 'none';
+  paintRoBar(live);
   showFrame(live ? cur.id : null);
   main.hidden = !!live;
-  main.innerHTML = live ? '' : cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : homeHTML();
+  main.innerHTML = live ? '' : cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : cur.v === 'billing' ? billingHTML(cur) : homeHTML();
+  if (cur.v === 'billing') afterBilling(cur);
   if (cur.v === 'app') { try { localStorage.setItem('wx.opened', '1'); } catch (e) {} }
-  document.title = (cur.v === 'app' ? byId[cur.id].name : cur.v === 'team' ? 'Team' : cur.v === 'account' ? 'Account' : me.workshop_name) + ' — worxmax';
+  document.title = (cur.v === 'app' ? byId[cur.id].name : cur.v === 'team' ? 'Team' : cur.v === 'account' ? 'Account' : cur.v === 'billing' ? 'Plan & billing' : me.workshop_name) + ' — worxmax';
   window.scrollTo(0, 0);
   const h1 = live ? null : main.querySelector('h1'); if (h1 && cur.v !== 'home') { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
 }
@@ -445,12 +475,15 @@ function showFrame(id) {
   box.append(load, f);
 }
 function trialBanner() {
+  const cta = isOwner() && current().v !== 'billing' ? `<button type="button" class="btn small go" data-go="#/billing">Choose a plan</button>` : '';
+  if (access() === 'read') {
+    const gone = me.delete_after ? ` Everything is deleted on <b>${esc(dmy(me.delete_after))}</b> unless a plan is chosen.` : '';
+    return `<div class="banner end"><span><b>${esc(roReason())}</b> You can open and download everything, but not change it.${gone}${isOwner() ? '' : ' Ask the workshop owner to choose a plan.'}</span>${cta}</div>`;
+  }
+  if (me.sub_status === 'past_due') return `<div class="banner end"><span><b>The last payment did not go through.</b> Update the card to keep everything running.</span>${isOwner() ? '<button type="button" class="btn small go" data-act="portal">Update payment</button>' : ''}</div>`;
   if (me.plan !== 'trial') return '';
-  const d = trialDays(), end = new Date(me.trial_ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
-  const mail = `mailto:${CONTACT}?subject=${encodeURIComponent('Plan for ' + me.workshop_name)}`;
-  return d > 0
-    ? `<div class="banner"><span><b>Free trial: ${d} ${d === 1 ? 'day' : 'days'} left.</b> Every app is open until ${esc(end)}.</span><a class="btn small go" href="${mail}">Choose a plan</a></div>`
-    : `<div class="banner end"><span><b>Your trial ended on ${esc(end)}.</b> Write to us to keep your workshop running.</span><a class="btn small go" href="${mail}">Choose a plan</a></div>`;
+  const d = trialDays(), end = dmy(me.trial_ends_at);
+  return `<div class="banner"><span><b>Free trial: ${d} ${d === 1 ? 'day' : 'days'} left.</b> Every app is open until ${esc(end)}.${isOwner() ? '' : ' The workshop owner can choose a plan.'}</span>${cta}</div>`;
 }
 
 function homeHTML() {
@@ -491,8 +524,8 @@ function appHTML(a) {
   const s = stageOf[a.st] || {}, ok = canUse(a.id), nx = a.next && byId[a.next[0]];
   const need = (W.PLAN_NAMES || [])[PLAN_OF[a.id]] || '';
   const notice = ok
-    ? `<div class="banner end"><span><b>Your free trial has ended.</b> Choose a plan to keep using ${esc(a.name)}. Your data is kept.</span><a class="btn small go" href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Plan for ' + me.workshop_name)}">Choose a plan</a></div>`
-    : `<div class="banner end"><span><b>${esc(a.name)} is not in your ${esc(PLANS[me.plan] || me.plan)} plan.</b> It comes with the ${esc(need)} plan.</span><a class="btn small go" href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Upgrade ' + me.workshop_name + ' to ' + need)}">Ask to upgrade</a></div>`;
+    ? trialBanner()
+    : `<div class="banner end"><span><b>${esc(a.name)} is not in your ${esc(PLANS[me.plan] || me.plan)} plan.</b> It comes with the ${esc(need)} plan.${isOwner() ? '' : ' Ask the workshop owner.'}</span>${isOwner() ? '<button type="button" class="btn small go" data-go="#/billing">Change plan</button>' : ''}</div>`;
   return `<div class="page">
     <div class="phead"><div class="apphead"><span class="ico big">${svg(a.ico)}</span><div><div class="crumb">${esc(a.art)} · ${esc(s.t || '')}</div><h1>${esc(a.name)}</h1></div></div>
       ${nx ? `<button type="button" class="btn small" data-go="#/app/${nx.id}">Next: ${esc(nx.name)} ${svg(I.arrow)}</button>` : ''}</div>
@@ -542,7 +575,7 @@ function accountHTML() {
     ${trialBanner()}
     <div class="cols">
       <div class="side-stack">
-        <section class="box"><h2>Workshop</h2><dl class="kv"><dt>Name</dt><dd>${esc(me.workshop_name)}</dd><dt>Plan</dt><dd>${esc(planLine())}</dd><dt>Your role</dt><dd>${esc(ROLES[me.role] || me.role)}</dd></dl></section>
+        <section class="box"><h2>Workshop</h2><dl class="kv"><dt>Name</dt><dd>${esc(me.workshop_name)}</dd><dt>Plan</dt><dd>${esc(planLine())} · <button type="button" class="link" data-go="#/billing">Plan & billing</button></dd><dt>Your role</dt><dd>${esc(ROLES[me.role] || me.role)}</dd></dl></section>
         <section class="box stack"><h2 style="margin:0">Change password</h2>
           <form class="row" id="pwForm"><label>New password<input id="pw1" type="password" minlength="8" autocomplete="new-password" required></label><button class="btn go" type="submit">Save password</button></form>
           <div class="msg" id="pwMsg" role="alert"></div></section>
@@ -550,6 +583,157 @@ function accountHTML() {
       <section class="box"><h2>You</h2><dl class="kv"><dt>Name</dt><dd>${esc(me.display_name)}</dd><dt>Email</dt><dd>${esc(email)}</dd></dl>
         <button type="button" class="btn small" style="margin-top:16px" data-act="signout">${svg(I.out)} Sign out</button></section>
     </div></div>`;
+}
+
+/* ---------------- plan & billing ---------------- */
+// Prices excl. VAT, in euro. Stripe holds the real price list (supabase/functions/_shared/billing.ts).
+const PRICE = { office: { month: 39, year: 390 }, workshop: { month: 89, year: 890 }, complete: { month: 149, year: 1490 } };
+const LICENCE = { once: 2490, care: 390 }, SETUP = 350, TERMS_VERSION = '2026-11-26';
+const KEEP = { office: 12, workshop: 24, complete: 36, trial: 36 };
+const B = { interval: 'month', setup: false, agree: false, ready: null, busy: false, msg: '', ok: false, preview: null };
+function isOwner() { return me && me.role === 'admin'; }
+// before the billing update reaches the database, fall back to the trial date
+function access() { return me.access || (trialOver() ? 'read' : 'full'); }
+function dmy(d) { return d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; }
+function roReason() {
+  if (me.plan === 'trial') return 'Your free trial ended on ' + dmy(me.trial_ends_at) + '.';
+  if (me.sub_status === 'canceled' || me.cancel_at) return 'Your plan ended on ' + dmy(me.access_ends_at || me.paid_until) + '.';
+  return 'Your plan has not been paid since ' + dmy(me.paid_until) + '.';
+}
+function paintRoBar(live) {
+  const bar = $('roBar'), ro = access() === 'read' && live;
+  bar.hidden = !ro; $('shell').classList.toggle('ro', ro);
+  if (ro) bar.innerHTML = `<span><b>Read-only.</b> ${esc(roReason())} You can look and download, not change.</span>${isOwner() ? '<button type="button" class="btn go" data-go="#/billing">Choose a plan</button>' : ''}`;
+}
+const appsOf = (pl) => APPS.filter((a) => (PLAN_OF[a.id] ?? 0) <= RANK[pl]).map((a) => a.name);
+
+function statusBox() {
+  const rows = [['Plan', planLine()]];
+  if (me.plan === 'trial' && access() === 'full') rows.push(['Free trial until', dmy(me.trial_ends_at)]);
+  if (me.billing === 'licence' && me.paid_until) rows.push(['Licence care renews', dmy(me.paid_until)]);
+  else if (me.paid_until && me.plan !== 'trial') rows.push([me.cancel_at ? 'Ends on' : 'Next payment', dmy(me.cancel_at || me.paid_until)]);
+  if (me.sub_status === 'past_due') rows.push(['Payment', 'Failed — please update the card']);
+  if (access() === 'read' && me.delete_after) rows.push(['Data deleted on', dmy(me.delete_after)]);
+  return `<section class="box"><h2>Your plan</h2><dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+    ${me.has_stripe ? `<div class="row" style="margin-top:16px"><button type="button" class="btn small" data-act="portal">${svg(I.card)} Manage billing</button></div>
+      <p class="muted" style="font-size:13px;margin-top:8px">Change plan or card, download invoices, or cancel. Cancelling stops at the end of the paid period.</p>` : ''}</section>`;
+}
+
+function planCards() {
+  const iv = B.interval, cur = me.plan !== 'trial' && me.billing !== 'none' && access() === 'full' ? me.plan : '';
+  const card = (pl) => {
+    const p = PRICE[pl][iv];
+    return `<div class="plan${cur === pl ? ' cur' : ''}"><h3>${esc(PLANS[pl])}</h3>
+      <div class="pr">€${p}<small> / ${iv === 'year' ? 'year' : 'month'} excl. VAT</small></div>
+      <ul>${appsOf(pl).map((n) => `<li>${svg(I.tick)}<span>${esc(n)}</span></li>`).join('')}<li>${svg(I.tick)}<span>Unlimited people</span></li></ul>
+      <p class="keep">Projects kept ${KEEP[pl]} months after their last change.</p>
+      ${cur === pl ? '<span class="tag dark" style="align-self:flex-start">Your plan</span>'
+        : `<button type="button" class="btn go" data-act="checkout" data-plan="${pl}" ${B.busy ? 'disabled' : ''}>Choose ${esc(PLANS[pl])}</button>`}</div>`;
+  };
+  const licence = `<div class="plan"><h3>Complete licence</h3>
+      <div class="pr">€${LICENCE.once}<small> once</small></div>
+      <ul><li>${svg(I.tick)}<span>All nine apps, for good</span></li><li>${svg(I.tick)}<span>First year of hosting, updates and support included</span></li>
+        <li>${svg(I.tick)}<span>Then €${LICENCE.care} a year for hosting, updates and support</span></li></ul>
+      <p class="keep">Excl. VAT. Projects kept ${KEEP.complete} months after their last change, while the yearly care is paid.</p>
+      <button type="button" class="btn" data-act="checkout" data-plan="complete" data-licence="1" ${B.busy ? 'disabled' : ''}>Buy the licence</button></div>`;
+  return `<div class="plans">${['office', 'workshop', 'complete'].map(card).join('')}${licence}</div>`;
+}
+
+function rulesBox() {
+  const k = me.keep_months || KEEP[me.plan] || 24;
+  const prev = B.preview;
+  const list = prev && prev.length
+    ? `<h3 style="font-size:15px;margin:18px 0 8px">Due for removal in the next 30 days</h3><div class="scroll"><table><thead><tr><th>App</th><th>What</th><th>Last change</th><th>Removed on</th></tr></thead><tbody>${
+        prev.map((r) => `<tr><td>${esc(r.app)}</td><td>${esc(r.item)}</td><td>${esc(dmy(r.last_change))}</td><td>${esc(dmy(r.removes_on))}</td></tr>`).join('')}</tbody></table></div>
+       <p class="muted" style="font-size:13px;margin-top:8px">To keep one, change and save it again: the time starts over.</p>`
+    : prev ? '<p class="muted" style="margin-top:14px">Nothing is due for removal in the next 30 days.</p>' : '';
+  return `<section class="box"><h2>How long your data is kept</h2>
+    <ol class="rules">
+      <li>Projects in Cabinet Studio, Offers and Nesting, and won or lost deals in the CRM, are removed <b>${k} months after their last change</b>. Anything you still use is never removed.</li>
+      <li>ShopFlow keeps finished orders for ${k} months; their detailed parts lists are cleared 6 months after the order is finished.</li>
+      <li>Invoices, clients and your settings are kept as long as your plan is active.</li>
+      <li>If the plan ends or is not paid, everything stays readable for 60 days (30 days after a free trial), then it is deleted for good.</li>
+      <li>You can download everything at any time. Invoices you are required to keep by law are yours to keep a copy of.</li>
+    </ol>
+    ${isOwner() ? `<div class="row" style="margin-top:16px"><button type="button" class="btn small" data-act="export">${svg(I.down)} Download all your data</button></div>` : ''}
+    ${list}
+    <p class="muted" style="font-size:13px;margin-top:12px">Full details in the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>.</p></section>`;
+}
+
+function billingHTML(cur) {
+  if (!isOwner()) return `<div class="page"><div class="phead"><div><h1>Plan & billing</h1><p class="muted sub">${esc(me.workshop_name)}</p></div></div>
+    ${trialBanner()}<div class="side-stack">${statusBox()}<p class="muted">Only the workshop owner can change the plan.</p>${rulesBox()}</div></div>`;
+  const paidNote = cur.paid ? `<div class="banner"><span><b>Thank you — payment received.</b> Your plan shows here within a minute.</span></div>` : '';
+  const notReady = B.ready === false ? `<div class="soonpay"><b>Online payment opens very soon.</b> To start now, write to <a href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Plan for ' + me.workshop_name)}">${esc(CONTACT)}</a> and we will set your plan up by bank transfer.</div>` : '';
+  const choose = (me.has_stripe && ['active', 'trialing', 'past_due'].includes(me.sub_status) && me.billing !== 'licence') ? '' : `
+    <section class="box stack"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Choose a plan</h2>
+      <div class="seg2" role="group" aria-label="Pay monthly or yearly"><button type="button" data-act="interval" data-v="month" aria-pressed="${B.interval === 'month'}">Monthly</button><button type="button" data-act="interval" data-v="year" aria-pressed="${B.interval === 'year'}">Yearly<small>2 months free</small></button></div></div>
+      ${notReady}
+      ${planCards()}
+      <label class="agree"><input type="checkbox" id="bSetup" ${B.setup ? 'checked' : ''}><span><b>Add guided setup — €${SETUP} once.</b> We set up your workshop with you and import your price lists.</span></label>
+      <label class="agree"><input type="checkbox" id="bAgree" ${B.agree ? 'checked' : ''}><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including <b>how long data is kept</b> (below), and that the plan renews until I cancel it.</span></label>
+      <p class="muted" style="font-size:13px">VAT is added at checkout; with a valid EU VAT number your company is charged without it. You pay on Stripe's secure page; worxmax never sees the card.</p>
+      <div class="msg${B.ok ? ' ok' : ''}" id="billMsg" role="alert">${esc(B.msg)}</div></section>`;
+  return `<div class="page"><div class="phead"><div><h1>Plan & billing</h1><p class="muted sub">One price for the whole workshop. Extra people cost nothing.</p></div></div>
+    ${paidNote}${trialBanner()}
+    <div class="side-stack">${statusBox()}${choose}${rulesBox()}</div></div>`;
+}
+
+async function afterBilling(cur) {
+  if (B.ready === null && isOwner()) {
+    const r = await db.functions.invoke('billing', { body: { action: 'status' } }).catch(() => ({}));
+    B.ready = !!(r && r.data && r.data.ready);
+    if (current().v === 'billing') route();
+    return;
+  }
+  if (B.preview === null && ['admin', 'manager'].includes(me.role)) {
+    const { data, error } = await db.rpc('retention_preview');
+    B.preview = error ? [] : (data || []);
+    if (current().v === 'billing') route();
+    return;
+  }
+  if (cur.paid && !B.polled) {   // Stripe tells the database a moment after the payment
+    B.polled = true;
+    for (let i = 0; i < 8; i++) {
+      await new Promise((r) => setTimeout(r, 2500));
+      const r = await db.rpc('workshop_me');
+      if (r.data && r.data[0]) { me = r.data[0]; if (me.has_stripe && me.paid_until) break; }
+    }
+    history.replaceState(null, '', '#/billing'); route();
+  }
+}
+
+async function billingAct(act, el) {
+  if (act === 'interval') { B.interval = el.dataset.v; return route(); }
+  if (act === 'export') {
+    el.disabled = true;
+    const { data, error } = await db.rpc('workshop_export');
+    el.disabled = false;
+    if (error) return alert(error.message);
+    const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `worxmax-${String(me.workshop_name).replace(/[^\w-]+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    return;
+  }
+  if (act === 'portal' || act === 'checkout') {
+    if (act === 'checkout') {
+      B.setup = !!($('bSetup') && $('bSetup').checked); B.agree = !!($('bAgree') && $('bAgree').checked);
+      if (!B.agree) { B.msg = 'Please tick that you agree to the terms first.'; B.ok = false; route(); $('bAgree') && $('bAgree').focus(); return; }
+    }
+    B.busy = true; B.msg = act === 'checkout' ? 'Opening the secure payment page…' : 'Opening billing…'; B.ok = true; if (current().v === 'billing') route();
+    const body = act === 'portal' ? { action: 'portal' } : {
+      action: 'checkout', plan: el.dataset.plan, interval: el.dataset.licence ? 'licence' : B.interval,
+      setup: B.setup, terms: true, terms_version: TERMS_VERSION };
+    const { data, error } = await db.functions.invoke('billing', { body });
+    B.busy = false;
+    if (data && data.url) { location.href = data.url; return; }
+    let m = data && (data.message || data.error);
+    if (!m && error && error.context && error.context.json) { try { const j = await error.context.json(); m = j.message || j.error; } catch (e) {} }
+    B.msg = m || 'Could not open the payment page. Please try again, or write to ' + CONTACT + '.'; B.ok = false;
+    if (current().v === 'billing') route(); else alert(B.msg);
+  }
 }
 
 async function loadTeam() {
@@ -573,6 +757,7 @@ document.addEventListener('click', async (e) => {
     if (act === 'opennav') { S.navOpen = true; $('shell').classList.add('nav-open'); return; }
     if (act === 'closenav') { S.navOpen = false; $('shell').classList.remove('nav-open'); return; }
     if (act === 'signout') return signOut();
+    if (['interval', 'export', 'portal', 'checkout'].includes(act)) return billingAct(act, a);
   }
   const b = e.target.closest('button[data-member]');
   if (b) {
@@ -586,6 +771,8 @@ document.addEventListener('click', async (e) => {
   }
 });
 document.addEventListener('change', async (e) => {
+  if (e.target.id === 'bSetup') { B.setup = e.target.checked; return; }
+  if (e.target.id === 'bAgree') { B.agree = e.target.checked; if (B.agree && !B.ok) { B.msg = ''; const m = $('billMsg'); if (m) m.textContent = ''; } return; }
   const el = e.target.closest('select[data-u]'); if (!el) return;
   const { error } = await db.from('workshop_members').update({ role: el.value }).eq('user_id', el.dataset.u);
   refreshTeam(error ? error.message : 'Saved.', !error);
