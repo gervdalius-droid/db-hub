@@ -106,7 +106,7 @@ export async function stripeClient(): Promise<Stripe | null> {
 }
 export const webhookSecret = () => secret("stripe_webhook_secret");
 
-// price objects by lookup key (one call)
+// price objects by lookup key
 export async function stripePrices(stripe: Stripe, keys: string[]) {
   const map: Record<string, Stripe.Price> = {};
   for (let i = 0; i < keys.length; i += 10) {   // Stripe takes at most 10 lookup keys per call

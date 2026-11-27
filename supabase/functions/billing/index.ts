@@ -260,7 +260,7 @@ Deno.serve(async (req: Request) => {
       case "status": {
         const stripe = await stripeClient();
         let ready = false;
-        if (stripe) { try { ready = Object.keys(await stripePrices(stripe, ["wx_office_month"])).length > 0; } catch (_) { ready = false; } }
+        if (stripe) { try { ready = Object.keys(await stripePrices(stripe, ["wx_suite_month"])).length > 0; } catch (_) { ready = false; } }
         return json(req, 200, { ready });
       }
       case "checkout": return await checkout(req, me.user.id, me.user.email ?? "", b);
