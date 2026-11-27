@@ -12,9 +12,9 @@ window.DBHUB = (function () {
   // Legal details the Law on Information Society Services asks the site to show (terms.html).
   var COMPANY = {
     form: 'individuali įmonė',        // legal form
-    code: '',                          // registration code (Register of Legal Entities), e.g. '305000000'
-    address: '',                       // registered office address
-    vat: ''                            // VAT code if registered, e.g. 'LT100000000000'
+    code: '182701251',                 // registration code (Register of Legal Entities), e.g. '305000000'
+    address: 'Kranto g. 13, Juodausiai, LT-20380',   // registered office address
+    vat: 'LT827012515'                 // VAT code if registered, e.g. 'LT100000000000'
   };
 
   var $ = function (id) { return document.getElementById(id); };
