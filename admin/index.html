@@ -102,6 +102,7 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
 .mini span{font-size:12px;color:var(--ink3)}
 .appset{display:flex;flex-wrap:wrap;gap:8px 20px;border:1.5px solid var(--rule2,#bbb);border-radius:12px;padding:10px 14px;margin:0}
 .appset[hidden]{display:none}
+.appset .apphint{flex-basis:100%;font-size:12px}
 .appset legend{font-size:13px;font-weight:700;padding:0 4px}
 .appset label{flex-direction:row!important;align-items:center;gap:6px;font-weight:500}
 .appset input{width:18px!important;min-height:0!important;height:18px}
@@ -296,6 +297,12 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
         <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option><option value="licence">Licence (Stripe)</option></select></label>
         <label>Price € (excl. VAT)<input name="price_eur" type="number" min="0" step="0.01"></label>
       </div>
+      <fieldset id="newApps" class="appset"><legend>Apps this workshop can use</legend>
+        <label><input type="checkbox" name="apps" value="studio"> Cabinet Studio</label><label><input type="checkbox" name="apps" value="shopflow"> ShopFlow (+ Project Overview, Shopfloor plan)</label>
+        <label><input type="checkbox" name="apps" value="nesting"> Nesting</label><label><input type="checkbox" name="apps" value="offers"> Offers</label>
+        <label><input type="checkbox" name="apps" value="dxf"> DXF Editor</label><label><input type="checkbox" name="apps" value="invoices"> Invoices</label>
+        <label><input type="checkbox" name="apps" value="crm"> CRM</label>
+        <small class="muted apphint">Ticking apps sets the plan to "Chosen apps"; all seven is the full suite. A trial always has every app.</small></fieldset>
       <label>Notes<textarea name="notes" maxlength="2000"></textarea></label>
       <input type="hidden" name="lead_id">
       <div class="between"><div class="msg" id="newMsg" role="alert"></div><button class="btn go" type="submit">Add workshop</button></div>
@@ -322,11 +329,12 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
         <label>Price € (excl. VAT)<input name="price_eur" type="number" min="0" step="0.01"></label>
         <label>Paid until<input name="paid_until" type="date"></label>
       </div>
-      <fieldset id="wsApps" class="appset"><legend>Apps (for "Chosen apps")</legend>
-        <label><input type="checkbox" name="apps" value="studio"> Cabinet Studio</label><label><input type="checkbox" name="apps" value="shopflow"> ShopFlow (+ Overview, Shopfloor plan)</label>
+      <fieldset id="wsApps" class="appset"><legend>Apps this workshop can use</legend>
+        <label><input type="checkbox" name="apps" value="studio"> Cabinet Studio</label><label><input type="checkbox" name="apps" value="shopflow"> ShopFlow (+ Project Overview, Shopfloor plan)</label>
         <label><input type="checkbox" name="apps" value="nesting"> Nesting</label><label><input type="checkbox" name="apps" value="offers"> Offers</label>
         <label><input type="checkbox" name="apps" value="dxf"> DXF Editor</label><label><input type="checkbox" name="apps" value="invoices"> Invoices</label>
-        <label><input type="checkbox" name="apps" value="crm"> CRM</label></fieldset>
+        <label><input type="checkbox" name="apps" value="crm"> CRM</label>
+        <small class="muted apphint">Ticking apps sets the plan to "Chosen apps"; all seven is the full suite. A trial always has every app.</small></fieldset>
       <div class="row">
         <label>Billing email<input name="contact_email" type="email"></label>
         <label>Phone<input name="contact_phone" maxlength="40"></label>
@@ -399,6 +407,17 @@ function bestMonthly(want) {   // cheapest mix for the chosen apps, capped by th
   return best;
 }
 const km0 = () => ((typeof BIL !== 'undefined' && BIL && BIL.settings) || {}).keep_months || {};
+const ALL_APPS = ['studio', 'shopflow', 'nesting', 'offers', 'dxf', 'invoices', 'crm'];
+const PLAN_APPS = { trial: ALL_APPS, suite: ALL_APPS, complete: ALL_APPS, office: ['crm', 'offers', 'invoices'], workshop: ['crm', 'offers', 'invoices', 'shopflow', 'nesting', 'dxf'] };
+const boxes = (f) => [...f.querySelectorAll('input[name="apps"]')];
+const ticked = (f) => boxes(f).filter((c) => c.checked).map((c) => c.value);
+function showApps(f, apps) { boxes(f).forEach((c) => { c.checked = apps.includes(c.value); }); }
+// ticking apps sets the plan; choosing a plan ticks its apps
+function syncApps(f, changed) {
+  if (changed === 'plan') { if (PLAN_APPS[f.plan.value]) showApps(f, PLAN_APPS[f.plan.value]); return; }
+  const n = ticked(f).length;
+  f.plan.value = n === ALL_APPS.length ? 'suite' : 'apps';
+}
 const PRICES = { suite: { monthly: 129, yearly: 1290, one_time: 2490, licence: 390 },
   office: { monthly: 39, yearly: 390 }, workshop: { monthly: 89, yearly: 890 }, complete: { monthly: 149, yearly: 1490, one_time: 2490 } };
 const PLANS = { trial: 'Trial', apps: 'Apps', suite: 'Full suite', office: 'Office (old)', workshop: 'Workshop (old)', complete: 'Complete (old)' };
@@ -479,8 +498,8 @@ function paintBilling() {
   $('bilState').innerHTML = b.key_set
     ? `Key <b>${esc(b.key_hint)}</b> · <span class="b ${b.mode === 'live' ? 'b-green' : 'b-amber'}">${b.mode === 'live' ? 'Live — real payments' : 'Test mode'}</span> · webhook ${b.webhook_set ? '<span class="b b-green">connected</span>' : '<span class="b b-red">not set up</span>'}`
     : 'No Stripe key yet. Paste the secret key from Stripe → Developers → API keys.';
-  $('rApps').value = km.apps ?? 24; $('rSuite').value = km.suite ?? 36;
-  $('rParts').value = st.parts_months ?? 6; $('rGrace').value = st.grace_days ?? 7;
+  $('rApps').value = km.apps ?? 6; $('rSuite').value = km.suite ?? 12;
+  $('rParts').value = st.parts_months ?? 3; $('rGrace').value = st.grace_days ?? 7;
   $('rTrial').value = st.trial_keep_days ?? 30; $('rClosed').value = st.closed_keep_days ?? 60; $('rEnforce').checked = !!st.enforce;
   const when = (t) => t ? new Date(t).toLocaleString('lt-LT', { dateStyle: 'short', timeStyle: 'short' }) : '';
   const wsName = (id) => (D && D.workshops.find((w) => w.id === id) || {}).name || (id ? id.slice(0, 8) : '');
@@ -700,8 +719,7 @@ function fillWs(id) {
   $('wsQuick').innerHTML = q.join('');
   const f = $('wsForm');
   f.name.value = w.name; f.status.value = w.status; f.plan.value = w.plan; f.billing.value = w.billing;
-  [...f.querySelectorAll('input[name="apps"]')].forEach((c) => { c.checked = (w.apps || []).includes(c.value); });
-  $('wsApps').hidden = w.plan !== 'apps';
+  showApps(f, PLAN_APPS[w.plan] || w.apps || []);
   f.trial_ends_at.value = w.trial_ends_at ? iso(w.trial_ends_at) : ''; f.price_eur.value = w.price_eur ?? ''; f.paid_until.value = w.paid_until || '';
   f.contact_email.value = w.contact_email || ''; f.contact_phone.value = w.contact_phone || ''; f.country.value = w.country || ''; f.notes.value = w.notes || '';
   say('wsMsg', '');
@@ -719,16 +737,16 @@ $('wsForm').addEventListener('submit', async (e) => {
   const f = e.target, w = ws(openWs);
   const p = { name: f.name.value, status: f.status.value, plan: f.plan.value, billing: f.billing.value, price_eur: f.price_eur.value,
     paid_until: f.paid_until.value, contact_email: f.contact_email.value, contact_phone: f.contact_phone.value, country: f.country.value, notes: f.notes.value };
-  if (p.plan === 'apps') {
-    p.apps = [...f.querySelectorAll('input[name="apps"]:checked')].map((c) => c.value);
-    if (!p.apps.length) return say('wsMsg', 'Tick at least one app for "Chosen apps".');
+  if (p.plan === 'apps' || p.plan === 'suite') {
+    p.apps = ticked(f);
+    if (!p.apps.length) return say('wsMsg', 'Tick at least one app.');
   }
   if (f.trial_ends_at.value && f.trial_ends_at.value !== iso(w.trial_ends_at)) p.trial_ends_at = new Date(f.trial_ends_at.value + 'T23:59:00').toISOString();
   if (p.status === 'suspended' && w.status !== 'suspended' && !confirm('Suspend ' + w.name + '? Nobody in this workshop can use the apps until you reactivate it.')) return;
   await save(p, 'wsMsg');
 });
 $('dWs').addEventListener('change', (e) => {
-  if (e.target.name === 'plan') $('wsApps').hidden = e.target.value !== 'apps';
+  if (['plan', 'apps'].includes(e.target.name)) syncApps(e.target.form, e.target.name);
   if (['plan', 'billing', 'apps'].includes(e.target.name)) autoPrice(e.target.form);
 });
 $('wsQuick').addEventListener('click', async (e) => {
@@ -764,15 +782,26 @@ function autoPrice(f) {
 function openNew(pre) {
   const f = $('newForm'); f.reset(); f.lead_id.value = ''; f.price_eur.dataset.auto = ''; say('newMsg', '');
   $('signupLink').textContent = SIGNUP;
-  Object.entries(pre || {}).forEach(([k, v]) => { if (f[k] && v != null) f[k].value = v; });
+  Object.entries(pre || {}).forEach(([k, v]) => { if (f[k] && v != null && k !== 'apps') f[k].value = v; });
+  showApps(f, PLAN_APPS[f.plan.value] || []);
   $('dNew').showModal(); f.name.focus();
 }
-$('dNew').addEventListener('change', (e) => { if (['plan', 'billing'].includes(e.target.name)) autoPrice(e.target.form); if (e.target.name === 'price_eur') e.target.dataset.auto = ''; });
+$('dNew').addEventListener('change', (e) => {
+  if (['plan', 'apps'].includes(e.target.name)) syncApps(e.target.form, e.target.name);
+  if (['plan', 'billing', 'apps'].includes(e.target.name)) autoPrice(e.target.form);
+  if (e.target.name === 'price_eur') e.target.dataset.auto = '';
+});
 $('newForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const f = e.target, p = Object.fromEntries(new FormData(f).entries());
+  const f = e.target, p = Object.fromEntries(new FormData(f).entries()), apps = ticked(f);
+  delete p.apps;
+  if (p.plan === 'apps' && !apps.length) return say('newMsg', 'Tick at least one app.');
   const btn = f.querySelector('[type=submit]'); btn.disabled = true; say('newMsg', '');
   const { data, error } = await db.rpc('admin_create_workshop', { p });
+  if (!error && ['apps', 'suite'].includes(p.plan)) {
+    const r = await db.rpc('admin_save_workshop', { p_id: data.workshop_id, p: { apps } });
+    if (r.error) { btn.disabled = false; await load(); return say('newMsg', 'Workshop added, but its apps could not be saved: ' + r.error.message); }
+  }
   btn.disabled = false;
   if (error) return say('newMsg', error.message);
   $('dNew').close(); await load();

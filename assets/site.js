@@ -1,5 +1,5 @@
 /* worxmax site, shared by index.html, apps.html, privacy.html and app/: contact details,
-   small helpers, the list of apps (the nine catalogue articles), the sticky header, the
+   small helpers, the list of apps (seven apps and two ShopFlow add-ons), the sticky header, the
    thumb-index rail and the scroll reveal. */
 document.documentElement.classList.add('js');
 window.DBHUB = (function () {
@@ -25,7 +25,7 @@ window.DBHUB = (function () {
   function fillRange(el) { el.style.setProperty('--p', ((el.value - el.min) / (el.max - el.min) * 100) + '%'); }
   $$('input[type=range]').forEach(function (el) { fillRange(el); el.addEventListener('input', function () { fillRange(el); }); });
 
-  /* ===================== THE NINE APPS ===================== */
+  /* ===================== THE SEVEN APPS (+ two ShopFlow add-ons) ===================== */
   var STAGES = [
     { id: 'sell', n: 'Step 1', t: 'Sell', d: 'win the job and price it' },
     { id: 'design', n: 'Step 2', t: 'Design', d: 'turn it into parts' },
@@ -133,8 +133,14 @@ window.DBHUB = (function () {
   };
   var byId = {}, stageOf = {};
   STAGES.forEach(function (s) { stageOf[s.id] = s; });
-  // Catalogue article numbers, in the order a job passes through the apps.
-  APPS.forEach(function (a, i) { byId[a.id] = a; a.short = SHORT[a.id]; a.art = 'WX-0' + (i + 1); });
+  // Catalogue numbers for the seven apps, in the order a job passes through them.
+  // Project Overview and the Shopfloor plan are ShopFlow add-ons: they work from ShopFlow's orders.
+  var nApp = 0;
+  APPS.forEach(function (a) {
+    byId[a.id] = a; a.short = SHORT[a.id];
+    a.addon = !!SELL_OF[a.id];
+    a.art = a.addon ? 'ShopFlow add-on' : 'WX-0' + (++nApp);
+  });
 
   /* ===================== CHROME: header, footer line, reveal ===================== */
   var topbar = $('topbar');

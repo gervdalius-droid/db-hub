@@ -353,6 +353,7 @@ function nextUrl() {
   const n = new URLSearchParams(location.search).get('next') || '';
   return /^\/(?!\/)/.test(n) && n !== '/' && !/^\/(app\/|\?)/.test(n) ? n : '';
 }
+let BK = null;   // backup_status: last backups and what is due for removal
 let mode = 'in', me = null, uid = null, email = '', team = { members: [], invites: [] };
 const S = { collapsed: false, navOpen: false };
 try { S.collapsed = localStorage.getItem('wx.side') === '1'; } catch (e) {}
@@ -457,6 +458,8 @@ async function start() {
   $('loading').hidden = true; $('gate').hidden = true; $('shell').hidden = false;
   await loadTeam();
   route();
+  // backup reminder on Home (owners and managers): what is due for removal soon
+  if (['admin', 'manager'].includes(me.role)) db.rpc('backup_status').then((b) => { BK = b.data || null; if (BK && current().v === 'home') route(); }, () => {});
 }
 
 /* ---------------- dashboard ---------------- */
@@ -543,6 +546,23 @@ function trialBanner() {
   return `<div class="banner"><span><b>Free trial: ${d} ${d === 1 ? 'day' : 'days'} left.</b> Every app is open until ${esc(end)}.${isOwner() ? '' : ' The workshop owner can choose a plan.'}</span>${cta}</div>`;
 }
 
+function backupBanner() {
+  if (!BK || !BK.apps) return '';
+  const names = { studio: 'Cabinet Studio', offers: 'Offers', nesting: 'Nesting', crm: 'CRM', invoices: 'Invoices', shopflow: 'ShopFlow' };
+  const due = Object.entries(BK.apps).filter(([, a]) => a.due > 0);
+  const lastAll = BK.last_all ? new Date(BK.last_all) : null;
+  const owner = isOwner() ? `<button type="button" class="btn small go" data-act="export">${svg(I.down)} Download everything</button>` : '';
+  if (due.length) {
+    const n = due.reduce((t, [, a]) => t + a.due, 0), first = due.map(([, a]) => a.first_removal).sort()[0];
+    return `<div class="banner end"><span><b>${n} ${n === 1 ? 'item is' : 'items are'} due for removal from ${esc(dmy(first))}</b> in ${esc(due.map(([k]) => names[k] || k).join(', '))}: work not changed for ${BK.keep_months} months. Download a backup to keep your own copy (each app has a Backup button).</span>${owner}</div>`;
+  }
+  const anyData = Object.values(BK.apps).some((a) => a.has_data);
+  if (anyData && (!lastAll || Date.now() - lastAll > 30 * 864e5) && isOwner()) {
+    return `<div class="banner"><span><b>${lastAll ? 'Last full backup: ' + esc(dmy(lastAll)) + '.' : 'No full backup yet.'}</b> worxmax keeps finished work for ${BK.keep_months} months. Download a copy of everything once a month and keep it safe.</span>${owner}</div>`;
+  }
+  return '';
+}
+
 function homeHTML() {
   const hr = new Date().getHours(), hi = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
   const first = String(me.display_name || '').split(/\s+/)[0];
@@ -565,7 +585,7 @@ function homeHTML() {
         <button type="button" class="btn small" style="margin-top:14px" data-go="#/team">Manage team</button></div>` : '';
   return `<div class="page">
     <div class="phead"><div><h1>${esc(hi)}${first ? ', ' + esc(first) : ''}</h1><p class="muted sub">${esc(me.workshop_name)} · ${esc(ROLES[me.role] || me.role)}</p></div></div>
-    ${trialBanner()}
+    ${trialBanner()}${backupBanner()}
     <div class="cols">
       <section class="box" aria-labelledby="appsH"><h2 id="appsH">Your apps</h2>${stages}</section>
       <div class="side-stack">
@@ -716,8 +736,8 @@ function accountHTML() {
 
 /* ---------------- plan & billing ---------------- */
 // Prices excl. VAT, in euro (assets/site.js). Stripe holds the real price list (supabase/functions/_shared/billing.ts).
-const LICENCE = W.LICENCE || { once: 2490, care: 390 }, SETUP = W.SETUP || 350, TERMS_VERSION = '2026-11-27b';
-const KEEP = { apps: 24, suite: 36, office: 12, workshop: 24, complete: 36, trial: 36 };
+const LICENCE = W.LICENCE || { once: 2490, care: 390 }, SETUP = W.SETUP || 350, TERMS_VERSION = '2026-11-27c';
+const KEEP = { apps: 6, suite: 12, office: 6, workshop: 6, complete: 12, trial: 12 };
 const B = { interval: 'month', pick: null, confirm: false, setup: false, agree: false, startNow: false, ready: null, busy: false, msg: '', ok: false, preview: null };
 function isOwner() { return me && me.role === 'admin'; }
 // before the billing update reaches the database, fall back to the trial date
@@ -771,14 +791,14 @@ function pickerHTML() {
   let sum;
   if (!want.length) sum = `<div class="sum"><p class="muted" style="margin:0">Choose at least one app.</p></div>`;
   else {
-    const lines = best.items.map((k) => `<tr><td>${esc(ITEMS[k].name)}${ITEMS[k].pack ? `<br><small class="muted">${esc(appNames(ITEMS[k].apps).join(', '))}</small>` : ''}</td><td>${eur(ITEMS[k].m * mult)}</td></tr>`).join('');
+    const lines = best.items.map((k) => `<tr><td>${esc(ITEMS[k].name)}${ITEMS[k].pack ? `<br><small class="muted">${esc(ITEMS[k].apps.map((x) => ITEMS[x].name).join(', '))}${ITEMS[k].apps.includes('shopflow') ? ' (with its add-ons)' : ''}</small>` : ''}</td><td>${eur(ITEMS[k].m * mult)}</td></tr>`).join('');
     const saved = single - cost;
     const toSuite = best.items[0] === 'suite' ? 0 : ITEMS.suite.m - cost;
     sum = `<div class="sum"><table>${lines}
       <tr class="tot"><td>Per ${per}, + VAT</td><td>${eur(cost * mult)}</td></tr>
       <tr><td class="muted">Including 21% VAT</td><td class="muted">${eur(Math.round(cost * mult * 121) / 100)}</td></tr></table>
       ${saved > 0 ? `<p class="save" style="margin:8px 0 0">Bundle price: you save ${eur(saved * mult)} a ${per}${extra.length ? ` and get ${esc(appNames(extra).join(', '))} as well` : ''}.</p>` : ''}
-      ${toSuite > 0 && toSuite <= 30 ? `<div class="up"><span>All nine apps for only <b>${eur(toSuite * mult)} more</b> a ${per}.</span><button type="button" class="btn small" data-act="preset" data-v="suite">Take the full suite</button></div>` : ''}
+      ${toSuite > 0 && toSuite <= 30 ? `<div class="up"><span>All seven apps for only <b>${eur(toSuite * mult)} more</b> a ${per}.</span><button type="button" class="btn small" data-act="preset" data-v="suite">Take the full suite</button></div>` : ''}
       <p class="muted" style="font-size:13px;margin:10px 0 0">Projects kept ${best.items[0] === 'suite' ? KEEP.suite : KEEP.apps} months after their last change.</p></div>`;
   }
   return `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
@@ -788,7 +808,7 @@ function pickerHTML() {
 }
 
 function rulesBox() {
-  const k = me.keep_months || KEEP[me.plan] || 24;
+  const k = me.keep_months || KEEP[me.plan] || 6;
   const prev = B.preview;
   const list = prev && prev.length
     ? `<h3 style="font-size:15px;margin:18px 0 8px">Due for removal in the next 30 days</h3><div class="scroll"><table><thead><tr><th>App</th><th>What</th><th>Last change</th><th>Removed on</th></tr></thead><tbody>${
@@ -798,7 +818,7 @@ function rulesBox() {
   return `<section class="box"><h2>How long your data is kept</h2>
     <ol class="rules">
       <li>Projects in Cabinet Studio, Offers and Nesting, and won or lost deals in the CRM, are removed <b>${k} months after their last change</b>. Anything you still use is never removed.</li>
-      <li>ShopFlow keeps finished orders for ${k} months; their detailed parts lists are cleared 6 months after the order is finished.</li>
+      <li>ShopFlow keeps finished orders for ${k} months; their detailed parts lists are cleared 3 months after the order is finished.</li>
       <li>Invoices, clients and your settings are kept as long as your plan is active.</li>
       <li>If the plan ends or is not paid, everything stays readable for 60 days (30 days after a free trial), then it is deleted for good.</li>
       <li>You can download everything at any time. Invoices you are required to keep by law are yours to keep a copy of.</li>
@@ -897,6 +917,7 @@ async function billingAct(act, el) {
     a.href = URL.createObjectURL(blob);
     a.download = `worxmax-${String(me.workshop_name).replace(/[^\w-]+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    if (BK) { BK.last_all = new Date().toISOString(); if (current().v === 'home') route(); }
     return;
   }
   if (act === 'portal' || act === 'checkout') {

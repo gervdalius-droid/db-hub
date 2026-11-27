@@ -27,7 +27,7 @@ export const ITEMS: Record<string, { name: string; month: number; apps: string[]
   crm:      { name: "CRM", month: 15, apps: ["crm"], description: "Enquiries, clients and follow-ups in one pipeline." },
   cnc:      { name: "Design to CNC bundle", month: 69, apps: ["studio", "nesting", "dxf"], description: "Cabinet Studio, Nesting and DXF Editor." },
   office:   { name: "Office bundle", month: 39, apps: ["crm", "offers", "invoices"], description: "CRM, Offers and Invoices." },
-  suite:    { name: "Full suite", month: 129, apps: ALL_APPS, description: "All nine apps." },
+  suite:    { name: "Full suite", month: 129, apps: ALL_APPS, description: "All seven apps, with the ShopFlow add-ons." },
 };
 const SINGLES = ["studio", "shopflow", "nesting", "offers", "dxf", "invoices", "crm"];
 const PACKS = ["cnc", "office"];
@@ -52,7 +52,7 @@ export function bestItems(wanted: string[]): Combo {
 // One Stripe product per item; lookup keys are how the code finds each price in Stripe.
 export const PRODUCTS: Record<string, { name: string; description: string }> = {
   ...Object.fromEntries(Object.entries(ITEMS).map(([k, it]) => [`wx_${k}`, { name: `worxmax ${it.name}`, description: `${it.description} One workshop, unlimited people.` }])),
-  wx_licence: { name: "worxmax full suite — licence", description: "One-time licence for all nine apps. The first year of hosting, updates and support is included." },
+  wx_licence: { name: "worxmax full suite — licence", description: "One-time licence for all seven apps. The first year of hosting, updates and support is included." },
   wx_care: { name: "worxmax licence care", description: "Hosting, updates and support for a worxmax licence, per year." },
   wx_setup: { name: "worxmax guided setup", description: "We set up your workshop with you and import your price lists." },
 };

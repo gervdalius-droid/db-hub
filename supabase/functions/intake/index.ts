@@ -198,7 +198,7 @@ async function notify(lead: Record<string, unknown>) {
       subject: `Your worxmax trial for ${company}`,
       html: layout(`Thanks, ${first}. Create your account at app.worxmax.com and your 5-day trial starts.`, `
 <tr><td style="padding:18px 32px 6px"><h1 style="margin:0 0 12px;font-size:26px;line-height:1.2">Thanks, ${esc(first)}. Your worxmax trial is ready to start.</h1>
-<p style="margin:0;font-size:16px;line-height:1.55;color:#47443D">All nine apps for <b style="color:#1C1A16">${esc(company)}</b>, from the first quote to the last invoice, working from the same numbers. Free for 5 days, nothing is charged.</p></td></tr>
+<p style="margin:0;font-size:16px;line-height:1.55;color:#47443D">All seven apps for <b style="color:#1C1A16">${esc(company)}</b>, from the first quote to the last invoice, working from the same numbers. Free for 5 days, nothing is charged.</p></td></tr>
 <tr><td style="padding:22px 32px 6px">${btn(APP + "/", "Create your account")}
 <p style="margin:10px 0 0;font-size:13px;color:#6A665D">or open <a href="${APP}/" style="color:#2D5BD8">app.worxmax.com</a></p></td></tr>
 <tr><td style="padding:22px 32px 4px"><div style="font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#6A665D;margin-bottom:14px">How to start</div>
@@ -208,7 +208,7 @@ async function notify(lead: Record<string, unknown>) {
         ["Add your team", "Invite office people by email from the Team page. Extra people cost nothing."],
       ])}</table></td></tr>
 <tr><td style="padding:4px 32px 28px;font-size:15px;line-height:1.55">Want help to start, for example importing your board and hardware prices? Just reply to this email.</td></tr>`),
-      text: `Thanks, ${first}. Your worxmax trial is ready to start.\n\nAll nine apps for ${company}, free for 5 days. Nothing is charged.\n\nHow to start\n1. Create your account: go to ${APP}/, choose Create account and use ${email}. Confirm it from the email we send you.\n2. Set up your workshop: give it your workshop name. You become the owner and every app opens for 5 days.\n3. Add your team: invite office people by email from the Team page. Extra people cost nothing.\n\nWant help to start? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
+      text: `Thanks, ${first}. Your worxmax trial is ready to start.\n\nAll seven apps for ${company}, free for 5 days. Nothing is charged.\n\nHow to start\n1. Create your account: go to ${APP}/, choose Create account and use ${email}. Confirm it from the email we send you.\n2. Set up your workshop: give it your workshop name. You become the owner and every app opens for 5 days.\n3. Add your team: invite office people by email from the Team page. Extra people cost nothing.\n\nWant help to start? Just reply to this email.\n\nThe worxmax team\n${SITE}`,
     });
   } catch (_) { /* the team email is what marks the lead notified */ }
   return toTeam;
