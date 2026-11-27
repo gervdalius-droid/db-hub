@@ -422,3 +422,7 @@ grant execute on function public.admin_billing_secret_set(text, text), public.ad
   public.admin_billing_settings(jsonb), public.admin_retention_run() to authenticated;   -- each checks the admin itself
 revoke all on function public.billing_secret(text) from authenticated;
 grant execute on function public.billing_secret(text) to service_role;
+
+-- applied after review: the check is for signed-in people only
+revoke all on function public.workshop_writable() from public, anon;
+grant execute on function public.workshop_writable() to authenticated;
