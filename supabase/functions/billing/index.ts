@@ -91,9 +91,6 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
     billing_address_collection: "required",
     tax_id_collection: { enabled: true },
     customer_update: { address: "auto", name: "auto" },
-    custom_text: {
-      submit: { message: `By paying you agree to the worxmax Terms (${TERMS_URL}), including how long your data is kept.` },
-    },
     locale: "auto",
   };
   let session: Stripe.Checkout.Session;
