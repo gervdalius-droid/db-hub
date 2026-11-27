@@ -33,6 +33,8 @@ drop policy if exists feedback_member_read on public.feedback;
 create policy feedback_member_read on public.feedback for select to authenticated
   using (workshop_id = (select public.current_workshop()) or (select private.is_admin()));
 revoke insert, update, delete on public.feedback from anon, authenticated;
+revoke all on public.feedback from anon;
+revoke truncate, references, trigger on public.feedback from authenticated;
 grant select on public.feedback to authenticated;
 
 -- a member posts: workshop, author and status are set here, not by the browser
