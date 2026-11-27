@@ -144,6 +144,7 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
       <button type="button" data-tab="workshops" aria-pressed="false">Workshops</button>
       <button type="button" data-tab="payments" aria-pressed="false">Payments</button>
       <button type="button" data-tab="leads" aria-pressed="false">Leads &amp; demo</button>
+      <button type="button" data-tab="feedback" aria-pressed="false">Feedback <span id="fbCount"></span></button>
       <button type="button" data-tab="activity" aria-pressed="false">Activity</button>
       <button type="button" data-tab="billing" aria-pressed="false">Billing &amp; data</button>
     </div>
@@ -209,6 +210,15 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
         <h2>Demo activity</h2>
         <p class="muted">Visitors who used the live demo on the website, newest first.</p>
         <div class="scroll"><table class="wide"><thead><tr><th>When</th><th>Cabinets</th><th class="num">Parts</th><th class="num">Sheets</th><th class="num">Demo quote</th><th>Did</th><th>Came from</th></tr></thead><tbody id="demoRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- FEEDBACK: requests, comments and bug reports from the workshops (migration 0012) -->
+    <section data-panel="feedback" hidden>
+      <div class="card stack">
+        <div class="between"><h2>Requests, comments and bugs</h2><div class="chips" id="fbChips" role="group" aria-label="Filter"></div></div>
+        <p class="muted">Posted by customers on app.worxmax.com → Feedback. The answer is shown to the whole workshop and emailed to the author when you save it.</p>
+        <div class="scroll"><table class="wide"><thead><tr><th>When</th><th>Workshop / who</th><th>Type / app</th><th>Post</th><th>Status and answer</th></tr></thead><tbody id="fbRows"></tbody></table></div>
       </div>
     </section>
 
@@ -445,6 +455,7 @@ async function load() {
   view('vMain');
   $('stamp').textContent = 'Updated ' + new Date(D.generated_at).toLocaleTimeString('lt-LT', { hour: '2-digit', minute: '2-digit' });
   render();
+  loadFeedback();
   if (openWs) { if (ws(openWs)) fillWs(openWs); else $('dWs').close(); }
 }
 
@@ -549,6 +560,7 @@ function renderOverview() {
     if (!w.owner && w.owner_invite) items.push([`<b>${esc(w.name)}</b>: owner ${esc(w.owner_invite)} has not signed up yet`, `<button class="btn small" data-ws="${w.id}">Open</button>`]);
   });
   LEADS.filter((l) => l.status === 'new').forEach((l) => items.push([`New trial request: <b>${esc(l.company)}</b> (${esc(l.name)}) ${ago(l.created_at)}`, `<button class="btn small" data-from-lead="${l.id}">Add workshop</button>`]));
+  (FBK || []).filter((f) => f.status === 'new').forEach((f) => items.push([`New ${esc((FB_KIND[f.kind] || f.kind).toLowerCase())} from <b>${esc(f.workshop_name || '')}</b>: ${esc(f.title)} ${ago(f.created_at)}`, `<button class="btn small" data-goto="feedback">Answer</button>`]));
   D.unassigned.filter((u) => !u.invited).forEach((u) => items.push([`<b>${esc(u.email)}</b> signed up ${ago(u.created_at)} but has no workshop`, `<button class="btn small" data-from-user="${esc(u.email)}">Add workshop</button>`]));
   $('attention').innerHTML = items.length ? items.map(([t, a]) => `<li><span>${t}</span>${a}</li>`).join('') : '<li class="empty">Nothing needs you right now.</li>';
   $('feedShort').innerHTML = feedHtml(D.feed.slice(0, 12));
@@ -620,6 +632,48 @@ $('leadRows').addEventListener('change', async (e) => {
   const { error } = await db.from('leads').update({ [el.dataset.f]: el.value }).eq('id', el.dataset.lead);
   say('mainMsg', error ? 'Could not save: ' + error.message : '');
   const l = LEADS.find((x) => x.id === el.dataset.lead); if (l && !error) l[el.dataset.f] = el.value;
+});
+
+/* ---------- feedback ---------- */
+let FBK = null, fbFilter = 'open';
+const FB_ST = [['new', 'New'], ['planned', 'Planned'], ['in_progress', 'In progress'], ['done', 'Done'], ['wont_do', 'Not planned']];
+const FB_KIND = { request: 'Request', bug: 'Bug', comment: 'Comment' };
+async function loadFeedback() {
+  const r = await db.rpc('admin_feedback_list');
+  if (r.error) { FBK = []; $('fbRows').innerHTML = `<tr><td colspan="5" class="empty">Could not load feedback: ${esc(r.error.message)}${/admin_feedback_list/.test(r.error.message) ? ' (migration 0012 not applied yet)' : ''}</td></tr>`; return; }
+  FBK = r.data || []; renderFeedback(); if (D) renderOverview();
+}
+function renderFeedback() {
+  if (!FBK) return;
+  const open = FBK.filter((f) => !['done', 'wont_do'].includes(f.status)), fresh = FBK.filter((f) => f.status === 'new').length;
+  $('fbCount').textContent = fresh ? '(' + fresh + ')' : '';
+  const F = [['open', 'Open', open.length], ['new', 'New', fresh], ['bug', 'Bugs', FBK.filter((f) => f.kind === 'bug' && !['done', 'wont_do'].includes(f.status)).length], ['request', 'Requests', FBK.filter((f) => f.kind === 'request').length], ['all', 'All', FBK.length]];
+  $('fbChips').innerHTML = F.map(([k, t, n]) => `<button type="button" class="chip" data-fbf="${k}" aria-pressed="${fbFilter === k}">${t} ${n}</button>`).join('');
+  const show = FBK.filter((f) => fbFilter === 'all' ? true : fbFilter === 'open' ? !['done', 'wont_do'].includes(f.status) : fbFilter === 'new' ? f.status === 'new' : fbFilter === 'bug' ? f.kind === 'bug' && !['done', 'wont_do'].includes(f.status) : f.kind === fbFilter);
+  $('fbRows').innerHTML = show.map((f) => {
+    const ctx = Object.entries(f.context || {}).map(([k, v]) => esc(k) + ': ' + esc(String(v))).join('<br>');
+    return `<tr><td>${day(f.created_at)}<small>${ago(f.created_at)}${f.notified_at ? ' · emailed' : ''}</small></td>
+    <td><a href="#" data-ws="${f.workshop_id}">${esc(f.workshop_name || '')}</a><small>${esc(f.author_name || '')}</small><small>${f.author_email ? `<a href="mailto:${esc(f.author_email)}">${esc(f.author_email)}</a>` : ''}</small></td>
+    <td>${esc(FB_KIND[f.kind] || f.kind)}<small>${esc(f.app)}</small></td>
+    <td style="max-width:340px"><b>${esc(f.title)}</b>${f.body ? `<small style="white-space:pre-wrap">${esc(f.body)}</small>` : ''}${ctx ? `<details><summary><small>Browser and screen</small></summary><small>${ctx}</small></details>` : ''}</td>
+    <td style="min-width:260px"><div class="stack" style="gap:6px">
+      <select data-fbst="${f.id}" aria-label="Status">${FB_ST.map(([v, t]) => `<option value="${v}"${v === f.status ? ' selected' : ''}>${t}</option>`).join('')}</select>
+      <textarea data-fbans="${f.id}" rows="3" aria-label="Answer to the customer" placeholder="Answer (the workshop sees it)">${esc(f.answer || '')}</textarea>
+      <div class="row" style="gap:6px;align-items:center"><button class="btn small go" type="button" data-fbsave="${f.id}">Save</button><small>${f.answer_sent_at ? 'answer emailed ' + ago(f.answer_sent_at) : f.answer ? 'answer not emailed yet' : ''}</small></div>
+    </div></td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="empty">Nothing here.</td></tr>';
+}
+document.querySelector('.nav [data-tab="feedback"]').addEventListener('click', () => loadFeedback());
+$('attention').addEventListener('click', (e) => { const b = e.target.closest('[data-goto]'); if (b) document.querySelector(`.nav [data-tab="${b.dataset.goto}"]`).click(); });
+$('fbChips').addEventListener('click', (e) => { const b = e.target.closest('[data-fbf]'); if (!b) return; fbFilter = b.dataset.fbf; renderFeedback(); });
+$('fbRows').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-fbsave]'); if (!b) return;
+  const id = b.dataset.fbsave, st = document.querySelector(`[data-fbst="${id}"]`).value, ans = document.querySelector(`[data-fbans="${id}"]`).value;
+  b.disabled = true;
+  const { error } = await db.rpc('admin_feedback_answer', { p_id: id, p_status: st, p_answer: ans });
+  if (error) { b.disabled = false; return say('mainMsg', 'Could not save: ' + error.message); }
+  if (ans.trim()) { try { await db.functions.invoke('feedback', { body: { action: 'answer', id } }); } catch (x) {} }
+  say('mainMsg', 'Saved.', true); loadFeedback();
 });
 
 /* ---------- activity ---------- */

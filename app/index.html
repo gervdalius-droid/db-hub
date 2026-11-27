@@ -127,6 +127,28 @@ button.link{all:unset;cursor:pointer;text-decoration:underline}
 .kv dt{color:var(--ink3)}
 .kv dd{margin:0;font-weight:600}
 .side-stack{display:flex;flex-direction:column;gap:20px}
+/* ---------- feedback: requests, comments, bug reports ---------- */
+textarea{font:inherit;color:var(--ink);min-height:120px;resize:vertical;background:#fff;border:1.5px solid var(--rule2);border-radius:12px;padding:10px 12px;width:100%;font-weight:400}
+textarea:focus{outline:0;border-color:var(--ink);box-shadow:0 0 0 3px var(--lime)}
+.kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.kinds button{all:unset;box-sizing:border-box;cursor:pointer;border:1.5px solid var(--rule2);border-radius:12px;padding:10px 12px;background:#fff}
+.kinds button b{display:block;font-size:14.5px}
+.kinds button span{display:block;font-size:12.5px;color:var(--ink3);line-height:1.35;margin-top:2px}
+.kinds button[aria-pressed="true"]{border-color:var(--ink);background:var(--lime-soft);box-shadow:inset 0 0 0 1px var(--ink)}
+.kinds button:focus-visible{outline:3px solid var(--ink)}
+.fbfilter{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.fbfilter button{all:unset;cursor:pointer;font-size:13px;font-weight:600;padding:5px 11px;border-radius:20px;border:1.5px solid var(--rule2)}
+.fbfilter button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.fbitem{padding:14px 0;border-top:1px solid var(--rule)}
+.fbitem:first-of-type{border-top:0}
+.fbitem h3{font-size:15.5px;line-height:1.3;margin:6px 0 4px}
+.fbitem .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--ink3)}
+.fbitem .body{font-size:14px;color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere}
+.fbitem .ans{margin-top:10px;padding:10px 12px;border-left:4px solid var(--lime);background:var(--paper);border-radius:0 10px 10px 0;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.fbitem .ans b{display:block;font-size:12px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.tag.bug{background:#FBE9E7;color:#8A2B1E}.tag.request{background:#E4EBFC;color:#2149B8}
+.tag.st-planned,.tag.st-in_progress{background:var(--lime);color:var(--ink)}.tag.st-done{background:#DDF1E3;color:#1E6B3A}
+@media (max-width:620px){.kinds{grid-template-columns:minmax(0,1fr)}}
 
 /* one app */
 .apphead{display:flex;align-items:center;gap:16px}
@@ -319,7 +341,8 @@ const I = {
   expand: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M13 10l2 2-2 2"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
   tick: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
-  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>'
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/>'
 };
 
 // Where each app lives on this site (the worxmax copies of the apps).
@@ -442,6 +465,7 @@ function current() {
   if (h.startsWith('app/') && byId[h.slice(4)]) return { v: 'app', id: h.slice(4) };
   if (h === 'team' && me.role === 'admin') return { v: 'team' };
   if (h === 'account') return { v: 'account' };
+  if (h === 'feedback' || h.startsWith('feedback/')) return { v: 'feedback', kind: h.split('/')[1] || '' };
   if (h.startsWith('billing')) return { v: 'billing', paid: /paid=1/.test(h) };
   return { v: 'home' };
 }
@@ -459,6 +483,7 @@ function renderSide(cur) {
   nav += `<div class="nav-h">Workshop</div>`;
   if (me.role === 'admin') nav += item('#/team', I.team, 'Team', cur.v === 'team');
   nav += item('#/billing', I.card, 'Plan & billing', cur.v === 'billing');
+  nav += item('#/feedback', I.chat, 'Feedback', cur.v === 'feedback');
   nav += item('#/account', I.acct, 'Account', cur.v === 'account');
   $('side').innerHTML = `
     <div class="side-top"><a href="#/" data-go="#/" class="brand"><img class="full" src="/assets/brand/worxmax-logo.svg" alt="worxmax" width="130" height="26"><img class="mark" src="/assets/brand/worxmax-mark.svg" alt="worxmax" width="26" height="26"></a>
@@ -483,10 +508,11 @@ function route() {
   paintRoBar(live);
   showFrame(live ? cur.id : null);
   main.hidden = !!live;
-  main.innerHTML = live ? '' : cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : cur.v === 'billing' ? billingHTML(cur) : homeHTML();
+  main.innerHTML = live ? '' : cur.v === 'app' ? appHTML(byId[cur.id]) : cur.v === 'team' ? teamHTML() : cur.v === 'account' ? accountHTML() : cur.v === 'billing' ? billingHTML(cur) : cur.v === 'feedback' ? feedbackHTML(cur) : homeHTML();
+  if (cur.v === 'feedback') loadFeedback(true);
   if (cur.v === 'billing') afterBilling(cur);
   if (cur.v === 'app') { try { localStorage.setItem('wx.opened', '1'); } catch (e) {} }
-  document.title = (cur.v === 'app' ? byId[cur.id].name : cur.v === 'team' ? 'Team' : cur.v === 'account' ? 'Account' : cur.v === 'billing' ? 'Plan & billing' : me.workshop_name) + ' — worxmax';
+  document.title = (cur.v === 'app' ? byId[cur.id].name : cur.v === 'team' ? 'Team' : cur.v === 'account' ? 'Account' : cur.v === 'billing' ? 'Plan & billing' : cur.v === 'feedback' ? 'Feedback' : me.workshop_name) + ' — worxmax';
   window.scrollTo(0, 0);
   const h1 = live ? null : main.querySelector('h1'); if (h1 && cur.v !== 'home') { h1.tabIndex = -1; h1.focus({ preventScroll: true }); }
 }
@@ -546,7 +572,9 @@ function homeHTML() {
         <div class="box"><h2>Getting started</h2><ul class="check">${steps.map(([d, t, a]) =>
           `<li class="${d ? 'done' : ''}"><span class="dot">${d ? svg(I.tick) : ''}</span><span>${esc(t)}</span>${d ? '' : a}</li>`).join('')}</ul></div>
         ${teamBox}
-        <div class="box"><h2>Help</h2><p class="muted">Questions, or want us to import your price lists? Write to <a href="mailto:${esc(CONTACT)}">${esc(CONTACT)}</a>.</p></div>
+        <div class="box"><h2>Help</h2><p class="muted">Missing something, found a bug, or have an idea? Tell us — we read every post and answer in the app.</p>
+          <div class="row" style="margin-top:12px;gap:8px"><button type="button" class="btn small go" data-go="#/feedback/bug">Report a bug</button><button type="button" class="btn small" data-go="#/feedback/request">Ask for a feature</button></div>
+          <p class="muted" style="margin-top:12px">Or write to <a href="mailto:${esc(CONTACT)}">${esc(CONTACT)}</a>.</p></div>
       </div>
     </div></div>`;
 }
@@ -599,6 +627,75 @@ function teamHTML() {
         ${I2.length ? `<div class="scroll"><table><thead><tr><th>Invited</th><th>Email</th><th>Role</th><th></th></tr></thead><tbody>${inv}</tbody></table></div>` : ''}
       </section>
     </div></div>`;
+}
+
+/* ---------------- feedback: requests, comments and bug reports ----------------
+   Posted with feedback_submit (database, migration 0012); the "feedback" edge function emails the worxmax team.
+   Everyone in the workshop sees the workshop's posts and the answers. */
+const FB_KIND = { request: ['Request', 'A feature or change you need'], bug: ['Bug', 'Something does not work as it should'], comment: ['Comment', 'Anything else on your mind'] };
+const FB_STATUS = { new: 'New', planned: 'Planned', in_progress: 'In progress', done: 'Done', wont_do: 'Not planned' };
+const FB = { kind: 'request', app: 'general', title: '', body: '', list: null, error: '', filter: 'all', busy: false, msg: '', ok: false };
+function fbDate(d) { return d ? new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ''; }
+function feedbackHTML(cur) {
+  if (cur.kind && FB_KIND[cur.kind] && !FB.title && !FB.body) FB.kind = cur.kind;
+  const appOpts = [['general', 'worxmax in general'], ['dashboard', 'Dashboard, billing, account']].concat(APPS.map((a) => [a.id, a.name]));
+  const hint = FB.kind === 'bug' ? 'What did you do, what happened, and what did you expect? Steps to repeat it help most.'
+    : FB.kind === 'request' ? 'What should it do, and what job in the workshop would it help with?' : '';
+  const L = FB.list || [], mine = (f) => f.user_id === uid;
+  const shown = L.filter((f) => FB.filter === 'all' ? true : FB.filter === 'mine' ? mine(f) : FB.filter === 'open' ? !['done', 'wont_do'].includes(f.status) : f.status === 'done');
+  const appName = (id) => (byId[id] && byId[id].name) || (id === 'dashboard' ? 'Dashboard' : 'General');
+  const items = shown.map((f) => `<article class="fbitem">
+      <div class="meta"><span class="tag ${esc(f.kind)}">${esc(FB_KIND[f.kind] ? FB_KIND[f.kind][0] : f.kind)}</span><span class="tag st-${esc(f.status)}">${esc(FB_STATUS[f.status] || f.status)}</span>
+        <span>${esc(appName(f.app))} · ${esc(f.author_name || '')}${mine(f) ? ' (you)' : ''} · ${esc(fbDate(f.created_at))}</span></div>
+      <h3>${esc(f.title)}</h3>${f.body ? `<div class="body">${esc(f.body)}</div>` : ''}
+      ${f.answer ? `<div class="ans"><b>worxmax answered${f.answered_at ? ' · ' + esc(fbDate(f.answered_at)) : ''}</b>${esc(f.answer)}</div>` : ''}
+    </article>`).join('');
+  const filters = [['all', 'All'], ['open', 'Open'], ['done', 'Done'], ['mine', 'Mine']].map(([k, t]) =>
+    `<button type="button" data-fbfilter="${k}" aria-pressed="${FB.filter === k}">${t}</button>`).join('');
+  return `<div class="page">
+    <div class="phead"><div><h1>Feedback</h1><p class="muted sub">Ask for features, report bugs, or leave a comment. We answer here and by email.</p></div></div>
+    <div class="cols">
+      <section class="box stack" aria-labelledby="fbNew"><h2 id="fbNew" style="margin:0">New post</h2>
+        <form class="stack" id="fbForm" novalidate>
+          <div class="kinds" role="group" aria-label="Type">${Object.keys(FB_KIND).map((k) =>
+            `<button type="button" data-fbkind="${k}" aria-pressed="${FB.kind === k}"><b>${FB_KIND[k][0]}</b><span>${FB_KIND[k][1]}</span></button>`).join('')}</div>
+          <label>Which app<select id="fbApp">${appOpts.map(([v, t]) => `<option value="${esc(v)}"${FB.app === v ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select></label>
+          <label>Title<input id="fbTitle" maxlength="140" value="${esc(FB.title)}" placeholder="${FB.kind === 'bug' ? 'e.g. Nesting freezes when I add a second board' : FB.kind === 'request' ? 'e.g. Export the cut list to my saw' : 'Short summary'}" required></label>
+          <label>Details${hint ? `<span class="muted" style="font-weight:400">${esc(hint)}</span>` : ''}<textarea id="fbBody" maxlength="5000">${esc(FB.body)}</textarea></label>
+          ${FB.kind === 'bug' ? '<p class="muted">Your browser and screen size are added to the report, so we can repeat the problem.</p>' : ''}
+          <div class="row" style="align-items:center"><button class="btn go" type="submit" ${FB.busy ? 'disabled' : ''}>${FB.busy ? 'Sending…' : 'Send'}</button>
+            <span class="msg${FB.ok ? ' ok' : ''}" id="fbMsg" role="alert">${esc(FB.msg)}</span></div>
+        </form>
+      </section>
+      <section class="box" aria-labelledby="fbList"><h2 id="fbList">Your workshop's posts</h2>
+        <div class="fbfilter" role="group" aria-label="Show">${filters}</div>
+        ${FB.list === null ? '<p class="muted">Loading…</p>' : FB.error ? `<p class="msg">${esc(FB.error)}</p>` : items || '<p class="muted">Nothing here yet.</p>'}
+      </section>
+    </div></div>`;
+}
+async function loadFeedback(force) {
+  if (FB.list !== null && !force) return;
+  const { data, error } = await db.from('feedback').select('id, user_id, author_name, kind, app, title, body, status, answer, answered_at, created_at').order('created_at', { ascending: false }).limit(200);
+  FB.list = data || []; FB.error = error ? 'Could not load the posts: ' + error.message : '';
+  if (current().v === 'feedback') fbPaint();
+}
+function fbPaint() {   // redraw the page but keep what is being typed
+  FB.title = $('fbTitle') ? $('fbTitle').value : FB.title; FB.body = $('fbBody') ? $('fbBody').value : FB.body; FB.app = $('fbApp') ? $('fbApp').value : FB.app;
+  $('main').innerHTML = feedbackHTML(current());
+}
+async function fbSubmit() {
+  FB.title = $('fbTitle').value.trim(); FB.body = $('fbBody').value.trim(); FB.app = $('fbApp').value;
+  if (FB.title.length < 3) { FB.msg = 'Please write a short title.'; FB.ok = false; fbPaint(); $('fbTitle').focus(); return; }
+  if (FB.kind === 'bug' && FB.body.length < 10) { FB.msg = 'Please describe what happened.'; FB.ok = false; fbPaint(); $('fbBody').focus(); return; }
+  FB.busy = true; FB.msg = ''; fbPaint();
+  const ctx = { browser: navigator.userAgent.slice(0, 200), screen: screen.width + 'x' + screen.height, window: innerWidth + 'x' + innerHeight, plan: me.plan || '', role: me.role || '', lang: navigator.language || '' };
+  const { data: id, error } = await db.rpc('feedback_submit', { p_kind: FB.kind, p_app: FB.app, p_title: FB.title, p_body: FB.body, p_context: FB.kind === 'bug' ? ctx : { plan: me.plan || '', role: me.role || '' } });
+  FB.busy = false;
+  if (error) { FB.msg = 'Could not send: ' + error.message + '. You can also write to ' + CONTACT + '.'; FB.ok = false; return fbPaint(); }
+  db.functions.invoke('feedback', { body: { action: 'new', id } }).catch(() => {});   // the email to the team; the post is saved either way
+  FB.title = ''; FB.body = ''; FB.msg = 'Thank you — sent. We will answer here and by email.'; FB.ok = true;
+  $('fbTitle').value = ''; $('fbBody').value = '';
+  await loadFeedback(true);
 }
 
 function accountHTML() {
@@ -845,6 +942,10 @@ document.addEventListener('click', async (e) => {
     if (act === 'signout') return signOut();
     if (['interval', 'export', 'portal', 'checkout', 'pick', 'preset', 'addapp', 'unconfirm', 'change'].includes(act)) return billingAct(act, a);
   }
+  const fk = e.target.closest('[data-fbkind]');
+  if (fk) { FB.kind = fk.dataset.fbkind; FB.msg = ''; return fbPaint(); }
+  const ff = e.target.closest('[data-fbfilter]');
+  if (ff) { FB.filter = ff.dataset.fbfilter; return fbPaint(); }
   const b = e.target.closest('button[data-member]');
   if (b) {
     const { error } = await db.from('workshop_members').update({ active: b.dataset.member === 'unblock' }).eq('user_id', b.dataset.u);
@@ -871,6 +972,7 @@ document.addEventListener('submit', async (e) => {
     if (error) return say('teamMsg', error.code === '23505' ? 'That email is already invited.' : error.message);
     return refreshTeam('Invited. Ask them to create an account at app.worxmax.com with that email.', true);
   }
+  if (e.target.id === 'fbForm') { e.preventDefault(); return fbSubmit(); }
   if (e.target.id === 'pwForm') {
     e.preventDefault();
     const { error } = await db.auth.updateUser({ password: $('pw1').value });
