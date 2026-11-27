@@ -4976,7 +4976,7 @@ function groovePath(g, DX, DY, depth, name) {   // g in program coordinates: x0.
   var segs = []; centres.forEach(function (c, k) { var from = k % 2 ? s1 : s0, to = k % 2 ? s0 : s1; if (k) segs.push(mk(P(from, c))); segs.push(mk(P(to, c))); });
   return routeMoves(P(s0, centres[0]), segs, depth, name);
 }
-function programs(p) {
+function programsXXL(p) {
   var DX = p.L, DY = p.W, DZ = p.T; var w = [], M = R.machine, GR = p.grooves || [], PA = p.paths || [];
   var cnt = function (f) { return p.holes.filter(function (h) { return h.face === f && !h.through; }).length + GR.filter(function (g) { return g.face === f; }).length + PA.filter(function (g) { return g.face === f; }).length; };
   var up1 = cnt('B') > cnt('A') ? 'B' : 'A', up2 = up1 === 'A' ? 'B' : 'A';
@@ -5068,6 +5068,241 @@ function programs(p) {
   return { files:res, warnings:w.concat(p.warnings) };
 }
 
+/* ----------------------------------------------------------------- other machines (BETA post-processors)
+   The .XXL writer above is the one proven on the shop's SCM Startech CN Plus; programs() still uses it unchanged
+   when POST.id is 'xxl'. The writers below take the same panel (holes seen from face A, edge holes, grooves,
+   hand-drawn paths) and write it for other machine families:
+     gcode — generic ISO / Fanuc-style G-code for 3-axis routers (NCStudio / Weihong, Syntec, Mach3, LinuxCNC …)
+     cix   — Biesse (bSolid / BiesseWorks .CIX)
+     mpr   — Homag / Weeke (woodWOP .MPR 4.0)
+   Written from public format descriptions, NOT verified on a machine. Every file says so in its first lines, and the
+   app asks the user to confirm a simulation / dry run / scrap test before any program can be downloaded.
+   Coordinates in every format: X along the panel's length (L), Y across it (W), origin the front-left corner of the
+   face that is up (the program's POSITION note says which edge that is), as in the .XXL programs. Face B up mirrors Y, as the 2OP of the .XXL writer does. */
+var POST_DEF = {
+  id:'xxl',                   // xxl | gcode | cix | mpr
+  maxX:3100, maxY:2100,       // largest panel the machine holds (gcode / cix / mpr; the .XXL writer keeps R.machine)
+  through:1,                  // a through hole goes this far past the panel (into the spoilboard / under the panel)
+  hDrill:true,                // cix / mpr: write edge (horizontal) bores; off: they are listed as warnings to drill by hand
+  rDia:8, rTool:'5',          // the routing tool: diameter and number (G-code T…, woodWOP TNO, Biesse TNM)
+  feedCut:4000, feedPlunge:2000, rpm:18000, safeZ:10, stepZ:4,
+  gTools:'5:1, 8:2, 15:3, 35:4',   // G-code drills "diameter:tool" — a hole with no drill is milled with the router (if it is bigger) or not made
+  gToolChange:'M6',           // M6 (automatic tool changer) | M0 (the program stops: change the tool by hand, then cycle start)
+  gExt:'nc'
+};
+var POST = JSON.parse(JSON.stringify(POST_DEF));
+function setPost(o) { POST = Object.assign(JSON.parse(JSON.stringify(POST_DEF)), o || {}); if (['xxl', 'gcode', 'cix', 'mpr'].indexOf(POST.id) < 0) POST.id = 'xxl'; return POST; }
+function postExt() { return POST.id === 'gcode' ? (String(POST.gExt || 'nc').replace(/[^A-Za-z0-9]/g, '') || 'nc') : POST.id === 'cix' ? 'cix' : POST.id === 'mpr' ? 'mpr' : 'XXL'; }
+var POST_NAMES = { xxl:'SCM Xilog (.XXL)', gcode:'G-code (ISO / Fanuc)', cix:'Biesse (.CIX)', mpr:'Homag woodWOP (.MPR)' };
+var BETA = 'worxmax BETA post-processor (' + 'FORMAT' + ') - NOT VERIFIED ON YOUR MACHINE. USE AT YOUR OWN RISK.';
+var BETA2 = 'Check this program in the machine software simulation, dry-run it above the panel and test it on scrap before production.';
+function betaLines(fmt) { return [BETA.replace('FORMAT', fmt), BETA2]; }
+function gTools() {   // "5:1, 8:2" → { 5:'1', 8:'2' }
+  var m = {}; String(POST.gTools || '').split(/[,;\n]+/).forEach(function (x) { var q = x.split(/[:=]/); if (q.length === 2) { var d = parseFloat(String(q[0]).replace(',', '.')), t = String(q[1]).replace(/[^\w]/g, ''); if (d > 0 && t) m[num(d)] = t; } });
+  return m;
+}
+/* the tool centre path of a route at full depth (the .XXL moves add a ramp; Biesse and woodWOP make their own entry) */
+function flatPath(mv) {
+  var zs = mv.filter(function (m) { return m.t === 'L'; }).map(function (m) { return m.z; }), zmin = Math.min.apply(null, zs.length ? zs : [0]);
+  var s = mv[0] || { x:0, y:0 }, k = -1;
+  for (var i = 2; i < mv.length; i++) if (mv[i].t === 'L' && Math.abs(mv[i].z - zmin) < 1e-6 && Math.abs(mv[i].x - s.x) < 1e-6 && Math.abs(mv[i].y - s.y) < 1e-6) { k = i; break; }
+  var pts = [];
+  if (k >= 0) { pts.push([s.x, s.y]); for (var j = k + 1; j < mv.length && Math.abs(mv[j].z - zmin) < 1e-6; j++) pts.push([mv[j].x, mv[j].y]); }
+  if (pts.length < 2) pts = mv.filter(function (m) { return m.t === 'L' && Math.abs(m.z - zmin) < 1e-6; }).map(function (m) { return [m.x, m.y]; });
+  return { pts:pts.filter(function (q, n) { return !n || Math.hypot(q[0] - pts[n - 1][0], q[1] - pts[n - 1][1]) > 1e-6; }), depth:-zmin };
+}
+/* one panel → machine-neutral operations for every face that has work: vertical bores, edge bores (on the first
+   program only, as the .XXL writer does), routes as tool-centre moves made with the routing tool set for this post */
+function panelOps(p) {
+  var DX = p.L, DY = p.W, DZ = p.T, w = [], GR = p.grooves || [], PA = p.paths || [];
+  var cnt = function (f) { return p.holes.filter(function (h) { return h.face === f && !h.through; }).length + GR.filter(function (g) { return g.face === f; }).length + PA.filter(function (g) { return g.face === f; }).length; };
+  var up1 = cnt('B') > cnt('A') ? 'B' : 'A', up2 = up1 === 'A' ? 'B' : 'A';
+  var yUp = function (y, up) { return up === 'A' ? y : DY - y; };
+  var keep = { T:R.rout.T, dia:R.rout.dia, feedCut:R.rout.feedCut, feedPlunge:R.rout.feedPlunge, safeZ:R.rout.safeZ };   // the routing tool of this post, only while its moves are made
+  R.rout.dia = +POST.rDia > 0 ? +POST.rDia : keep.dia; R.rout.feedCut = +POST.feedCut || keep.feedCut; R.rout.feedPlunge = +POST.feedPlunge || keep.feedPlunge; R.rout.safeZ = +POST.safeZ > 0 ? +POST.safeZ : keep.safeZ;
+  try {
+    var face = function (up, first) {
+      var bores = [], edges = [], routes = [];
+      p.holes.forEach(function (h) {
+        if (!(h.face === up || (h.through && first))) return;
+        if (!(h.x >= -0.01 && h.x <= DX + 0.01 && h.y >= -0.01 && h.y <= DY + 0.01)) { w.push(p.name + ': ø' + h.d + ' skylė už detalės ribų (' + num(h.x) + ', ' + num(h.y) + ') — praleista'); return; }
+        if (h.mark) bores.push({ x:h.x, y:yUp(h.y, up), d:R.post.markD, depth:R.post.markDepth, mark:true });
+        else bores.push({ x:h.x, y:yUp(h.y, up), d:h.d, depth:h.through ? DZ + (+POST.through >= 0 ? +POST.through : 1) : h.depth, through:!!h.through });
+      });
+      if (first) p.edges.forEach(function (e) {
+        if (!(e.pos >= -0.01 && e.pos <= (e.edge[0] === 'x' ? DY : DX) + 0.01)) { w.push(p.name + ': ø' + e.d + ' krašto skylė už detalės ribų (' + e.edge + ', ' + num(e.pos) + ') — praleista'); return; }
+        var side, x, y;   // side: the edge it goes into, as seen with this face up — L (X=0), R (X=DX), F (Y=0), B (Y=DY)
+        if (e.edge === 'x0') { side = 'L'; x = 0; y = yUp(e.pos, up); }
+        else if (e.edge === 'x1') { side = 'R'; x = DX; y = yUp(e.pos, up); }
+        else { var atY0 = (e.edge === 'y0') === (up === 'A'); side = atY0 ? 'F' : 'B'; x = e.pos; y = atY0 ? 0 : DY; }
+        edges.push({ side:side, x:x, y:y, z:DZ / 2, d:e.d, depth:e.depth });
+      });
+      GR.filter(function (g) { return g.face === up; }).forEach(function (g) {
+        var y0 = up === 'A' ? g.y0 : DY - g.y1, y1 = up === 'A' ? g.y1 : DY - g.y0, dep = Math.min(g.depth, DZ - R.rout.skin);
+        if (g.y1 - g.y0 < R.rout.dia - 1e-6) w.push(p.name + ': griovelis ' + num(g.y1 - g.y0) + ' mm siauresnis už frezą ø' + num(R.rout.dia) + ' — patikrinkite įrankį (bus platesnis)');
+        routes.push(groovePath({ x0:g.x0, x1:g.x1, y0:y0, y1:y1 }, DX, DY, dep, g.name || 'GROOVE'));
+      });
+      PA.filter(function (g) { return g.face === up; }).forEach(function (g) {
+        var P = g.pts.map(function (q) { return [q[0], up === 'A' ? q[1] : DY - q[1]]; }); if (up === 'B') P.reverse();
+        var dep = Math.min(g.depth, DZ - R.rout.skin), nv = api.nvRoute ? api.nvRoute(P, dep, g, R.rout, { DX:DX, DY:DY }) : null;
+        routes.push(nv ? { name:g.name, moves:nv } : routeMoves(P[0], P.slice(1).map(function (q) { return { x:q[0], y:q[1] }; }), dep, g.name));
+      });
+      bores.sort(function (a, b) { return (a.d - b.d) || (a.x - b.x) || (a.y - b.y); });
+      return { up:up, bores:bores, edges:edges, routes:routes };
+    };
+    var f1 = face(up1, true), f2 = face(up2, false), list = [];
+    if (f1.bores.length || f1.edges.length || f1.routes.length) list.push(f1);
+    if (f2.bores.length || f2.routes.length) list.push(f2);
+    if (list.length && (DX > +POST.maxX + 1e-6 || DY > +POST.maxY + 1e-6)) {
+      w.push(p.name + ': ' + num(DX) + ' × ' + num(DY) + ' mm netelpa į stakles (' + num(POST.maxX) + ' × ' + num(POST.maxY) + ') — NEPROGRAMUOTA'); list = []; }
+    return { DX:DX, DY:DY, DZ:DZ, faces:list, warnings:w };
+  } finally { R.rout.dia = keep.dia; R.rout.feedCut = keep.feedCut; R.rout.feedPlunge = keep.feedPlunge; R.rout.safeZ = keep.safeZ; }
+}
+var SIDE_TXT = { L:'left end X=0', R:'right end X=max', F:'front edge Y=0', B:'back edge Y=max' };
+function posNote(p, f, op) { return (op === 2 ? '2OP: panel turned over about X after 1OP (Y mirrored). ' : '') + (p.note ? 'POSITION (1OP): ' + p.note : ''); }
+
+/* ---- generic G-code: explicit moves only (no canned cycles), so the most controllers read it the same way */
+function gcodeText(p, ops, f, op, w) {
+  var T = gTools(), C = POST, safe = +C.safeZ > 0 ? +C.safeZ : 10, fP = Math.round(+C.feedPlunge || 2000), fC = Math.round(+C.feedCut || 4000);
+  var rd = +C.rDia > 0 ? +C.rDia : 8, rt = String(C.rTool || '5').replace(/[^\w]/g, '') || '5', stepZ = +C.stepZ > 0 ? +C.stepZ : 4;
+  var L = [], cmt = function (s) { L.push('(' + ascii(s).replace(/[()]/g, '') + ')'); }, n3 = function (v) { return num(Math.round(v * 1000) / 1000); };
+  betaLines('G-code').forEach(cmt);
+  cmt(p.name + '_' + op + 'OP  panel ' + n3(ops.DX) + ' x ' + n3(ops.DY) + ' x ' + n3(ops.DZ) + ' mm');
+  cmt('X0 Y0 = the X0 Y0 corner of the face that is up (see POSITION), Z0 = TOP of the panel, millimetres');
+  var pn = posNote(p, f, op); if (pn) cmt(pn);
+  L.push('G21 G90 G17');
+  var tool = null, change = function (t, what) {
+    if (tool === t) return; L.push('G0 Z' + n3(safe));
+    if (tool !== null) L.push('M5');
+    cmt('TOOL ' + t + ': ' + what);
+    if (C.gToolChange === 'M0') { cmt('CHANGE TO TOOL ' + t + ' BY HAND, SET ITS LENGTH, THEN CYCLE START'); L.push('M0'); }
+    else L.push('T' + t + ' M6');
+    L.push('S' + Math.round(+C.rpm || 18000) + ' M3'); L.push('G0 Z' + n3(safe)); tool = t;
+  };
+  var milled = [], skipped = [];
+  f.bores.forEach(function (b) { var t = T[num(b.d)]; if (t) b.tool = t; else if (b.d > rd + 0.4) milled.push(b); else skipped.push(b); });
+  skipped.forEach(function (b) { w.push(p.name + ': ø' + num(b.d) + ' skylė (' + n3(b.x) + ', ' + n3(b.y) + ') — grąžto ø' + num(b.d) + ' įrankių sąraše nėra, NEPROGRAMUOTA'); });
+  var drilled = f.bores.filter(function (b) { return b.tool; });
+  drilled.sort(function (a, b) { return (a.tool < b.tool ? -1 : a.tool > b.tool ? 1 : 0) || (a.x - b.x) || (a.y - b.y); });
+  drilled.forEach(function (b) {
+    change(b.tool, 'drill D' + num(b.d));
+    L.push('G0 X' + n3(b.x) + ' Y' + n3(b.y)); L.push('G0 Z' + n3(Math.min(safe, 2)));
+    L.push('G1 Z' + n3(-b.depth) + ' F' + fP); L.push('G0 Z' + n3(safe));
+  });
+  if (milled.length || f.routes.length) change(rt, 'router D' + num(rd));
+  milled.forEach(function (b) {   // a hole bigger than the router and with no drill: helical rings from the wall in to the centre
+    var rO = (b.d - rd) / 2, rings = [], r = rO; while (r > 1e-6) { rings.push(r); r -= rd * 0.8; }
+    cmt('D' + num(b.d) + ' x ' + n3(b.depth) + ' milled with the router');
+    rings.forEach(function (ri) {
+      L.push('G0 X' + n3(b.x + ri) + ' Y' + n3(b.y)); L.push('G0 Z' + n3(Math.min(safe, 2))); L.push('G1 Z0 F' + fP);
+      var z = 0; while (z > -b.depth + 1e-6) { z = Math.max(-b.depth, z - stepZ); L.push('G2 X' + n3(b.x + ri) + ' Y' + n3(b.y) + ' Z' + n3(z) + ' I' + n3(-ri) + ' J0 F' + fP); }
+      L.push('G2 X' + n3(b.x + ri) + ' Y' + n3(b.y) + ' I' + n3(-ri) + ' J0 F' + fC);   // a full lap at the bottom
+      L.push('G0 Z' + n3(safe));
+    });
+  });
+  f.routes.forEach(function (rt0) {
+    cmt('ROUTE ' + (rt0.name || ''));
+    rt0.moves.forEach(function (m) {
+      if (m.t === 'G0') { L.push('G0 Z' + n3(safe)); L.push('G0 X' + n3(m.x) + ' Y' + n3(m.y)); L.push('G0 Z' + n3(Math.min(safe, Math.max(m.z, 2)))); }
+      else L.push('G1 X' + n3(m.x) + ' Y' + n3(m.y) + ' Z' + n3(m.z) + ' F' + Math.round(m.v || fC));
+    });
+    L.push('G0 Z' + n3(safe));
+  });
+  if (op === 1 && f.edges.length) {
+    var ns = {}; f.edges.forEach(function (e) { ns[num(e.d)] = (ns[num(e.d)] || 0) + 1; });
+    w.push(p.name + ': krašto skylės (' + Object.keys(ns).map(function (k) { return ns[k] + ' × ø' + k; }).join(', ') + ') — 3 ašių freza jų negręžia: išgręžkite rankiniu būdu pagal brėžinį, patikrinkite');
+    cmt('EDGE HOLES NOT IN THIS PROGRAM - DRILL BY HAND:');
+    f.edges.forEach(function (e) { cmt('  D' + num(e.d) + ' x ' + n3(e.depth) + ' into the ' + SIDE_TXT[e.side] + ' at ' + (e.side === 'L' || e.side === 'R' ? 'Y=' + n3(e.y) : 'X=' + n3(e.x))); });
+  }
+  L.push('G0 Z' + n3(safe)); L.push('M5'); L.push('M30');
+  return ascii(L.join('\r\n') + '\r\n');
+}
+
+/* ---- Biesse .CIX (bSolid / BiesseWorks). Sides 0 top, 1 left, 2 front, 3 right, 4 rear; reference corner 1. */
+function cixText(p, ops, f, op, w) {
+  var C = POST, L = [], id = 1000, n3 = function (v) { return num(Math.round(v * 1000) / 1000); }, q = function (s) { return '"' + ascii(s).replace(/"/g, "'") + '"'; };
+  var M = function (name, params) { L.push('BEGIN MACRO'); L.push('\tNAME=' + name); params.forEach(function (x) { L.push('\tPARAM,NAME=' + x[0] + ',VALUE=' + x[1]); }); L.push('END MACRO'); L.push(''); };
+  L.push('BEGIN ID CID3', '\tREL= 5.0', 'END ID', '');
+  L.push('BEGIN MAINDATA', '\tLPX=' + n3(ops.DX), '\tLPY=' + n3(ops.DY), '\tLPZ=' + n3(ops.DZ), '\tORLST="1"', '\tSIMMETRY=1', '\tTLCHK=0', '\tTOOLING=""', '\tCUSTSTR=""',
+    '\tFCN=1.000000', '\tXCUT=0', '\tYCUT=0', '\tJIGTH=0', '\tCKOP=0', '\tUNIQUE=0', '\tMATERIAL="wood"', '\tPUTLST=""', '\tOPPWKRS=0', '\tUNICLAMP=0', '\tCHKCOLL=0',
+    '\tWTPIANI=0', '\tCOLLTOOL=0', '\tCALCEDTH=0', '\tENABLELABEL=0', '\tLOCKWASTE=0', '\tLOADEDGEOPT=0', '\tITLTYPE=0', '\tRUNPAV=0', '\tFLIPEND=0', 'END MAINDATA', '');
+  f.bores.forEach(function (b) {
+    M('BV', [['LAY', q('BV')], ['ID', q('P' + (++id))], ['SIDE', 0], ['CRN', q('1')], ['X', n3(b.x)], ['Y', n3(b.y)], ['Z', 0], ['DP', n3(b.through ? (+C.through >= 0 ? +C.through : 1) : b.depth)],
+      ['DIA', n3(b.d)], ['THR', b.through ? 'YES' : 'NO'], ['RTY', 'rpNO'], ['NRP', 0], ['AZ', 0], ['AR', 0], ['TNM', q('')], ['TTP', 0]]);
+  });
+  if (op === 1 && f.edges.length) {
+    if (C.hDrill === false) w.push(p.name + ': krašto skylės (' + f.edges.length + ') į programą neįrašytos — išgręžkite rankiniu būdu pagal brėžinį, patikrinkite');
+    else f.edges.forEach(function (e) {
+      var side = { L:1, B:2, R:3, F:4 }[e.side];   // corner 1 = X0 Y0: side 1 X=0 (corners 1-2), 2 Y=max (2-3), 3 X=max (3-4), 4 Y=0 (4-1)
+      M('BH', [['LAY', q('BH')], ['ID', q('P' + (++id))], ['SIDE', side], ['CRN', q('1')], ['X', n3(e.side === 'L' || e.side === 'R' ? e.y : e.x)], ['Y', 0], ['Z', 0],
+        ['DP', n3(e.depth)], ['DIA', n3(e.d)], ['THR', 'NO'], ['RTY', 'rpNO'], ['NRP', 0], ['MD', 'YES'], ['TNM', q('')], ['TTP', 0]]);
+    });
+  }
+  f.routes.forEach(function (rt) {
+    var fp = flatPath(rt.moves); if (fp.pts.length < 2) return;
+    var rid = ++id;
+    M('ROUT', [['LAY', q('ROUT')], ['ID', q('P' + rid)], ['SIDE', 0], ['CRN', q('1')], ['Z', 0], ['DP', n3(fp.depth)], ['DIA', n3(+C.rDia > 0 ? +C.rDia : 8)], ['THR', 'NO'], ['RTY', 'rpNO'],
+      ['AZ', 0], ['AR', 0], ['CRC', 0], ['TNM', q(String(C.rTool || ''))], ['TTP', 103], ['TIN', 0], ['TOU', 0], ['WSP', Math.round(+C.feedCut || 0)], ['DSP', Math.round(+C.feedPlunge || 0)]]);
+    M('START_POINT', [['ID', rid], ['X', n3(fp.pts[0][0])], ['Y', n3(fp.pts[0][1])], ['Z', 0]]);
+    fp.pts.slice(1).forEach(function (pt) { M('LINE_EP', [['ID', rid], ['XE', n3(pt[0])], ['YE', n3(pt[1])], ['ZS', 0], ['ZE', 0], ['SC', 'scOFF'], ['FD', 0], ['SP', 0], ['SOL', 0], ['MVT', 'NO']]); });
+    M('ENDPATH', [['ID', rid]]);
+  });
+  var vb = betaLines('Biesse CIX').concat([p.name + '_' + op + 'OP  ' + posNote(p, f, op),
+    'Corner 1 = X0 Y0 of the face that is up (see POSITION). Edge bores: SIDE 1 = X0, 2 = Ymax, 3 = Xmax, 4 = Y0, X = position along the edge, MD = mid thickness.',
+    'The side numbering and the edge-bore position are NOT verified - check them in the bSolid 3D view before running.']);
+  L.push('BEGIN VB'); vb.forEach(function (s) { L.push('\tVBLINE=' + q("' " + s)); }); L.push('END VB', '');
+  return ascii(L.join('\r\n') + '\r\n');
+}
+
+/* ---- Homag / Weeke woodWOP .MPR 4.0: contours first (]n), then the workpiece, the comment and the macros, then "!".
+   Z in woodWOP counts up from the underside: a route ZA = thickness − depth. */
+function mprText(p, ops, f, op, w) {
+  var C = POST, L = [], n3 = function (v) { return num(Math.round(v * 1000) / 1000); }, kv = function (k, v) { L.push(k + '="' + v + '"'); }, txt = function (s) { return ascii(s).replace(/"/g, "'"); };
+  L.push('[H'); kv('VERSION', '4.0 Alpha'); kv('INCH', '0'); kv('MAT', 'HOMAG'); kv('OP', '1'); kv('FM', '1'); kv('VIEW', 'NOMIRROR'); kv('ANZ', '1');
+  kv('PARTID', txt(p.name + '_' + op + 'OP')); kv('INFO1', 'worxmax'); kv('INFO2', 'BETA - NOT MACHINE-VERIFIED - simulate in woodWOP and test on scrap before cutting');
+  L.push('_BSX=' + n3(ops.DX), '_BSY=' + n3(ops.DY), '_BSZ=' + n3(ops.DZ), '');
+  L.push('[001'); kv('L', n3(ops.DX)); kv('KM', 'Length X'); kv('B', n3(ops.DY)); kv('KM', 'Width Y'); kv('D', n3(ops.DZ)); kv('KM', 'Thickness'); L.push('');
+  var cont = [];
+  f.routes.forEach(function (rt) {
+    var fp = flatPath(rt.moves); if (fp.pts.length < 2) return; var n = cont.length + 1;
+    L.push(']' + n); L.push('$E0', 'KP ', 'X=' + n3(fp.pts[0][0]), 'Y=' + n3(fp.pts[0][1]), 'Z=0', 'KO=00', '');
+    fp.pts.slice(1).forEach(function (pt, k) { L.push('$E' + (k + 1), 'KL ', 'X=' + n3(pt[0]), 'Y=' + n3(pt[1]), ''); });
+    cont.push({ n:n, last:fp.pts.length - 1, depth:fp.depth, name:rt.name });
+  });
+  L.push('<100 \\WerkStck\\'); kv('LA', 'L'); kv('BR', 'B'); kv('DI', 'D'); kv('FNX', '0'); kv('FNY', '0'); kv('AX', '0'); kv('AY', '0'); L.push('');
+  L.push('<101 \\Kommentar\\'); betaLines('woodWOP MPR').forEach(function (s) { kv('KM', txt(s)); });
+  kv('KM', txt(p.name + '_' + op + 'OP')); var pn = posNote(p, f, op); if (pn) kv('KM', txt(pn)); kv('KM', 'X0 Y0 = the X0 Y0 corner of the face that is up (see POSITION)'); L.push('');
+  f.bores.forEach(function (b) {
+    L.push('<102 \\BohrVert\\'); kv('XA', n3(b.x)); kv('YA', n3(b.y)); kv('BM', b.through ? 'LSL' : 'LS'); kv('TI', n3(b.depth)); kv('DU', n3(b.d));
+    kv('AN', '1'); kv('MI', '0'); kv('S_', '2'); kv('AB', '0'); kv('WI', '0'); kv('F_', 'STANDARD'); kv('KO', '00'); L.push('');
+  });
+  if (op === 1 && f.edges.length) {
+    if (C.hDrill === false) w.push(p.name + ': krašto skylės (' + f.edges.length + ') į programą neįrašytos — išgręžkite rankiniu būdu pagal brėžinį, patikrinkite');
+    else f.edges.forEach(function (e) {
+      L.push('<103 \\BohrHoriz\\'); kv('XA', n3(e.x)); kv('YA', n3(e.y)); kv('ZA', n3(e.z)); kv('DU', n3(e.d)); kv('TI', n3(e.depth));
+      kv('BM', { L:'XP', R:'XM', F:'YP', B:'YM' }[e.side]); kv('AN', '1'); kv('AB', '0'); kv('MI', '0'); kv('F_', 'STANDARD'); kv('KO', '00'); L.push('');
+    });
+  }
+  cont.forEach(function (c) {
+    L.push('<105 \\Konturfraesen\\'); kv('EA', c.n + ':0'); kv('MDA', 'SEN'); kv('RK', 'NOWRK'); kv('EE', c.n + ':' + c.last); kv('MDE', 'SEN_AB'); kv('EM', '1'); kv('RI', '1');
+    kv('TNO', String(C.rTool || '0').replace(/[^\w]/g, '') || '0'); kv('SM', '0'); kv('S_', 'STANDARD'); kv('F_', 'STANDARD'); kv('AB', '0'); kv('AF', '0');
+    kv('ZA', n3(ops.DZ - c.depth)); kv('STUFEN', '0'); kv('ZSTART', '0'); kv('ANZZST', '0'); kv('KAT', 'Fraesen'); kv('MNM', txt(c.name || 'ROUTE')); L.push('');
+  });
+  L.push('!');
+  return ascii(L.join('\r\n') + '\r\n');
+}
+
+function programsOther(p) {
+  var ops = panelOps(p), w = ops.warnings.slice(), res = [], ext = postExt();
+  var write = POST.id === 'gcode' ? gcodeText : POST.id === 'cix' ? cixText : mprText;
+  ops.faces.forEach(function (f, i) {
+    var op = i + 1, text = write(p, ops, f, op, w);
+    res.push({ file:p.name + '_' + op + 'OP.' + ext, id:p.name + '_' + op + 'OP', text:text, n:f.bores.length + f.edges.length + f.routes.length, up:f.up, kind:op === 1 ? 'main' : 'flip' });
+  });
+  return { files:res, warnings:w.concat(p.warnings) };
+}
+function programs(p) { return POST.id === 'xxl' ? programsXXL(p) : programsOther(p); }
+
 /* worktop (stalviršis) chosen for one cabinet: on the carcass top, past the fronts by "over", past the sides by "left" / "right".
    In cabinet coordinates (x from the left side, y from the carcass front — fronts at y < 0 — z from the carcass bottom). Not machined: a part to cut. */
 var WT_DEF = { T:38, over:20, left:0, right:0 };
@@ -5103,7 +5338,7 @@ var api = { R:R, shelfSetSb:shelfSetSb, DRAWER_HW:DRAWER_HW, DOOR_HW:DOOR_HW, CA
             buildCabinet:function (c, idx, pn) { var r = buildCabinet(c, idx, pn); r.worktop = worktopOf(c);
               var bad = r.panels.filter(function (p) { return !(p.L >= 1 && p.W >= 1 && p.T > 0 && isFinite(p.L + p.W + p.T)); });   // a part with no size (dimensions too small for the layout) is left out
               if (bad.length) { r.panels = r.panels.filter(function (p) { return bad.indexOf(p) < 0; }); r.warnings.push(bad.map(function (p) { return p.short || p.role; }).join(', ') + ': per maži matmenys (' + bad.map(function (p) { return num(Math.round(p.L)) + '×' + num(Math.round(p.W)); }).join(', ') + ') — detalės nepridėtos, padidinkite spintelę'); }
-              return r; }, worktopOf:worktopOf, sidePanels:sidePanels, sideWidths:sideWidths, WT_DEF:WT_DEF, programs:programs, skOutline:skOutline, offsetPoly:offsetPoly, triangulate:triangulate, num:num, ascii:ascii, safeName:safeName, hingesPerDoor:hingesPerDoor,
+              return r; }, worktopOf:worktopOf, sidePanels:sidePanels, sideWidths:sideWidths, WT_DEF:WT_DEF, programs:programs, programsXXL:programsXXL, setPost:setPost, postExt:postExt, POST_DEF:POST_DEF, POST_NAMES:POST_NAMES, getPost:function () { return POST; }, skOutline:skOutline, offsetPoly:offsetPoly, triangulate:triangulate, num:num, ascii:ascii, safeName:safeName, hingesPerDoor:hingesPerDoor,
             hingeYs:hingeYs, hingesFit:hingesFit, setRules:setRules, splitFronts:splitFronts, pairedDowels:pairedDowels, legHeight:legHeight,
             buildBox:buildBox, underDeduct:underDeduct, boxDefaults:boxDefaults, BOX_IDS:BOX_IDS, BOX_DEF:BOX_DEF, boxPair:boxPair, boxCoverDefault:boxCoverDefault };
 if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.DBEngine = api;
@@ -13327,7 +13562,9 @@ en:{
             en:{ partB:'Partition {n} ↔ bottom', partT:'Partition {n} ↔ top', partF:'Partition {n} ↔ front rail', partR:'Partition {n} ↔ back rail', backP:'Back ↔ partition {n}' } };
   ['lt', 'en'].forEach(function (lg) { if (!T[lg]) return; for (var n = 1; n <= 3; n++) Object.keys(L[lg]).forEach(function (b) { T[lg]['jk_' + b + n] = L[lg][b].replace('{n}', n); }); });
 })();
-function t(k) { return (T[S.lang] && T[S.lang][k] !== undefined) ? T[S.lang][k] : (T.lt[k] !== undefined ? T.lt[k] : k); }
+function t(k) { var v = (T[S.lang] && T[S.lang][k] !== undefined) ? T[S.lang][k] : (T.lt[k] !== undefined ? T.lt[k] : k); return typeof v === 'string' && v.indexOf('.XXL') >= 0 ? xxlTxt(v) : v; }
+function progExt() { return E.postExt ? E.postExt() : 'XXL'; }   // the program file type of the machine chosen in the settings
+function xxlTxt(v) { var x = progExt(); return x === 'XXL' ? v : String(v).replace(/\.XXL/g, '.' + x).replace(/_XXL/g, '_' + x.toUpperCase()); }
 
 /* ----------------------------------------------------------------- helpers */
 function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
@@ -13453,6 +13690,7 @@ var S = {
               drillsTop:sr.drillsTop || RULE_DEF.drillsTop, tbHole:Object.assign(clone(RULE_DEF.tbHole), sr.tbHole || {}), ball:Object.assign(clone(RULE_DEF.ball), sr.ball || {}), under:Object.assign(clone(RULE_DEF.under), sr.under || {}), merivo:Object.assign(clone(RULE_DEF.merivo), sr.merivo || {}) };
   delete s.rules.hinge.plateDepth; s.rules.hinge.plateDepth = RULE_DEF.hinge.plateDepth;   // plate holes are markings now (post: Ø5 × 2), not a setting
   if (!(num(s.railW) > 0)) s.railW = 100;
+  s.post = Object.assign(clone(E.POST_DEF), s.post || {});
   s.materials = s.materials || []; s.edges = s.edges || []; s.worktops = s.worktops || []; })();
 function drillList(txt) { return String(txt || '').split(/[^\d.]+/).map(num).filter(function (v) { return v > 0; }); }
 function applyRules() {
@@ -13465,6 +13703,38 @@ function applyRules() {
   if (r.merivo) { var ml = {}; ['up', 'below', 'ded', 'shorter', 'topGap', 'depthPlus'].forEach(function (k) { var v = r.merivo[k]; if (v !== '' && v != null && isFinite(num(v))) ml[k] = num(v); });
     ml.perLen = String(r.merivo.perLen || ''); ml.marks = String(r.merivo.marks || '').trim() || RULE_DEF.merivo.marks; E.setRules({ merivo:ml }); if (!ml.perLen) E.R.merivo.perLen = ''; }
   E.setRules({ hinge:r.hinge, pins:r.pins, drills:{ top:drillList(r.drillsTop).length ? drillList(r.drillsTop) : drillList(RULE_DEF.drillsTop) }, runner:{ 'BLUM TANDEMBOX':{ facade:tb } } });
+  if (E.setPost) E.setPost(postCfg());
+}
+/* the machine chosen in the settings → the engine's post-processor (numbers checked; anything unusable falls back to the default) */
+function postCard(st) {   // settings → Machine: which CNC the programs are written for
+  var lt = S.lang === 'lt', sp = st.post || {}, id = sp.id || 'xxl', nm = E.POST_NAMES || {};
+  var pk = function (k, label, unit, w) { var fid = 'f-s-post-' + k; return '<label for="' + fid + '">' + label + '</label><span class="row" style="gap:5px;align-items:center"><input id="' + fid + '" type="text" data-bind="s.post.' + k + '" value="' + esc(sp[k] == null ? '' : sp[k]) + '" style="width:' + (w || 80) + 'px">' + (unit ? '<span class="unit">' + unit + '</span>' : '') + '</span>'; };
+  var h = '<div class="kv"><label for="f-s-post-id">' + (lt ? 'CNC programų formatas' : 'CNC program format') + '</label><select id="f-s-post-id" data-bind="s.post.id">' +
+    ['xxl', 'gcode', 'cix', 'mpr'].map(function (k) { return '<option value="' + k + '"' + (k === id ? ' selected' : '') + '>' + esc(nm[k] || k) + (k === 'xxl' ? '' : ' — BETA') + '</option>'; }).join('') + '</select></div>';
+  if (id === 'xxl') return h + '<p class="note" style="margin:6px 0 12px">' + (lt ? 'SCM Startech CN Plus (Maestro / Xilog .XXL) — patikrinta Dėdės Baldai dirbtuvėje. Toliau — šios galvos grąžtai.' : 'SCM Startech CN Plus (Maestro / Xilog .XXL) — proven in a working workshop. The drills of its head are below.') + '</p><hr style="border:0;border-top:1px solid var(--line,#ddd);margin:0 0 12px">';
+  h += '<p class="note" style="margin:6px 0 10px"><span class="badge warn">BETA</span> ' + (lt ? 'Parašyta pagal viešus formato aprašus, ant šių staklių NEPATIKRINTA. Kiekvieną programą pirmiausia patikrinkite staklių simuliacijoje, paleiskite virš plokštės ir išbandykite ant atraižos. Naudojate savo rizika.' : 'Written from public format descriptions, NOT verified on these machines. Check every program in the machine simulation first, dry-run it above the panel and test it on scrap. You use it at your own risk.') + '</p>';
+  h += '<div class="kv">' + pk('maxX', lt ? 'Didžiausias ilgis X' : 'Largest length X', 'mm') + pk('maxY', lt ? 'Didžiausias plotis Y' : 'Largest width Y', 'mm') +
+    pk('through', lt ? 'Kiaurymė giliau už plokštę' : 'Through holes go past the panel by', 'mm') +
+    pk('rDia', lt ? 'Frezos skersmuo' : 'Router bit diameter', 'mm') + pk('rTool', lt ? 'Frezos įrankio nr.' : 'Router tool no.', '', 70) +
+    pk('feedCut', lt ? 'Frezavimo pastūma' : 'Cutting feed', 'mm/min') + pk('feedPlunge', lt ? 'Įleidimo / gręžimo pastūma' : 'Plunge / drilling feed', 'mm/min');
+  if (id === 'gcode') h += pk('rpm', lt ? 'Suklio apsukos' : 'Spindle speed', 'rpm') + pk('safeZ', lt ? 'Saugus aukštis virš plokštės' : 'Safe height above the panel', 'mm') +
+    pk('stepZ', lt ? 'Gylio žingsnis frezuojant skylę' : 'Depth step when milling a hole', 'mm') +
+    '<label for="f-s-post-gTools">' + (lt ? 'Grąžtai „skersmuo:įrankis“' : 'Drills "diameter:tool"') + '</label><input id="f-s-post-gTools" type="text" data-bind="s.post.gTools" value="' + esc(sp.gTools || '') + '" placeholder="5:1, 8:2, 15:3, 35:4" style="width:100%">' +
+    '<label for="f-s-post-gToolChange">' + (lt ? 'Įrankio keitimas' : 'Tool change') + '</label><select id="f-s-post-gToolChange" data-bind="s.post.gToolChange"><option value="M6"' + (sp.gToolChange !== 'M0' ? ' selected' : '') + '>' + (lt ? 'Automatinis (T… M6)' : 'Automatic (T… M6)') + '</option><option value="M0"' + (sp.gToolChange === 'M0' ? ' selected' : '') + '>' + (lt ? 'Rankinis (M0 sustabdo programą)' : 'By hand (M0 stops the program)') + '</option></select>' +
+    '<label for="f-s-post-gExt">' + (lt ? 'Failo plėtinys' : 'File extension') + '</label><select id="f-s-post-gExt" data-bind="s.post.gExt">' + ['nc', 'tap', 'gcode', 'cnc', 'txt'].map(function (x) { return '<option value="' + x + '"' + ((sp.gExt || 'nc') === x ? ' selected' : '') + '>.' + x + '</option>'; }).join('') + '</select>';
+  else h += '<label for="f-s-post-hDrill">' + (lt ? 'Krašto (horizontalios) skylės' : 'Edge (horizontal) holes') + '</label><select id="f-s-post-hDrill" data-bind="s.post.hDrill"><option value="true"' + (sp.hDrill !== false ? ' selected' : '') + '>' + (lt ? 'Į programą' : 'In the program') + '</option><option value="false"' + (sp.hDrill === false ? ' selected' : '') + '>' + (lt ? 'Ne — gręšiu rankiniu būdu' : 'No — drilled by hand') + '</option></select>';
+  h += '</div><p class="note" style="margin:8px 0 12px">' + (id === 'gcode'
+    ? (lt ? 'X0 Y0 — detalės kampas, Z0 — plokštės VIRŠUS. Skylė be grąžto sąraše išfrezuojama freza (jei didesnė už ją). Krašto skylių 3 ašių freza negręžia — jos išvardijamos programos pabaigoje ir įspėjimuose.' : 'X0 Y0 — the part corner, Z0 — TOP of the panel. A hole with no drill in the list is milled with the router (when bigger than the bit). A 3-axis router cannot drill edge holes — they are listed at the end of the program and in the warnings.')
+    : (lt ? 'Staklės grąžtą parenka pagal skersmenį. Frezos įrankio nr. — jūsų staklių įrankių lentelės numeris.' : 'The machine picks the drill by its diameter. Router tool no. — the number in your machine\'s tool table.')) + '</p><hr style="border:0;border-top:1px solid var(--line,#ddd);margin:0 0 12px">';
+  return h;
+}
+function postCfg() {
+  var d = E.POST_DEF || {}, sp = (S.settings && S.settings.post) || {}, o = {};
+  Object.keys(d).forEach(function (k) { var v = sp[k];
+    if (typeof d[k] === 'number') { var n = num(String(v == null ? '' : v).replace(',', '.')); o[k] = isFinite(n) && n >= 0 && String(v).trim() !== '' ? n : d[k]; }
+    else if (typeof d[k] === 'boolean') o[k] = v === undefined ? d[k] : v !== false && v !== 'false';
+    else o[k] = v == null || String(v).trim() === '' ? d[k] : String(v); });
+  return o;
 }
 applyRules();
 function normCab(c) {
@@ -15802,7 +16072,7 @@ function viewRes(pj) {
       var cab = S.proj.cabinets[cn - 1] || {};
       return '<div class="plcab"><div class="plct"><b>' + cn + ' · ' + esc(cab.name || typeName(cab)) + '</b><button class="btn ghost" data-act="dlcab" data-v="' + cn + '">' + t('xxlCab').replace('{n}', byCab[cn].length) + '</button></div>' +
         byCab[cn].map(function (x) { return '<div class="plrow"><span class="plf mono">' + esc(x.f.file) + '</span><span class="unit">' + esc(x.p.short) + ' · ' + (x.f.kind === 'rot' ? '↻ ' + t('xxlRot') : (x.k + 1) + 'OP') + '</span>' +
-          '<button class="btn" data-act="dlprog" data-v="' + esc(x.f.file) + '" aria-label="' + esc(t('xxlOne') + ' ' + x.f.file) + '">⤓ .XXL</button></div>'; }).join('') + '</div>';
+          '<button class="btn" data-act="dlprog" data-v="' + esc(x.f.file) + '" aria-label="' + esc(t('xxlOne') + ' ' + x.f.file) + '">⤓ .' + progExt() + '</button></div>'; }).join('') + '</div>';
     }).join('') + '</div>';
   h += '<div class="split"><div style="display:flex;flex-direction:column;gap:16px;min-width:0">' + table + plist + hw + wl + '</div><aside class="pview">' + viewPart() + '</aside></div></div>';
   return h;
@@ -15862,7 +16132,7 @@ function viewPart() {
     '<div class="legend"><span><i style="border:1.5px solid #2448c9;background:#dfe6fb"></i>' + t('lgA') + '</span><span><i style="border:1.5px dashed #b4291f"></i>' + t('lgB') + '</span><span><i style="background:#1b211e"></i>' + t('lgT') + '</span><span><i style="background:#9a6a00;width:7px;height:7px"></i>' + t('lgM') + '</span><span><i style="border-radius:1px;background:#2f7d55;height:5px"></i>' + t('lgE') + '</span><span><i style="border-radius:0;background:#f2b705;height:4px"></i>' + t('lgEb') + '</span></div>' +
     '<div class="note" style="margin-top:6px;color:#5f6a64">' + esc(noteTxt(p.note)) + '</div></div>' +
     (f && f.kind === 'rot' ? '<p class="note" style="margin:0">' + t('rotHint') + '</p>' : '') +
-    (f ? '<div class="ptabs">' + tabs + '<span class="unit">' + esc(f.file) + '</span><span class="pdl"><button class="btn ghost" data-act="copy">' + t('copy') + '</button><button class="btn pri" data-act="dlprog" data-v="' + esc(f.file) + '">⤓ .XXL</button>' +
+    (f ? '<div class="ptabs">' + tabs + '<span class="unit">' + esc(f.file) + '</span><span class="pdl"><button class="btn ghost" data-act="copy">' + t('copy') + '</button><button class="btn pri" data-act="dlprog" data-v="' + esc(f.file) + '">⤓ .' + progExt() + '</button>' +
       (pr.files.length > 1 ? '<button class="btn" data-act="dlpart" data-v="' + esc(p.name) + '">' + t('xxlPart').replace('{n}', pr.files.length) + '</button>' : '') + '</span></div><pre class="code" id="progtext">' + esc(f.text) + '</pre>' : '<div class="card empty">' + t('noProg') + '</div>');
 }
 /* panel as the operator sees it in 1OP: X to the right from the left end, Y up from the front edge */
@@ -15950,6 +16220,7 @@ function viewSet() {
     '<label for="f-s-tbd">' + t('tbHoleSet') + ' Ø</label><input id="f-s-tbd" type="text" inputmode="decimal" data-bind="s.rules.tbHole.d" data-num="1" value="' + esc(st.rules.tbHole.d) + '">' +
     '<label for="f-s-tbz">' + t('tbHoleSet') + ' ' + (S.lang === 'lt' ? 'gylis' : 'depth') + '</label><input id="f-s-tbz" type="text" inputmode="decimal" data-bind="s.rules.tbHole.depth" data-num="1" value="' + esc(st.rules.tbHole.depth) + '"></div>' +
     '<p class="note" style="margin:8px 0 0">' + t('drillsTopL') + '</p>';
+  mach = postCard(st) + mach;
   return '<div style="display:flex;flex-direction:column;gap:16px"><div><h2 style="margin:0;font:600 26px var(--f-display)">' + t('setTitle') + '</h2><p class="note" style="margin:2px 0 0">' + t('setLead') + '</p></div><div class="setgrid">' + adminCard() +
     '<div class="card wide"><h3 style="margin:0 0 4px;font:600 19px var(--f-display)">' + t('setTypes') + '</h3><p class="note" style="margin:0 0 10px">' + t('setTypesL') + '</p>' + types + '</div>' +
     '<div class="card"><h3 style="margin:0 0 10px;font:600 19px var(--f-display)">' + t('setOps') + '</h3>' + ops + '</div>' +
@@ -16615,7 +16886,7 @@ function zipAll(pj) {
 }
 function zipFiles(pj, xl, pdf) {
   var base = pj.project, files = [];
-  pj.files.forEach(function (f) { files.push({ name:base + '_XXL/' + f.name, data:f.text }); });
+  pj.files.forEach(function (f) { files.push({ name:base + '_' + progExt().toUpperCase() + '/' + f.name, data:f.text }); });
   files.push({ name:base + '_ReportLists_to_Excel.xlsx', data:xl });
   files.push({ name:base + '_detales.csv', data:csvOf(pj) });
   if (pdf) files.push({ name:base + '_brezinai.pdf', data:pdf });
@@ -16693,7 +16964,7 @@ var NVA = {}, NVC = {}, NVLIVE = {}, NVSTAGE = {}, NVAFTER = [];
 var NVTOPICS = [];
 function nvTopic(def) { NVTOPICS = NVTOPICS.filter(function (x) { return x.key !== def.key; }); NVTOPICS.push(def); NVTOPICS.sort(function (a, b) { return (a.order || 0) - (b.order || 0); }); }
 function nvTopicsFor(c) { return NVTOPICS.filter(function (x) { return !x.applies || x.applies(c); }); }
-function L(lt, en) { return S.lang === 'en' && en != null ? en : lt; }
+function L(lt, en) { var v = S.lang === 'en' && en != null ? en : lt; return typeof v === 'string' && v.indexOf('.XXL') >= 0 ? xxlTxt(v) : v; }
 
 /* ----------------------------------------------------------------- issues (computed in 10-checks.js) */
 function nvIssues() {
@@ -17822,7 +18093,7 @@ function nvhNoteHtml(name) {
     '<button type="button" class="nv-btn sm" data-act="popen" data-v="' + esc(st.same.id) + '">' + L('Atidaryti esamą', 'Open the existing one') + '</button>';
   if (st.k === 'odd') return '<span class="nvh-note-msg warn">' + L('Pavadinime nėra raidžių ar skaičių — programos vadintųsi „PROJEKTAS_…“. Įrašykite aiškesnį.', 'The name has no letters or digits — the programs would be called "PROJEKTAS_…". Type a clearer one.') + '</span>';
   return '<span class="nvh-note-msg">' + (st.changed ? L('CNC programų pavadinimuose — be lietuviškų raidžių ir tarpų:', 'In the CNC program names — plain letters, no spaces:') : L('CNC programos vadinsis:', 'The CNC programs will be called:')) +
-    ' <code>' + esc(st.safe) + '_1_….XXL</code></span>';
+    ' <code>' + esc(st.safe) + '_1_….' + progExt() + '</code></span>';
 }
 function nvhCreateLabel(name) { var st = nvhNameState(name); return (st.k === 'dup' && NV.hDupOk === st.key ? L('Sukurti vis tiek', 'Create anyway') : t('npCreate')) + ' →'; }
 /* repaint the note and the button under the caret, without a render (the field keeps its focus) */
@@ -21287,6 +21558,19 @@ function nvmSig(list) {
   return list.length + ':' + nvmHash(s);
 }
 function nvmAckKey() { return 'nv.ack.' + (S.proj && S.proj.id || ''); }
+/* the CNC check: before any program leaves the app the person confirms, once per browser session and machine format,
+   that the programs are checked in the machine's simulation, run above the panel and tested on scrap — at their own risk */
+function cncAckKey() { return 'nv.cncAck.' + progExt(); }
+function cncAckGet() { var v = null; try { v = sessionStorage.getItem(cncAckKey()); } catch (e) {} return v === '1' || !!(NV.cncAck && NV.cncAck[cncAckKey()]); }
+function cncAckSet(on) { NV.cncAck = NV.cncAck || {}; if (on) NV.cncAck[cncAckKey()] = 1; else delete NV.cncAck[cncAckKey()];
+  try { if (on) sessionStorage.setItem(cncAckKey(), '1'); else sessionStorage.removeItem(cncAckKey()); } catch (e) {} }
+function cncAckBox(g) {
+  var beta = progExt() !== 'XXL', nm = (E.POST_NAMES && S.settings.post && E.POST_NAMES[S.settings.post.id]) || '';
+  return '<label class="nvm-ack' + (g.cncOk ? ' on' : '') + '" id="nvm-cncbox"><input type="checkbox" id="nvm-cnc" data-nv-change="mcnc"' + (g.cncOk ? ' checked' : '') + '><span>' +
+    L('Suprantu: CNC programos sukurtos automatiškai. Prieš gamybą kiekvieną patikrinsiu staklių simuliacijoje, paleisiu virš plokštės ir išbandysiu ant atraižos. Naudoju savo rizika.',
+      'I understand: the CNC programs are made automatically. Before production I check each one in the machine simulation, run it above the panel and test it on scrap. I use them at my own risk.') +
+    (beta ? ' <b>' + esc(nm) + ' — BETA, ' + L('ant staklių dar nepatikrinta', 'not yet verified on a machine') + '.</b>' : '') + '</span></label>';
+}
 function nvmAckGet() { var v = null; try { v = sessionStorage.getItem(nvmAckKey()); } catch (e) {} return v != null ? v : (NV.mAck[S.proj && S.proj.id] || null); }
 function nvmAckSet(sig) {
   var id = S.proj && S.proj.id; if (sig) NV.mAck[id] = sig; else delete NV.mAck[id];
@@ -21296,14 +21580,15 @@ function nvmAckSet(sig) {
 function nvmGate() {
   var list = nvkAll(), cabs = S.proj ? S.proj.cabinets.length : 0;
   var blockers = nvkSort(list.filter(function (x) { return x.sev === 'error' || x.sev === 'todo'; })), warns = list.filter(function (x) { return x.sev === 'warn'; });
-  var sig = nvmSig(warns), acked = !warns.length || nvmAckGet() === sig;
+  var sig = nvmSig(warns), wAcked = !warns.length || nvmAckGet() === sig, cncOk = cncAckGet(), acked = wAcked && cncOk;
   var state = blockers.length || !cabs ? 'blocked' : acked ? 'ready' : 'ack';
-  return { state: state, open: state === 'ready', blockers: blockers, warns: warns, sig: sig, acked: acked, cabs: cabs };
+  return { state: state, open: state === 'ready', blockers: blockers, warns: warns, sig: sig, acked: acked, wAcked: wAcked, cncOk: cncOk, cabs: cabs };
 }
 function nvmFresh() { NV.issues = null; return nvmGate(); }   // at the moment of an export: never from a cached list
 function nvmStop(g) {   // an export was refused: say why and take the person to the place
   if (g.state === 'blocked') { toast(L('Pirmiausia sutvarkykite patikrą', 'Sort out the check first'), true); nvGo({ tab: 'chk' }); }
-  else { toast(L('Pirmiausia peržiūrėkite įspėjimus', 'Review the warnings first'), true); nvGo({ tab: 'res', field: 'nvm-ackbox' }); }
+  else if (!g.wAcked) { toast(L('Pirmiausia peržiūrėkite įspėjimus', 'Review the warnings first'), true); nvGo({ tab: 'res', field: 'nvm-ackbox' }); }
+  else { toast(L('Pirmiausia patvirtinkite CNC programų patikrą', 'Confirm the CNC program check first'), true); nvGo({ tab: 'res', field: 'nvm-cncbox' }); }
 }
 function nvmPass() { var g = nvmFresh(); if (g.open) return true; nvmStop(g); return false; }
 app.addEventListener('click', function (e) {   // capture: before the live command switch sees the click
@@ -21327,8 +21612,9 @@ NVA.mxxlzip = function () {   // only the CNC programs, every .XXL in one ZIP (i
   var pj = buildProjectAll(), base = pj.project;
   if (!pj.files.length) { toast(L('CNC programų nėra.', 'There are no CNC programs.'), true); return false; }
   S.busy = true; toast(t('building'));
-  Promise.resolve(Z.zip(pj.files.map(function (f) { return { name: base + '_XXL/' + f.name, data: f.text }; }))).then(function (u) {
-    S.busy = false; saveFile(base + '_XXL.zip', u); }, function (er) { S.busy = false; toast(String(er && er.message || er), true); });
+  var pf = '_' + progExt().toUpperCase();
+  Promise.resolve(Z.zip(pj.files.map(function (f) { return { name: base + pf + '/' + f.name, data: f.text }; }))).then(function (u) {
+    S.busy = false; saveFile(base + pf + '.zip', u); }, function (er) { S.busy = false; toast(String(er && er.message || er), true); });
   return false;
 };
 /* the finished project into ShopFlow: its report list (the same .xlsx as "Detalių sąrašas") goes through localStorage to
@@ -21353,6 +21639,7 @@ NVA.mjson = function () {   // the project itself, as the ZIP carries it: prices
   saveFile(projName() + '_projektas.json', JSON.stringify(p, null, 1)); return false;
 };
 NVC.mack = function (el) { var g = nvmFresh(); nvmAckSet(el.checked && g.state !== 'blocked' ? g.sig : null); };
+NVC.mcnc = function (el) { cncAckSet(!!el.checked); };
 
 /* ----------------------------------------------------------------- the export panel */
 var NVM_LOCK = '<svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>';
@@ -21369,7 +21656,7 @@ function nvmFiles(open, nFiles) {
   var d = open ? '' : ' disabled', dl = '⤓ ' + L('Atsisiųsti', 'Download');
   var b = function (attrs, label, cls) { return '<button type="button" class="nv-btn sm' + (cls ? ' ' + cls : '') + '" ' + attrs + d + '>' + label + '</button>'; };
   return '<div class="nvm-files"><h3 class="nv-h3">' + L('Atskiri failai', 'Single files') + '</h3><div class="nvm-fgrid">' +
-    nvmFile('.XXL', L('CNC programos', 'CNC programs') + ' <i>' + nFiles + '</i>', L('Į CNC stakles — po programą kiekvienai gręžiamai detalei.', 'To the CNC machine — one program for every drilled part.'), b('data-nv="mxxlzip" title="' + esc(L('Visos .XXL programos viename ZIP faile (aplanke ', 'Every .XXL program in one ZIP file (in the folder ') + projName() + '_XXL)') + '"', '⤓ ZIP') + b('data-act="dlall" title="' + esc(t('xxlAllT')) + '"', L('Po vieną', 'One by one'), 'ghost')) +
+    nvmFile('.' + progExt(), L('CNC programos', 'CNC programs') + ' <i>' + nFiles + '</i>', L('Į CNC stakles — po programą kiekvienai gręžiamai detalei.', 'To the CNC machine — one program for every drilled part.'), b('data-nv="mxxlzip" title="' + esc(L('Visos .' + progExt() + ' programos viename ZIP faile (aplanke ', 'Every .' + progExt() + ' program in one ZIP file (in the folder ') + projName() + '_' + progExt().toUpperCase() + ')') + '"', '⤓ ZIP') + b('data-act="dlall" title="' + esc(t('xxlAllT')) + '"', L('Po vieną', 'One by one'), 'ghost')) +
     nvmFile('.xlsx', L('Detalių sąrašas', 'Part list'), L('Į Nesting programą — pjovimui ir etiketėms.', 'To the Nesting app — for cutting and labels.'), b('data-act="dl" data-v="xlsm"', dl) + b('data-act="nestopen" title="' + esc(t('nestOpenT')) + '"', '↗ Nesting', 'ghost')) +
     nvmFile('PDF', L('Brėžiniai', 'Drawings') + ' <i>' + esc(S.drwPaper || 'A3') + '</i>', L('Spausdinti surinkimui ir montavimui.', 'Print them for assembly and fitting.'), b('data-nv="mpdf"', dl)) +
     nvmFile('.csv', L('Detalių lentelė', 'Part table'), L('Jei sąrašo reikia skaičiuoklėje ar kitoje programoje.', 'When the list is needed in a spreadsheet or another program.'), b('data-act="dl" data-v="csv"', dl)) +
@@ -21379,8 +21666,8 @@ function nvmFiles(open, nFiles) {
 }
 function nvmAckBox(g) {
   var n = g.warns.length;
-  return '<label class="nvm-ack' + (g.acked ? ' on' : '') + '" id="nvm-ackbox"><input type="checkbox" id="nvm-ack" data-nv-change="mack"' + (g.acked ? ' checked' : '') + '><span>' +
-    L('Peržiūrėjau ' + (n === 1 ? 'įspėjimą' : 'įspėjimus') + ' — gaminti galima', 'I have reviewed the ' + (n === 1 ? 'warning' : 'warnings') + ' — it can be made') + '</span></label>';
+  return (n ? '<label class="nvm-ack' + (g.wAcked ? ' on' : '') + '" id="nvm-ackbox"><input type="checkbox" id="nvm-ack" data-nv-change="mack"' + (g.wAcked ? ' checked' : '') + '><span>' +
+    L('Peržiūrėjau ' + (n === 1 ? 'įspėjimą' : 'įspėjimus') + ' — gaminti galima', 'I have reviewed the ' + (n === 1 ? 'warning' : 'warnings') + ' — it can be made') + '</span></label>' : '') + cncAckBox(g);
 }
 function nvmZip(open) {
   return '<div class="nvm-zip"><button type="button" class="nv-btn pri lg" id="nvm-zip" data-act="dl" data-v="zip"' + (open ? '' : ' disabled') + '>⤓ ' + L('Atsisiųsti viską (ZIP)', 'Download everything (ZIP)') + '</button>' +
@@ -21402,6 +21689,10 @@ function nvmPanel(g, nFiles) {
       '<button type="button" class="nv-btn pri lg" id="nvm-tochk" data-act="tab" data-v="' + (nb ? 'chk' : 'cab') + '">' + (nb ? L('Eiti į patikrą', 'Go to the check') : L('Į spinteles', 'To the cabinets')) + ' →</button>',
       nb ? nvmLines(g.blockers, 6) : '');   // 6 = two full rows of the three-column list
   }
+  if (g.state === 'ack' && !nw)
+    return wrap('ack', '!', L('Prieš atsisiunčiant patvirtinkite CNC programų patikrą', 'Confirm the CNC program check before downloading'),
+      L('Klaidų ir įspėjimų nėra. Programos sukurtos automatiškai — staklėms jas atiduokite tik patikrinę.', 'No errors and no warnings. The programs are made automatically — give them to the machine only after checking them.'), '',
+      '<div class="nvm-go">' + nvmAckBox(g) + nvmZip(false) + '</div>' + nvmFiles(false, nFiles));
   if (g.state === 'ack')
     return wrap('ack', '!', S.lang === 'en' ? 'Review ' + nw + (nw === 1 ? ' warning' : ' warnings') + ' before downloading' : 'Prieš atsisiunčiant peržiūrėkite ' + nw + ' ' + nvkPl(nw, 'įspėjimą', 'įspėjimus', 'įspėjimų'),
       L('Niekas nestabdo, bet šias vietas verta patikrinti prieš paleidžiant stakles. Pažymėkite, kai perskaitysite.', 'Nothing blocks, but these are worth checking before the machine runs. Tick the box once you have read them.'), chk,
@@ -21410,7 +21701,7 @@ function nvmPanel(g, nFiles) {
     nw ? L('Klaidų nėra, įspėjimai peržiūrėti. Failai — iš ką tik patikrinto projekto.', 'No errors, the warnings are reviewed. The files come from the project as just checked.')
        : L('Klaidų ir įspėjimų nėra. Failai — iš ką tik patikrinto projekto.', 'No errors and no warnings. The files come from the project as just checked.'),
     nvmZip(true),
-    (nw ? '<div class="nvm-go"><span class="nvm-acked">' + nvmAckBox(g) + '<span class="nv-muted">' + nvkCnt('warn', nw) + '</span>' + chk + '</span></div>' : '') + nvmFiles(true, nFiles) + (typeof nvpStep === 'function' ? nvpStep(g) : ''));
+    '<div class="nvm-go"><span class="nvm-acked">' + nvmAckBox(g) + (nw ? '<span class="nv-muted">' + nvkCnt('warn', nw) + '</span>' + chk : '') + '</span></div>' + nvmFiles(true, nFiles) + (typeof nvpStep === 'function' ? nvpStep(g) : ''));
 }
 NVLIVE.mgate = function () { return nvmPanel(nvmGate(), NV.mFiles); };   // follows the project name while it is typed in the top bar
 
@@ -21429,6 +21720,8 @@ function nvmBar(g) {
     return '<div class="nvm-bar st-blocked noprint" id="nvm-bar" data-state="blocked"><span class="nvm-bico" aria-hidden="true">' + NVM_LOCK + '</span><span class="nvm-btx"><b>' + L('Failai užrakinti', 'The files are locked') + '</b>' +
       (nb ? ' — ' + (S.lang === 'en' ? nb + (nb === 1 ? ' thing stops' : ' things stop') + ' production' : nb + ' ' + nvkPl(nb, 'dalykas stabdo', 'dalykai stabdo', 'dalykų stabdo') + ' gamybą') : '') + '. ' +
       L('Peržiūrėti galima, atsisiųsti ar perduoti — dar ne.', 'You can look, but not download or hand over yet.') + '</span><button type="button" class="nv-btn sm pri" data-act="tab" data-v="chk">' + L('Eiti į patikrą', 'Go to the check') + ' →</button></div>';
+  if (!nw) return '<div class="nvm-bar st-ack noprint" id="nvm-bar" data-state="ack"><span class="nvm-bico" aria-hidden="true">!</span><span class="nvm-btx"><b>' +
+    L('Prieš atsisiunčiant patvirtinkite CNC programų patikrą', 'Confirm the CNC program check before downloading') + '</b></span><button type="button" class="nv-btn sm pri" data-nv="go" data-tab="res" data-field="nvm-cncbox">' + L('Patvirtinti', 'Confirm') + ' →</button></div>';
   return '<div class="nvm-bar st-ack noprint" id="nvm-bar" data-state="ack"><span class="nvm-bico" aria-hidden="true">!</span><span class="nvm-btx"><b>' +
     (S.lang === 'en' ? 'Review ' + nw + (nw === 1 ? ' warning' : ' warnings') + ' before downloading' : 'Prieš atsisiunčiant peržiūrėkite ' + nw + ' ' + nvkPl(nw, 'įspėjimą', 'įspėjimus', 'įspėjimų')) +
     '</b></span><button type="button" class="nv-btn sm pri" data-nv="go" data-tab="res" data-field="nvm-ackbox">' + L('Peržiūrėti', 'Review') + ' →</button></div>';
