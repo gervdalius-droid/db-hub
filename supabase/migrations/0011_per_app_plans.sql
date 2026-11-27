@@ -46,18 +46,19 @@ language sql immutable set search_path = '' as $$
 $$;
 
 -- may the signed-in person's workshop change data of this app right now? (null app: any)
-create or replace function public.workshop_can(p_app text) returns boolean
+-- (public.workshop_can(area) from earlier is a different check: who in the workshop may open an area)
+create or replace function public.workshop_app_ok(p_app text) returns boolean
 language sql stable security definer set search_path = '' as $$
   select coalesce((select private.workshop_access(w) = 'full' and (p_app is null or p_app = any(private.workshop_apps(w)))
     from public.workshops w join public.workshop_members m on m.workshop_id = w.id
     where m.user_id = (select auth.uid()) and m.active), false);
 $$;
-create or replace function public.workshop_can_doc(p_doc text) returns boolean
+create or replace function public.workshop_doc_ok(p_doc text) returns boolean
 language sql stable security definer set search_path = '' as $$
-  select public.workshop_can((select private.app_of_area(d.area) from public.workshop_docs d where d.id = p_doc));
+  select public.workshop_app_ok((select private.app_of_area(d.area) from public.workshop_docs d where d.id = p_doc));
 $$;
-revoke all on function public.workshop_can(text), public.workshop_can_doc(text) from public, anon;
-grant execute on function public.workshop_can(text), public.workshop_can_doc(text) to authenticated;
+revoke all on function public.workshop_app_ok(text), public.workshop_doc_ok(text) from public, anon;
+grant execute on function public.workshop_app_ok(text), public.workshop_doc_ok(text) to authenticated;
 
 -- ---------------------------------------------------------------- table rules, per app
 do $$
@@ -68,35 +69,35 @@ begin
     execute format('drop policy if exists wx_paid_ins on public.%I', r.t);
     execute format('drop policy if exists wx_paid_upd on public.%I', r.t);
     execute format('drop policy if exists wx_paid_del on public.%I', r.t);
-    execute format('create policy wx_paid_ins on public.%I as restrictive for insert to authenticated with check ((select public.workshop_can(%L)))', r.t, r.app);
-    execute format('create policy wx_paid_upd on public.%I as restrictive for update to authenticated using ((select public.workshop_can(%L))) with check ((select public.workshop_can(%L)))', r.t, r.app, r.app);
-    execute format('create policy wx_paid_del on public.%I as restrictive for delete to authenticated using ((select public.workshop_can(%L)))', r.t, r.app);
+    execute format('create policy wx_paid_ins on public.%I as restrictive for insert to authenticated with check ((select public.workshop_app_ok(%L)))', r.t, r.app);
+    execute format('create policy wx_paid_upd on public.%I as restrictive for update to authenticated using ((select public.workshop_app_ok(%L))) with check ((select public.workshop_app_ok(%L)))', r.t, r.app, r.app);
+    execute format('create policy wx_paid_del on public.%I as restrictive for delete to authenticated using ((select public.workshop_app_ok(%L)))', r.t, r.app);
   end loop;
 end $$;
 
 drop policy if exists wx_paid_ins on public.workspaces;
 drop policy if exists wx_paid_upd on public.workspaces;
 drop policy if exists wx_paid_del on public.workspaces;
-create policy wx_paid_ins on public.workspaces as restrictive for insert to authenticated with check (public.workshop_can_doc(id));
-create policy wx_paid_upd on public.workspaces as restrictive for update to authenticated using (public.workshop_can_doc(id)) with check (public.workshop_can_doc(id));
-create policy wx_paid_del on public.workspaces as restrictive for delete to authenticated using (public.workshop_can_doc(id));
+create policy wx_paid_ins on public.workspaces as restrictive for insert to authenticated with check (public.workshop_doc_ok(id));
+create policy wx_paid_upd on public.workspaces as restrictive for update to authenticated using (public.workshop_doc_ok(id)) with check (public.workshop_doc_ok(id));
+create policy wx_paid_del on public.workspaces as restrictive for delete to authenticated using (public.workshop_doc_ok(id));
 
 drop policy if exists wx_paid_files_ins on storage.objects;
 drop policy if exists wx_paid_files_upd on storage.objects;
 drop policy if exists wx_paid_files_del on storage.objects;
 create policy wx_paid_files_ins on storage.objects as restrictive for insert to authenticated
-  with check (bucket_id <> 'shopflow' or (select public.workshop_can('shopflow')));
+  with check (bucket_id <> 'shopflow' or (select public.workshop_app_ok('shopflow')));
 create policy wx_paid_files_upd on storage.objects as restrictive for update to authenticated
-  using (bucket_id <> 'shopflow' or (select public.workshop_can('shopflow')))
-  with check (bucket_id <> 'shopflow' or (select public.workshop_can('shopflow')));
+  using (bucket_id <> 'shopflow' or (select public.workshop_app_ok('shopflow')))
+  with check (bucket_id <> 'shopflow' or (select public.workshop_app_ok('shopflow')));
 create policy wx_paid_files_del on storage.objects as restrictive for delete to authenticated
-  using (bucket_id <> 'shopflow' or (select public.workshop_can('shopflow')));
+  using (bucket_id <> 'shopflow' or (select public.workshop_app_ok('shopflow')));
 
 -- Shopfloor plan tables are saved through functions that skip table rules: check in a trigger
 create or replace function private.guard_app() returns trigger
 language plpgsql security definer set search_path = '' as $$
 begin
-  if (select auth.uid()) is not null and not public.workshop_can(tg_argv[0]) then
+  if (select auth.uid()) is not null and not public.workshop_app_ok(tg_argv[0]) then
     raise exception 'This app is read-only for your workshop: add it to your plan to make changes.' using errcode = '42501';
   end if;
   return coalesce(new, old);
