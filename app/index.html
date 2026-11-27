@@ -192,6 +192,27 @@ td select{min-height:36px;padding:4px 8px}
 .plan .keep{font-size:12.5px;color:var(--ink3)}
 .agree{display:flex!important;flex-direction:row!important;gap:10px;align-items:flex-start;font-weight:400;font-size:14px;line-height:1.45;padding:14px;border-radius:12px;background:var(--paper);border:1.5px solid var(--rule)}
 .agree input{width:20px!important;height:20px!important;min-height:0!important;margin:0!important;flex:none;accent-color:var(--ink)}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.presets .btn{min-height:38px;font-size:14px;padding:0 14px}
+.presets .btn small{font-weight:500;color:var(--ink3)}
+.picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-top:14px}
+.pick{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:12px 14px;border-radius:12px;border:1.5px solid var(--rule);background:var(--sheet)}
+.pick:hover{border-color:var(--ink)}
+.pick:focus-visible{outline:3px solid var(--ink)}
+.pick .bx{width:20px;height:20px;border-radius:6px;border:2px solid var(--ink);display:grid;place-items:center;background:#fff}
+.pick .bx svg{width:14px;height:14px;opacity:0}
+.pick[aria-pressed="true"]{border:2px solid var(--ink);background:var(--lime-soft)}
+.pick[aria-pressed="true"] .bx{background:var(--ink);color:var(--lime)}.pick[aria-pressed="true"] .bx svg{opacity:1}
+.pick b{display:block;font-size:15px}.pick small{display:block;font-size:12.5px;color:var(--ink3);font-weight:400}
+.pick .eur{font-weight:700;font-size:14px;white-space:nowrap}
+.pick.free .eur{color:var(--ok)}
+.sum{margin-top:16px;padding:16px 18px;border-radius:14px;border:2px solid var(--ink);background:var(--paper)}
+.sum table{width:100%;border-collapse:collapse;font-size:14.5px}
+.sum td{padding:4px 0;vertical-align:top}.sum td:last-child{text-align:right;white-space:nowrap;padding-left:12px}
+.sum tr.tot td{border-top:1.5px solid var(--ink);padding-top:10px;font-weight:800;font-size:18px}
+.sum .save{color:var(--ok);font-weight:600}
+.sum .up{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--lime-soft);font-size:14px}
+.lic{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:6px;padding:14px 16px;border-radius:12px;border:1.5px dashed var(--rule2);font-size:14px}
 .rules{margin:0;padding:0 0 0 18px;font-size:14px;line-height:1.5;display:flex;flex-direction:column;gap:6px}
 .soonpay{padding:12px 14px;border-radius:12px;background:var(--blue-soft);border:1.5px solid var(--blue);font-size:14px}
 .linkbtn{background:none;border:0;padding:0;color:var(--ink2,#444);font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;justify-self:start;align-self:flex-start}
@@ -267,7 +288,7 @@ td select{min-height:36px;padding:4px 8px}
   </div>
 </div>
 
-<script src="/assets/site.js?v=34"></script>
+<script src="/assets/site.js?v=35"></script>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const RECOVERY = /type=recovery/.test(location.hash + location.search);   // came from a password-reset email
@@ -277,11 +298,13 @@ const db = createClient('https://preatnukvhwarytlpxpe.supabase.co', 'sb_publisha
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const W = window.DBHUB || {};
-const APPS = W.APPS || [], STAGES = W.STAGES || [], PLAN_OF = W.PLAN_OF || {}, byId = W.byId || {}, stageOf = W.stageOf || {};
+const APPS = W.APPS || [], STAGES = W.STAGES || [], byId = W.byId || {}, stageOf = W.stageOf || {};
+const ITEMS = W.ITEMS || {}, SINGLES = W.SINGLES || [], sellOf = W.sellOf || ((id) => id), bestItems = W.bestItems;
 const CONTACT = W.CONTACT_EMAIL || 'hello@worxmax.com';
 const ROLES = { admin: 'Owner', manager: 'Manager', worker: 'Worker', shop: 'Shared shop screen' };
-const PLANS = { trial: 'Free trial', office: 'Office', workshop: 'Workshop', complete: 'Complete' };
-const RANK = { office: 0, workshop: 1, complete: 2, trial: 2 };
+const PLANS = { trial: 'Free trial', apps: 'Your apps', suite: 'Full suite', office: 'Office', workshop: 'Workshop', complete: 'Complete' };
+// apps of the plans sold before per-app plans (the database says the same in private.workshop_apps)
+const OLD_TIER = { office: ['crm', 'offers', 'invoices'], workshop: ['crm', 'offers', 'invoices', 'shopflow', 'nesting', 'dxf'] };
 
 const svg = (d, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
 const I = {
@@ -313,11 +336,16 @@ try { S.collapsed = localStorage.getItem('wx.side') === '1'; } catch (e) {}
 
 function say(id, text, ok) { const el = $(id); if (!el) return; el.textContent = text || ''; el.classList.toggle('ok', !!ok); }
 function showGate(which) { $('loading').hidden = true; $('shell').hidden = true; $('gate').hidden = false; $('vAuth').hidden = which !== 'auth'; $('vNew').hidden = which !== 'new'; $('vAdmin').hidden = which !== 'admin'; $('vReset').hidden = which !== 'reset'; }
-function canUse(id) { return (RANK[me.plan] ?? 2) >= (PLAN_OF[id] ?? 0); }
+function myApps() { return me.apps || OLD_TIER[me.plan] || SINGLES; }
+function canUse(id) { return myApps().includes(sellOf(id)); }
+function planName() {
+  if (me.plan === 'apps') { const n = myApps().length; return n === 1 ? (ITEMS[myApps()[0]] || {}).name || '1 app' : n + ' apps'; }
+  return PLANS[me.plan] || me.plan;
+}
 function trialDays() { return Math.ceil((new Date(me.trial_ends_at) - Date.now()) / 864e5); }
 function planLine() {
-  if (access() === 'read') return (PLANS[me.plan] || me.plan) + ' · read-only';
-  if (me.plan !== 'trial') return (PLANS[me.plan] || me.plan) + (me.billing === 'licence' ? ' licence' : me.billing === 'yearly' ? ', yearly' : me.billing === 'monthly' ? ', monthly' : '');
+  if (access() === 'read') return planName() + ' · read-only';
+  if (me.plan !== 'trial') return planName() + (me.billing === 'licence' ? ' licence' : me.billing === 'yearly' ? ', yearly' : me.billing === 'monthly' ? ', monthly' : '');
   const d = trialDays();
   return d > 0 ? `Free trial · ${d} ${d === 1 ? 'day' : 'days'} left` : 'Trial ended';
 }
@@ -525,10 +553,11 @@ function homeHTML() {
 
 function appHTML(a) {
   const s = stageOf[a.st] || {}, ok = canUse(a.id), nx = a.next && byId[a.next[0]];
-  const need = (W.PLAN_NAMES || [])[PLAN_OF[a.id]] || '';
+  const it = ITEMS[sellOf(a.id)] || {};
+  const via = sellOf(a.id) !== a.id ? ` It comes with ShopFlow (€${it.m} a month), and works with ShopFlow's orders.` : ` Add it for €${it.m} a month, or take a bundle.`;
   const notice = ok
     ? trialBanner()
-    : `<div class="banner end"><span><b>${esc(a.name)} is not in your ${esc(PLANS[me.plan] || me.plan)} plan.</b> It comes with the ${esc(need)} plan.${isOwner() ? '' : ' Ask the workshop owner.'}</span>${isOwner() ? '<button type="button" class="btn small go" data-go="#/billing">Change plan</button>' : ''}</div>`;
+    : `<div class="banner end"><span><b>${esc(a.name)} is not in your plan.</b>${esc(via)}${isOwner() ? '' : ' Ask the workshop owner.'}</span>${isOwner() ? `<button type="button" class="btn small go" data-act="addapp" data-app="${esc(sellOf(a.id))}">Add ${esc(it.name || a.name)}</button>` : ''}</div>`;
   return `<div class="page">
     <div class="phead"><div class="apphead"><span class="ico big">${svg(a.ico)}</span><div><div class="crumb">${esc(a.art)} · ${esc(s.t || '')}</div><h1>${esc(a.name)}</h1></div></div>
       ${nx ? `<button type="button" class="btn small" data-go="#/app/${nx.id}">Next: ${esc(nx.name)} ${svg(I.arrow)}</button>` : ''}</div>
@@ -589,11 +618,10 @@ function accountHTML() {
 }
 
 /* ---------------- plan & billing ---------------- */
-// Prices excl. VAT, in euro. Stripe holds the real price list (supabase/functions/_shared/billing.ts).
-const PRICE = { office: { month: 39, year: 390 }, workshop: { month: 89, year: 890 }, complete: { month: 149, year: 1490 } };
-const LICENCE = { once: 2490, care: 390 }, SETUP = 350, TERMS_VERSION = '2026-11-27';
-const KEEP = { office: 12, workshop: 24, complete: 36, trial: 36 };
-const B = { interval: 'month', setup: false, agree: false, startNow: false, ready: null, busy: false, msg: '', ok: false, preview: null };
+// Prices excl. VAT, in euro (assets/site.js). Stripe holds the real price list (supabase/functions/_shared/billing.ts).
+const LICENCE = W.LICENCE || { once: 2490, care: 390 }, SETUP = W.SETUP || 350, TERMS_VERSION = '2026-11-27b';
+const KEEP = { apps: 24, suite: 36, office: 12, workshop: 24, complete: 36, trial: 36 };
+const B = { interval: 'month', pick: null, confirm: false, setup: false, agree: false, startNow: false, ready: null, busy: false, msg: '', ok: false, preview: null };
 function isOwner() { return me && me.role === 'admin'; }
 // before the billing update reaches the database, fall back to the trial date
 function access() { return me.access || (trialOver() ? 'read' : 'full'); }
@@ -608,10 +636,11 @@ function paintRoBar(live) {
   bar.hidden = !ro; $('shell').classList.toggle('ro', ro);
   if (ro) bar.innerHTML = `<span><b>Read-only.</b> ${esc(roReason())} You can look and download, not change.</span>${isOwner() ? '<button type="button" class="btn go" data-go="#/billing">Choose a plan</button>' : ''}`;
 }
-const appsOf = (pl) => APPS.filter((a) => (PLAN_OF[a.id] ?? 0) <= RANK[pl]).map((a) => a.name);
+const appNames = (ids) => APPS.filter((a) => ids.includes(sellOf(a.id))).map((a) => a.name);
 
 function statusBox() {
   const rows = [['Plan', planLine()]];
+  if (me.plan !== 'trial') rows.push(['Apps', appNames(myApps()).join(', ')]);
   if (me.plan === 'trial' && access() === 'full') rows.push(['Free trial until', dmy(me.trial_ends_at)]);
   if (me.billing === 'licence' && me.paid_until) rows.push(['Licence care renews', dmy(me.paid_until)]);
   else if (me.paid_until && me.plan !== 'trial') rows.push([me.cancel_at ? 'Ends on' : 'Next payment', dmy(me.cancel_at || me.paid_until)]);
@@ -619,30 +648,46 @@ function statusBox() {
   if (access() === 'read' && me.delete_after) rows.push(['Data deleted on', dmy(me.delete_after)]);
   return `<section class="box"><h2>Your plan</h2><dl class="kv">${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
     ${me.has_stripe ? `<div class="row" style="margin-top:16px"><button type="button" class="btn small" data-act="portal">${svg(I.card)} Manage billing</button></div>
-      <p class="muted" style="font-size:13px;margin-top:8px">Change plan or card, download invoices, or cancel. Cancelling stops at the end of the paid period.</p>` : ''}</section>`;
+      <p class="muted" style="font-size:13px;margin-top:8px">Change card or billing details, download invoices, or cancel. Cancelling stops at the end of the paid period. Apps are changed below.</p>` : ''}</section>`;
 }
 
 function incl(v) { return '€' + (Math.round(v * 121) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function planCards() {
-  const iv = B.interval, cur = me.plan !== 'trial' && me.billing !== 'none' && access() === 'full' ? me.plan : '';
-  const card = (pl) => {
-    const p = PRICE[pl][iv];
-    return `<div class="plan${cur === pl ? ' cur' : ''}"><h3>${esc(PLANS[pl])}</h3>
-      <div class="pr">€${p}<small> / ${iv === 'year' ? 'year' : 'month'} + VAT</small></div>
-      <p class="muted" style="font-size:13px;margin:-4px 0 0">${incl(p)} incl. 21% VAT</p>
-      <ul>${appsOf(pl).map((n) => `<li>${svg(I.tick)}<span>${esc(n)}</span></li>`).join('')}<li>${svg(I.tick)}<span>Unlimited people</span></li></ul>
-      <p class="keep">Projects kept ${KEEP[pl]} months after their last change.</p>
-      ${cur === pl ? '<span class="tag dark" style="align-self:flex-start">Your plan</span>'
-        : `<button type="button" class="btn go" data-act="checkout" data-plan="${pl}" ${B.busy ? 'disabled' : ''}>Choose ${esc(PLANS[pl])}</button>`}</div>`;
-  };
-  const licence = `<div class="plan"><h3>Complete licence</h3>
-      <div class="pr">€${LICENCE.once.toLocaleString('en-US')}<small> once + VAT</small></div>
-      <p class="muted" style="font-size:13px;margin:-4px 0 0">${incl(LICENCE.once)} incl. 21% VAT</p>
-      <ul><li>${svg(I.tick)}<span>All nine apps, for good</span></li><li>${svg(I.tick)}<span>First year of hosting, updates and support included</span></li>
-        <li>${svg(I.tick)}<span>Then €${LICENCE.care} + VAT a year for hosting, updates and support</span></li></ul>
-      <p class="keep">Projects kept ${KEEP.complete} months after their last change, while the yearly care is paid.</p>
-      <button type="button" class="btn" data-act="checkout" data-plan="complete" data-licence="1" ${B.busy ? 'disabled' : ''}>Buy the licence</button></div>`;
-  return `<div class="plans">${['office', 'workshop', 'complete'].map(card).join('')}${licence}</div>`;
+const running = () => me.has_stripe && ['active', 'trialing', 'past_due'].includes(me.sub_status) && me.billing !== 'licence' && access() === 'full';
+const eur = (v) => '€' + Number(v).toLocaleString('en-US', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 });
+function picked() {
+  if (!B.pick) B.pick = new Set(running() || (me.plan !== 'trial' && access() === 'full') ? myApps() : SINGLES);
+  if (B.interval === 'month' && running() && me.billing === 'yearly' && !B.ivTouched) B.interval = 'year';
+  return [...B.pick];
+}
+function pickerHTML() {
+  const want = picked();   // first: it may switch to yearly for a yearly plan
+  const iv = B.interval, mult = iv === 'year' ? 10 : 1, per = iv === 'year' ? 'year' : 'month';
+  const best = bestItems(want), extra = best.apps.filter((x) => !want.includes(x));
+  const single = want.reduce((t, k) => t + ITEMS[k].m, 0), cost = best.cost;
+  const presets = ['cnc', 'office', 'suite'].map((k) => `<button type="button" class="btn" data-act="preset" data-v="${k}">${esc(ITEMS[k].name)} <small>${eur(ITEMS[k].m * mult)}</small></button>`).join('');
+  const rows = SINGLES.map((k) => {
+    const it = ITEMS[k], on = want.includes(k), free = !on && best.apps.includes(k);
+    return `<button type="button" class="pick${free ? ' free' : ''}" data-act="pick" data-app="${k}" aria-pressed="${on}">
+      <span class="bx">${svg(I.tick)}</span><span><b>${esc(it.name)}</b><small>${esc(it.note || (byId[k] || {}).short || '')}</small></span>
+      <span class="eur">${free ? 'included' : eur(it.m * mult)}</span></button>`;
+  }).join('');
+  let sum;
+  if (!want.length) sum = `<div class="sum"><p class="muted" style="margin:0">Choose at least one app.</p></div>`;
+  else {
+    const lines = best.items.map((k) => `<tr><td>${esc(ITEMS[k].name)}${ITEMS[k].pack ? `<br><small class="muted">${esc(appNames(ITEMS[k].apps).join(', '))}</small>` : ''}</td><td>${eur(ITEMS[k].m * mult)}</td></tr>`).join('');
+    const saved = single - cost;
+    const toSuite = best.items[0] === 'suite' ? 0 : ITEMS.suite.m - cost;
+    sum = `<div class="sum"><table>${lines}
+      <tr class="tot"><td>Per ${per}, + VAT</td><td>${eur(cost * mult)}</td></tr>
+      <tr><td class="muted">Including 21% VAT</td><td class="muted">${eur(Math.round(cost * mult * 121) / 100)}</td></tr></table>
+      ${saved > 0 ? `<p class="save" style="margin:8px 0 0">Bundle price: you save ${eur(saved * mult)} a ${per}${extra.length ? ` and get ${esc(appNames(extra).join(', '))} as well` : ''}.</p>` : ''}
+      ${toSuite > 0 && toSuite <= 30 ? `<div class="up"><span>All nine apps for only <b>${eur(toSuite * mult)} more</b> a ${per}.</span><button type="button" class="btn small" data-act="preset" data-v="suite">Take the full suite</button></div>` : ''}
+      <p class="muted" style="font-size:13px;margin:10px 0 0">Projects kept ${best.items[0] === 'suite' ? KEEP.suite : KEEP.apps} months after their last change.</p></div>`;
+  }
+  return `<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+      <div class="presets" style="margin:0">${presets}</div>
+      <div class="seg2" role="group" aria-label="Pay monthly or yearly"><button type="button" data-act="interval" data-v="month" aria-pressed="${iv === 'month'}">Monthly</button><button type="button" data-act="interval" data-v="year" aria-pressed="${iv === 'year'}">Yearly<small>2 months free</small></button></div></div>
+    <div class="picks">${rows}</div>${sum}`;
 }
 
 function rulesBox() {
@@ -671,17 +716,33 @@ function billingHTML(cur) {
     ${trialBanner()}<div class="side-stack">${statusBox()}<p class="muted">Only the workshop owner can change the plan.</p>${rulesBox()}</div></div>`;
   const paidNote = cur.paid ? `<div class="banner"><span><b>Thank you — payment received.</b> Your plan shows here within a minute.</span></div>` : '';
   const notReady = B.ready === false ? `<div class="soonpay"><b>Online payment opens very soon.</b> To start now, write to <a href="mailto:${esc(CONTACT)}?subject=${encodeURIComponent('Plan for ' + me.workshop_name)}">${esc(CONTACT)}</a> and we will set your plan up by bank transfer.</div>` : '';
-  const choose = (me.has_stripe && ['active', 'trialing', 'past_due'].includes(me.sub_status) && me.billing !== 'licence') ? '' : `
-    <section class="box stack"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Choose a plan</h2>
-      <div class="seg2" role="group" aria-label="Pay monthly or yearly"><button type="button" data-act="interval" data-v="month" aria-pressed="${B.interval === 'month'}">Monthly</button><button type="button" data-act="interval" data-v="year" aria-pressed="${B.interval === 'year'}">Yearly<small>2 months free</small></button></div></div>
+  const lic = me.billing === 'licence';
+  let choose = '';
+  if (running()) {
+    const want = picked(), best = want.length ? bestItems(want) : null;
+    const same = best && [...best.apps].sort().join() === [...myApps()].sort().join() && (B.interval === 'year') === (me.billing === 'yearly');
+    choose = `<section class="box stack"><h2 style="margin:0">Change your apps</h2>
+      <p class="muted" style="margin:0">Tick the apps you want. The cheapest mix of single apps and bundles is chosen for you. The difference is charged or credited right away.</p>
+      ${pickerHTML()}
+      <div class="row" style="gap:10px;flex-wrap:wrap">${same ? '<span class="muted">This is your current plan.</span>'
+        : B.confirm ? `<button type="button" class="btn go" data-act="change" ${B.busy ? 'disabled' : ''}>Confirm: ${eur(best.cost * (B.interval === 'year' ? 10 : 1))} + VAT a ${B.interval === 'year' ? 'year' : 'month'}</button><button type="button" class="btn" data-act="unconfirm">Back</button>`
+        : `<button type="button" class="btn go" data-act="change" ${!want.length ? 'disabled' : ''}>Update my apps</button>`}</div>
+      <div class="msg${B.ok ? ' ok' : ''}" id="billMsg" role="alert">${esc(B.msg)}</div></section>`;
+  } else if (!lic || access() !== 'full') {
+    choose = `<section class="box stack"><h2 style="margin:0">Choose your apps</h2>
+      <p class="muted" style="margin:0">Pay only for the apps you use. Bundles and the full suite cost less, and the cheapest mix is picked for you.</p>
       ${notReady}
-      ${planCards()}
+      ${pickerHTML()}
+      <div class="lic"><span><b>Prefer to pay once?</b> Full suite licence: €${LICENCE.once.toLocaleString('en-US')} + VAT, first year included, then €${LICENCE.care} + VAT a year for hosting and updates.</span>
+        <button type="button" class="btn small" data-act="checkout" data-licence="1" ${B.busy ? 'disabled' : ''}>Buy the licence</button></div>
       <label class="agree"><input type="checkbox" id="bSetup" ${B.setup ? 'checked' : ''}><span><b>Add guided setup — €${SETUP} + VAT (${incl(SETUP)}) once.</b> We set up your workshop with you and import your price lists.</span></label>
       <label class="agree"><input type="checkbox" id="bAgree" ${B.agree ? 'checked' : ''}><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including that results are checked by us and used <b>at our own risk</b>, <b>how long data is kept</b> (below), and that the plan <b>renews until I cancel it</b>.</span></label>
       <label class="agree"><input type="checkbox" id="bStart" ${B.startNow ? 'checked' : ''}><span>Start right away. If I buy as a private person (without a registered business), I can still withdraw within 14 days and get back what I paid minus the days used; guided setup that is already finished cannot be withdrawn from. <a href="https://worxmax.com/terms.html#consumer" target="_blank" rel="noopener">Details</a></span></label>
-      <p class="muted" style="font-size:13px">The total with VAT is shown at checkout before you pay. A company in another EU country with a valid VAT number is charged without VAT. You pay on Stripe's secure page; worxmax never sees the card.</p>
+      <div class="row"><button type="button" class="btn go" data-act="checkout" ${B.busy || !picked().length ? 'disabled' : ''}>Continue to payment</button></div>
+      <p class="muted" style="font-size:13px;margin:0">The total with VAT is shown at checkout before you pay. A company in another EU country with a valid VAT number is charged without VAT. You pay on Stripe's secure page; worxmax never sees the card.</p>
       <div class="msg${B.ok ? ' ok' : ''}" id="billMsg" role="alert">${esc(B.msg)}</div></section>`;
-  return `<div class="page"><div class="phead"><div><h1>Plan & billing</h1><p class="muted sub">One price for the whole workshop. Extra people cost nothing.</p></div></div>
+  }
+  return `<div class="page"><div class="phead"><div><h1>Plan & billing</h1><p class="muted sub">One price for the whole workshop, per app. Extra people cost nothing.</p></div></div>
     ${paidNote}${trialBanner()}
     <div class="side-stack">${statusBox()}${choose}${rulesBox()}</div></div>`;
 }
@@ -711,7 +772,24 @@ async function afterBilling(cur) {
 }
 
 async function billingAct(act, el) {
-  if (act === 'interval') { B.interval = el.dataset.v; return route(); }
+  if (act === 'interval') { B.interval = el.dataset.v; B.ivTouched = true; B.confirm = false; return route(); }
+  if (act === 'pick') { picked(); const k = el.dataset.app; if (B.pick.has(k)) B.pick.delete(k); else B.pick.add(k); B.confirm = false; B.msg = ''; return route(); }
+  if (act === 'preset') { B.pick = new Set(ITEMS[el.dataset.v].apps); B.confirm = false; B.msg = ''; return route(); }
+  if (act === 'addapp') { picked(); B.pick.add(el.dataset.app); B.confirm = false; return go('#/billing'); }
+  if (act === 'unconfirm') { B.confirm = false; return route(); }
+  if (act === 'change') {
+    if (!B.confirm) { B.confirm = true; return route(); }
+    B.busy = true; B.msg = 'Updating your plan…'; B.ok = true; route();
+    const { data, error } = await db.functions.invoke('billing', { body: { action: 'change', apps: picked(), interval: B.interval } });
+    B.busy = false; B.confirm = false;
+    let m = data && (data.message || data.error);
+    if (!m && error && error.context && error.context.json) { try { const j = await error.context.json(); m = j.message || j.error; } catch (e) {} }
+    if (data && data.ok) {
+      const r = await db.rpc('workshop_me'); if (r.data && r.data[0]) me = r.data[0];
+      B.pick = null; B.msg = data.unchanged ? 'Nothing to change.' : 'Done: your apps are updated. The invoice is under Manage billing.'; B.ok = true;
+    } else { B.msg = m || 'Could not change the plan. Please try again, or write to ' + CONTACT + '.'; B.ok = false; }
+    return route();
+  }
   if (act === 'export') {
     el.disabled = true;
     const { data, error } = await db.rpc('workshop_export');
@@ -732,7 +810,7 @@ async function billingAct(act, el) {
     }
     B.busy = true; B.msg = act === 'checkout' ? 'Opening the secure payment page…' : 'Opening billing…'; B.ok = true; if (current().v === 'billing') route();
     const body = act === 'portal' ? { action: 'portal' } : {
-      action: 'checkout', plan: el.dataset.plan, interval: el.dataset.licence ? 'licence' : B.interval,
+      action: 'checkout', apps: picked(), interval: el.dataset.licence ? 'licence' : B.interval,
       setup: B.setup, terms: true, terms_version: TERMS_VERSION, start_now: true };
     const { data, error } = await db.functions.invoke('billing', { body });
     B.busy = false;
@@ -765,7 +843,7 @@ document.addEventListener('click', async (e) => {
     if (act === 'opennav') { S.navOpen = true; $('shell').classList.add('nav-open'); return; }
     if (act === 'closenav') { S.navOpen = false; $('shell').classList.remove('nav-open'); return; }
     if (act === 'signout') return signOut();
-    if (['interval', 'export', 'portal', 'checkout'].includes(act)) return billingAct(act, a);
+    if (['interval', 'export', 'portal', 'checkout', 'pick', 'preset', 'addapp', 'unconfirm', 'change'].includes(act)) return billingAct(act, a);
   }
   const b = e.target.closest('button[data-member]');
   if (b) {
@@ -780,6 +858,7 @@ document.addEventListener('click', async (e) => {
 });
 document.addEventListener('change', async (e) => {
   if (e.target.id === 'bSetup') { B.setup = e.target.checked; return; }
+  if (e.target.id === 'bStart') { B.startNow = e.target.checked; return; }
   if (e.target.id === 'bAgree') { B.agree = e.target.checked; if (B.agree && !B.ok) { B.msg = ''; const m = $('billMsg'); if (m) m.textContent = ''; } return; }
   const el = e.target.closest('select[data-u]'); if (!el) return;
   const { error } = await db.from('workshop_members').update({ role: el.value }).eq('user_id', el.dataset.u);

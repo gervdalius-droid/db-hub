@@ -1,13 +1,14 @@
 // worxmax billing, called from app.worxmax.com by a signed-in person.
 //   { action: "status" }                                  is online payment set up?
-//   { action: "checkout", plan, interval, setup, terms }  owner: Stripe Checkout link
+//   { action: "checkout", apps, interval, setup, terms }  owner: Stripe Checkout link
+//   { action: "change", apps, interval }                   owner: change the apps of a running plan
 //   { action: "portal" }                                   owner: Stripe customer portal link
 //   { action: "setup" }                                    worxmax admin: create products, prices,
 //                                                          the customer portal and the webhook in Stripe
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import Stripe from "npm:stripe@17.7.0";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { APP_URL, SITE_URL, PRODUCTS, PRICES, byKey, db, stripeClient, stripePrices, cors, json } from "../_shared/billing.ts";
+import { APP_URL, SITE_URL, PRODUCTS, PRICES, ALL_APPS, bestItems, planOf, byKey, db, stripeClient, stripePrices, cors, json } from "../_shared/billing.ts";
 
 const TERMS_URL = SITE_URL + "/terms.html";
 // the public (browser) key: the person's own token decides what they may do
@@ -55,14 +56,15 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
   if (b.terms !== true) return json(req, 400, { error: "Please accept the terms first." });
   if (b.start_now !== true) return json(req, 400, { error: "Please tick \"Start right away\" first." });
 
-  const plan = String(b.plan ?? ""), interval = String(b.interval ?? "");
-  const main = interval === "licence" ? "wx_licence" : `wx_${plan}_${interval === "year" ? "year" : "month"}`;
-  if (!byKey(main)) return json(req, 400, { error: "Unknown plan." });
+  const interval = String(b.interval ?? "");
+  const wanted = Array.isArray(b.apps) ? (b.apps as unknown[]).map(String) : [];
+  if (interval !== "licence" && !wanted.some((a) => ALL_APPS.includes(a))) return json(req, 400, { error: "Choose at least one app." });
   if (["active", "trialing", "past_due"].includes(w.sub_status) && interval !== "licence") {
-    return json(req, 409, { error: "already_subscribed", message: "You already have a plan. Change it under Manage billing." });
+    return json(req, 409, { error: "already_subscribed", message: "You already have a plan: change your apps on this page." });
   }
 
-  const keys = interval === "licence" ? ["wx_licence", "wx_care_year"] : [main];
+  const iv = interval === "year" ? "year" : "month";
+  const keys = interval === "licence" ? ["wx_licence", "wx_care_year"] : bestItems(wanted).items.map((k) => `wx_${k}_${iv}`);
   if (b.setup === true) keys.push("wx_setup");
   const prices = await stripePrices(stripe, keys);
   const missing = keys.filter((k) => !prices[k]);
@@ -79,7 +81,8 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
   await db.from("workshops").update({ terms_accepted_at: new Date().toISOString(), terms_version: String(b.terms_version ?? "").slice(0, 40) || null }).eq("id", w.id);
 
   // start_now: the buyer asked for the service to begin within the 14-day withdrawal period (EU consumer law)
-  const meta = { workshop_id: w.id, plan: byKey(main)!.plan ?? "", billing: byKey(main)!.billing ?? "",
+  const p = planOf(keys);
+  const meta = { workshop_id: w.id, plan: p.plan, apps: p.apps.join(","), billing: p.billing ?? "",
     terms_version: String(b.terms_version ?? "").slice(0, 40), start_now: new Date().toISOString() };
   const base: Stripe.Checkout.SessionCreateParams = {
     mode: "subscription",
@@ -114,6 +117,42 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
     console.warn("automatic tax unavailable, used the 21% rate:", (e as Error).message);
   }
   return json(req, 200, { url: session.url });
+}
+
+// Change the apps (or monthly / yearly) of a running plan. Stripe charges or credits the
+// difference at once; the webhook confirms, and the workshop is updated here right away too.
+async function change(req: Request, uid: string, b: Record<string, unknown>) {
+  const stripe = await stripeClient();
+  if (!stripe) return json(req, 503, { error: "not_ready", message: "Online payment is not switched on yet." });
+  const w = await ownerWorkshop(uid);
+  if (!w) return json(req, 403, { error: "Only the workshop owner can change the plan." });
+  if (!w.stripe_subscription_id || !["active", "trialing", "past_due"].includes(w.sub_status)) {
+    return json(req, 409, { error: "no_plan", message: "There is no running plan to change: choose one first." });
+  }
+  if (w.billing === "licence") return json(req, 409, { error: "licence", message: "The licence already has every app." });
+  const wanted = Array.isArray(b.apps) ? (b.apps as unknown[]).map(String) : [];
+  if (!wanted.some((a) => ALL_APPS.includes(a))) return json(req, 400, { error: "Choose at least one app. To stop, use Cancel plan." });
+  const iv = b.interval === "year" ? "year" : "month";
+  const keys = bestItems(wanted).items.map((k) => `wx_${k}_${iv}`);
+  const prices = await stripePrices(stripe, keys);
+  if (keys.some((k) => !prices[k])) return json(req, 503, { error: "not_ready", message: "Prices are not set up in Stripe yet." });
+
+  const sub = await stripe.subscriptions.retrieve(w.stripe_subscription_id);
+  const have = sub.items.data.filter((i) => i.price.recurring);
+  const haveKeys = have.map((i) => i.price.lookup_key ?? "");
+  if (haveKeys.length === keys.length && keys.every((k) => haveKeys.includes(k))) return json(req, 200, { ok: true, unchanged: true });
+  const items: Stripe.SubscriptionUpdateParams.Item[] = [
+    ...have.filter((i) => !keys.includes(i.price.lookup_key ?? "")).map((i) => ({ id: i.id, deleted: true })),
+    ...keys.filter((k) => !haveKeys.includes(k)).map((k) => ({ price: prices[k].id, quantity: 1 })),
+  ];
+  const p = planOf(keys);
+  const updated = await stripe.subscriptions.update(sub.id, {
+    items, proration_behavior: "always_invoice",
+    metadata: { ...sub.metadata, workshop_id: w.id, plan: p.plan, apps: p.apps.join(","), billing: p.billing ?? "" },
+  });
+  await db.from("workshops").update({ plan: p.plan, apps: p.apps, billing: p.billing, sub_status: updated.status,
+    price_eur: keys.reduce((t, k) => t + byKey(k)!.amount, 0) / 100 }).eq("id", w.id);
+  return json(req, 200, { ok: true, plan: p.plan, apps: p.apps });
 }
 
 async function portal(req: Request, uid: string) {
@@ -154,6 +193,7 @@ async function setup(req: Request, asUser: any) {
   const have = await stripePrices(stripe, PRICES.map((p) => p.key));
   const priceIds: Record<string, string> = {};
   for (const p of PRICES) {
+    if (p.legacy) continue;   // old tiers: left as they are in Stripe
     const cur = have[p.key];
     const same = cur && cur.unit_amount === p.amount && cur.currency === "eur" &&
       (cur.recurring?.interval ?? null) === (p.recurring ?? null);
@@ -162,17 +202,14 @@ async function setup(req: Request, asUser: any) {
       product: p.product, currency: "eur", unit_amount: p.amount, nickname: p.name,
       lookup_key: p.key, transfer_lookup_key: true, tax_behavior: "exclusive",
       ...(p.recurring ? { recurring: { interval: p.recurring } } : {}),
-      metadata: { plan: p.plan ?? "", billing: p.billing ?? "" },
+      metadata: { apps: p.apps.join(","), billing: p.billing ?? "" },
     });
     if (cur) await stripe.prices.update(cur.id, { active: false });
     priceIds[p.key] = np.id;
     done.push(`price ${p.key}`);
   }
 
-  // customer portal: change plan, card, invoices, cancel at the end of the period
-  const switchable = ["office", "workshop", "complete"].map((pl) => ({
-    product: `wx_${pl}`, prices: [priceIds[`wx_${pl}_month`], priceIds[`wx_${pl}_year`]],
-  }));
+  // customer portal: card, billing details, invoices, cancel at the end of the period
   const portalConf: Stripe.BillingPortal.ConfigurationCreateParams = {
     business_profile: { headline: "worxmax billing", privacy_policy_url: SITE_URL + "/privacy.html", terms_of_service_url: TERMS_URL },
     default_return_url: `${APP_URL}/#/billing`,
@@ -184,7 +221,8 @@ async function setup(req: Request, asUser: any) {
         enabled: true, mode: "at_period_end",
         cancellation_reason: { enabled: true, options: ["too_expensive", "missing_features", "switched_service", "unused", "other"] },
       },
-      subscription_update: { enabled: true, default_allowed_updates: ["price"], proration_behavior: "create_prorations", products: switchable },
+      // apps are added and removed on the worxmax Plan & billing page (a plan has several items)
+      subscription_update: { enabled: false },
     },
     metadata: { wx: "1" },
   };
@@ -226,6 +264,7 @@ Deno.serve(async (req: Request) => {
         return json(req, 200, { ready });
       }
       case "checkout": return await checkout(req, me.user.id, me.user.email ?? "", b);
+      case "change": return await change(req, me.user.id, b);
       case "portal": return await portal(req, me.user.id);
       case "setup": return await setup(req, me.asUser);
       default: return json(req, 400, { error: "unknown action" });

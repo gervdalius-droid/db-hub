@@ -264,7 +264,7 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:var(--r
 .plans-av span.on{border-color:var(--ink);background:var(--ink);color:#fff}
 .art .go{font-weight:800;transition:transform .15s}
 .art:hover .go{transform:translateX(3px)}
-@media (max-width:620px){.plans-key{display:none}.art{grid-template-columns:52px minmax(0,1fr) 18px;gap:6px 12px}.art-no{font-size:13px}.art .app-ico,.art .plans-av{display:none}}
+@media (max-width:620px){.plans-key{display:none}.art{grid-template-columns:52px minmax(0,1fr) 18px;gap:6px 12px}.art-no{font-size:13px}.art .app-ico,.art .app-eur{display:none}}
 .app-ico{display:grid;place-items:center;border:1.5px solid var(--ink);border-radius:var(--r);background:var(--paper);color:var(--ink)}
 .app-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
 .cat-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;margin-top:26px;padding-top:18px;border-top:2px solid var(--ink);font-size:15px;color:var(--ink2)}
@@ -317,6 +317,13 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:var(--r
 .plan-apps li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule)}
 .plan-apps li::before{content:'';width:10px;height:6px;border-left:2.2px solid var(--ink);border-bottom:2.2px solid var(--ink);transform:rotate(-45deg) translateY(-2px);justify-self:center}
 .plan .cta{margin-top:auto}
+.singles-h{font-weight:800;font-size:20px;margin:34px 0 12px}
+.singles{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));column-gap:28px;border-top:2px solid var(--ink)}
+.single{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;padding:14px 4px;border-bottom:1px solid var(--rule)}
+.single b{font-size:17px}.single .muted{grid-column:1;font-size:14px;color:var(--ink3)}
+.single .eur{grid-column:2;grid-row:1 / span 2;align-self:center;font-weight:800;font-size:20px;white-space:nowrap}
+.single .eur small,.app-eur small{font-size:12px;font-weight:600;color:var(--ink3);margin-left:2px}
+.app-eur{font-weight:800;font-size:15px;white-space:nowrap}
 .once{margin-top:22px;padding:20px 22px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px 28px;border:2px dashed var(--rule2);border-radius:var(--r)}
 .once>div{flex:1 1 420px;min-width:0;color:var(--ink2);font-size:16px}
 .once h3{font-weight:800;font-size:20px;color:var(--ink);margin-bottom:2px}

@@ -3,7 +3,7 @@
 // is refused. Each event is handled once (stripe_events).
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import Stripe from "npm:stripe@17.7.0";
-import { byKey, db, stripeClient, webhookSecret } from "../_shared/billing.ts";
+import { db, planOf, stripeClient, webhookSecret } from "../_shared/billing.ts";
 
 const cryptoProvider = Stripe.createSubtleCryptoProvider();
 const day = (unix?: number | null) => (unix ? new Date(unix * 1000).toISOString().slice(0, 10) : null);
@@ -22,13 +22,14 @@ async function workshopFor(customer: string | null, metaId?: string | null) {
   return (data?.id as string) ?? null;
 }
 
-// the subscription decides plan, billing and the "paid until" date
+// the subscription decides the apps, plan, billing and the "paid until" date
 async function applySubscription(sub: Stripe.Subscription) {
   const customer = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
   const wid = await workshopFor(customer, sub.metadata?.workshop_id);
   if (!wid) return null;
-  const item = sub.items.data.find((i) => i.price.recurring) ?? sub.items.data[0];
-  const def = item?.price.lookup_key ? byKey(item.price.lookup_key) : undefined;
+  const recurring = sub.items.data.filter((i) => i.price.recurring);
+  const item = recurring[0] ?? sub.items.data[0];
+  const p = planOf(sub.items.data.map((i) => i.price.lookup_key ?? ""));
   // newer Stripe API versions keep the period on the item
   const start = (sub as any).current_period_start ?? (item as any)?.current_period_start;
   const end = (sub as any).current_period_end ?? (item as any)?.current_period_end;
@@ -40,13 +41,13 @@ async function applySubscription(sub: Stripe.Subscription) {
     stripe_customer_id: customer,
     stripe_subscription_id: sub.id,
     sub_status: sub.status,
-    sub_price: item?.price.lookup_key ?? null,
+    sub_price: recurring.map((i) => i.price.lookup_key).filter(Boolean).join(" ") || null,
     cancel_at: iso(sub.cancel_at ?? (sub.cancel_at_period_end ? end : null)),
     paid_until: paidUntil,
   };
-  if (def?.plan) upd.plan = def.plan;
-  if (def?.billing && def.billing !== "setup") upd.billing = def.billing;
-  if (item?.price.unit_amount != null) upd.price_eur = item.price.unit_amount / 100;
+  if (p.apps.length) { upd.plan = p.plan; upd.apps = p.apps; }
+  if (p.billing) upd.billing = p.billing;
+  if (recurring.length) upd.price_eur = recurring.reduce((t, i) => t + (i.price.unit_amount ?? 0) * (i.quantity ?? 1), 0) / 100;
   const { error } = await db.from("workshops").update(upd).eq("id", wid);
   if (error) throw new Error("workshop update: " + error.message);
   return wid;

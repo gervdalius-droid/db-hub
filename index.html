@@ -13,7 +13,7 @@
 <link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
 <script>/* look B is the site; ?look=a|c still previews the other two */(function(){var m=/[?&]look=([abc])/.exec(location.search);document.documentElement.setAttribute('data-look',m?m[1]:'b')})();</script>
 <link rel="preload" href="assets/fonts/sora-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css?v=45">
+<link rel="stylesheet" href="assets/site.css?v=46">
 <link rel="stylesheet" href="assets/looks.css?v=38">
 </head>
 <body>
@@ -178,7 +178,7 @@
   <div class="wrap sec">
     <div class="cat" id="cards"></div>
     <div class="cat-foot">
-      <div class="plans-key" aria-label="Plan key"><span><i>O</i>Office</span><span><i>W</i>Workshop</span><span><i>C</i>Complete</span></div>
+      <p class="plans-key">Buy one app, a bundle or all nine. Prices a month, + VAT.</p>
       <a class="cta line sm" href="apps.html">See every app's screen <span class="arr" aria-hidden="true"></span></a>
     </div>
   </div>
@@ -209,7 +209,7 @@
           <div><div class="big" id="rHours">0 h</div><div class="lbl2">back every month</div></div>
           <div class="pair">
             <div><b id="rEur">€0</b><span class="lbl2">worth of time a month</span></div>
-            <div><b id="rX">0×</b><span class="lbl2">the Workshop plan (€89/mo)</span></div>
+            <div><b id="rX">0×</b><span class="lbl2">the full suite (€129/mo)</span></div>
           </div>
           <p class="note">Your own guesses. The trial checks them on a real job.</p>
         </div>
@@ -219,7 +219,7 @@
 </section>
 
 <section id="pricing">
-  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>5-day free trial on every plan. For companies and one-person workshops alike. Prices shown without VAT, with the price including 21% VAT below. Pay by card through Stripe; cancel any time. <a href="terms.html#data">How long data is kept</a>.</p></div></header>
+  <header class="ch"><div class="wrap"><h2>Pay for the apps you use. Unlimited people.</h2><p>Take one app, a bundle, or all nine for less. 5-day free trial with every app. For companies and one-person workshops alike. Prices + VAT, with the price including 21% VAT shown too. Pay by card through Stripe; cancel any time. <a href="terms.html#data">How long data is kept</a>.</p></div></header>
   <div class="wrap sec">
     <div class="controls">
       <div class="seg big" role="group" aria-label="Billing period">
@@ -228,9 +228,11 @@
       </div>
     </div>
     <div class="plans" id="plans"></div>
+    <h3 class="singles-h">Or single apps</h3>
+    <div class="singles" id="singles"></div>
     <div class="once">
-      <div><h3>Prefer to pay once?</h3>Complete for €2,490 + VAT (€3,012.90 incl. VAT) one-time, first year included. Then €390 + VAT (€471.90) a year.</div>
-      <a class="cta line sm" href="#start" data-plan="Complete — one-time licence">Ask about it</a>
+      <div><h3>Prefer to pay once?</h3>The full suite for €2,490 + VAT (€3,012.90 incl. VAT) one-time, first year included. Then €390 + VAT (€471.90) a year.</div>
+      <a class="cta line sm" href="#start" data-plan="Full suite — one-time licence">Ask about it</a>
     </div>
     <p class="small" style="margin-top:14px">Guided setup with import of your price lists: €350 + VAT (€423.50) one-time.</p>
   </div>
@@ -247,7 +249,7 @@
       <details><summary>Where is our data kept?</summary><p>On EU servers (Ireland), separate from every other workshop. Export it any time.</p></details>
       <details><summary>Who checks the cut lists and CNC programs?</summary><p>You do. worxmax does the calculating, but every price, cut list, layout and program depends on your settings and machines, so check it before you cut or send it. worxmax is used at your own risk and we are not responsible for mistakes in its results. <a href="terms.html#risk">Details</a>.</p></details>
       <details><summary>Can I buy without a registered company?</summary><p>Yes. One-person workshops and private buyers are welcome. You pay the price including VAT, and as a private buyer you have 14 days to change your mind: we refund what you paid minus the days you used. <a href="terms.html#consumer">Details</a>.</p></details>
-      <details><summary>How long are our projects kept?</summary><p>As long as you use them. A project nobody has changed for 12 months (Office), 24 months (Workshop) or 36 months (Complete) is removed, and you see it coming 30 days ahead. Invoices and clients stay while your plan is active. If you stop, everything stays readable for 60 days to download, then it is deleted. <a href="terms.html#data">Details</a>.</p></details>
+      <details><summary>How long are our projects kept?</summary><p>As long as you use them. A project nobody has changed for 24 months (36 months with the full suite) is removed, and you see it coming 30 days ahead. Invoices and clients stay while your plan is active. If you stop, everything stays readable for 60 days to download, then it is deleted. <a href="terms.html#data">Details</a>.</p></details>
     </div>
   </div>
 </section>
@@ -286,7 +288,7 @@
 
 <div class="dock" id="dock"><a class="cta line" href="#lab">Try demo</a><a class="cta primary" href="#start">Free trial</a></div>
 
-<script src="assets/site.js?v=34"></script>
+<script src="assets/site.js?v=35"></script>
 <script>
 (function () {
   'use strict';
@@ -998,10 +1000,10 @@
   $('cards').innerHTML = H.STAGES.map(function (st) {
     return '<div class="cat-st"><div><h3><span class="st-n" aria-hidden="true">' + (H.STAGES.indexOf(st) + 1) + '</span>' + st.t + '</h3></div><div>' +
       H.APPS.filter(function (a) { return a.st === st.id; }).map(function (a) {
-        var p = H.PLAN_OF[a.id];
+        var k = H.sellOf(a.id), it = H.ITEMS[k];
         return '<a class="art" href="apps.html#' + a.id + '"><span class="art-no">' + a.art + '</span><span class="app-ico"><svg viewBox="0 0 24 24" aria-hidden="true">' + a.ico + '</svg></span>' +
           '<span><b>' + a.name + '</b><p>' + a.short + '</p></span>' +
-          '<span class="plans-av" aria-label="In plans: ' + H.PLAN_NAMES.slice(p).join(', ') + '">' + ['O', 'W', 'C'].map(function (k, i) { return '<span class="' + (i >= p ? 'on' : '') + '" aria-hidden="true">' + k + '</span>'; }).join('') + '</span>' +
+          '<span class="app-eur">' + (k === a.id ? '€' + it.m + '<small>/mo</small>' : '<small>with ShopFlow</small>') + '</span>' +
           '<span class="go" aria-hidden="true"></span></a>';
       }).join('') + '</div></div>';
   }).join('');
@@ -1013,20 +1015,25 @@
     var saved = jobs * hrs * cut, val = saved * rate;
     $('rHours').textContent = Math.round(saved) + ' h';
     $('rEur').textContent = eur(val);
-    $('rX').textContent = (val / 89).toFixed(1) + '×';
+    $('rX').textContent = (val / 129).toFixed(1) + '×';
   }
   ['rJobs', 'rHrs', 'rRate', 'rCut'].forEach(function (id) { $(id).addEventListener('input', renderRoi); });
   renderRoi();
 
   /* ===================== PRICING ===================== */
   var PLANS = [
-    { name: 'Office', keep: 12, tag: 'Sell and plan without spreadsheets.', m: 39, y: 390, cta: 'Try Office free', also: 'Four apps',
-      has: ['Offers', 'CRM', 'Project Overview', 'Invoices'] },
-    { name: 'Workshop', keep: 24, tag: 'Office plus the shop floor.', m: 89, y: 890, cta: 'Start free trial', feat: true, also: 'Everything in Office, and',
-      has: ['ShopFlow', 'Shopfloor plan', 'Nesting', 'DXF Editor', 'Label printing'] },
-    { name: 'Complete', keep: 36, tag: 'Design to CNC, all nine apps.', m: 149, y: 1490, cta: 'Try Complete free', also: 'Everything in Workshop, and',
-      has: ['Cabinet Studio', 'CNC program export', 'Priority support'] }
+    { key: 'office', name: 'Office', keep: 24, tag: 'Sell and bill without spreadsheets.', cta: 'Start free trial', also: 'Three apps',
+      has: ['CRM', 'Offers', 'Invoices'] },
+    { key: 'cnc', name: 'Design to CNC', keep: 24, tag: 'Cabinet sizes to CNC programs.', cta: 'Start free trial', also: 'Three apps',
+      has: ['Cabinet Studio', 'Nesting', 'DXF Editor'] },
+    { key: 'suite', name: 'Full suite', keep: 36, tag: 'From the first call to the paid invoice.', cta: 'Start free trial', feat: true, also: 'All nine apps',
+      has: ['Everything in Office and Design to CNC', 'ShopFlow', 'Project Overview', 'Shopfloor plan', 'Label printing'] }
   ];
+  PLANS.forEach(function (p) {
+    var it = H.ITEMS[p.key], worth = 0;
+    it.apps.forEach(function (k) { worth += H.ITEMS[k].m; });
+    p.m = it.m; p.y = it.m * 10; p.worth = worth;
+  });
   var yearly = false;
   function incl(v) { return '€' + (Math.round(v * 121) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function renderPlans() {
@@ -1037,10 +1044,15 @@
         '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Includes the shop floor</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
         '<div><div class="price"><b>€' + (yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (yearly ? '/ year' : '/ month') + '</span></div>' +
         '<div class="muted" style="font-size:13px;margin-top:6px">+ VAT · ' + incl(yearly ? p.y : p.m) + ' incl. VAT</div>' +
-        '<div class="muted" style="font-size:13px;margin-top:2px">' + (yearly ? 'Two months free' : 'Cancel any time') + '</div></div>' +
+        '<div class="muted" style="font-size:13px;margin-top:2px"><s>€' + (yearly ? p.worth * 10 : p.worth).toLocaleString('en-US') + '</s> as single apps' + (yearly ? ' · two months free' : '') + '</div></div>' +
         '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' +
         '<p class="muted" style="font-size:13px;margin-top:10px">Projects kept ' + p.keep + ' months after their last change.</p></div>' +
         '<a class="cta ' + (p.feat ? 'primary' : 'line') + '" href="#start" data-plan="' + p.name + '">' + p.cta + '</a></div>';
+    }).join('');
+    $('singles').innerHTML = H.SINGLES.map(function (k) {
+      var it = H.ITEMS[k], v = yearly ? it.m * 10 : it.m;
+      return '<div class="single"><b>' + it.name + '</b><span class="muted">' + (it.note || (H.byId[k] || {}).short || '') + '</span>' +
+        '<span class="eur">€' + v.toLocaleString('en-US') + '<small>' + (yearly ? '/ year' : '/ month') + '</small></span></div>';
     }).join('');
   }
   $('billM').addEventListener('click', function () { yearly = false; renderPlans(); });

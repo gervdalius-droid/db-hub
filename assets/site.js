@@ -34,8 +34,44 @@ window.DBHUB = (function () {
     { id: 'deliver', n: 'Step 5', t: 'Deliver', d: 'know what is missing' },
     { id: 'bill', n: 'Step 6', t: 'Bill', d: 'invoice it and get paid' }
   ];
-  var PLAN_OF = { crm: 0, offers: 0, overview: 0, invoices: 0, shopflow: 1, plan: 1, nesting: 1, dxf: 1, studio: 2 };
-  var PLAN_NAMES = ['Office', 'Workshop', 'Complete'];
+  /* ===================== WHAT IS SOLD =====================
+     Single apps, two bundles and the full suite (monthly euro, excl. VAT; a year costs ten months).
+     Project Overview and the Shopfloor plan come with ShopFlow: they only work with it.
+     The same list is in supabase/functions/_shared/billing.ts (the server decides the price). */
+  var SELL_OF = { overview: 'shopflow', plan: 'shopflow' };   // app → the item that brings it
+  var sellOf = function (id) { return SELL_OF[id] || id; };
+  var SINGLES = ['studio', 'shopflow', 'nesting', 'offers', 'dxf', 'invoices', 'crm'];
+  var ITEMS = {
+    studio: { name: 'Cabinet Studio', m: 49, apps: ['studio'] },
+    shopflow: { name: 'ShopFlow', m: 39, apps: ['shopflow'], note: 'with Project Overview and Shopfloor plan' },
+    nesting: { name: 'Nesting', m: 29, apps: ['nesting'] },
+    offers: { name: 'Offers', m: 19, apps: ['offers'] },
+    dxf: { name: 'DXF Editor', m: 15, apps: ['dxf'] },
+    invoices: { name: 'Invoices', m: 15, apps: ['invoices'] },
+    crm: { name: 'CRM', m: 15, apps: ['crm'] },
+    cnc: { name: 'Design to CNC', m: 69, apps: ['studio', 'nesting', 'dxf'], pack: true },
+    office: { name: 'Office', m: 39, apps: ['crm', 'offers', 'invoices'], pack: true },
+    suite: { name: 'Full suite', m: 129, apps: SINGLES.slice(), pack: true }
+  };
+  var LICENCE = { once: 2490, care: 390 }, SETUP = 350;
+  // cheapest mix of items for the apps wanted (a bundle may add apps for free)
+  function bestItems(wanted) {
+    var want = SINGLES.filter(function (a) { return wanted.indexOf(a) >= 0; });
+    function combo(items) {
+      var apps = [], cost = 0;
+      items.forEach(function (k) { cost += ITEMS[k].m; ITEMS[k].apps.forEach(function (a) { if (apps.indexOf(a) < 0) apps.push(a); }); });
+      return { items: items, cost: cost, apps: apps };
+    }
+    var all = [combo(['suite'])], packs = ['cnc', 'office'];
+    for (var mask = 0; mask < 4; mask++) {
+      var use = packs.filter(function (k, i) { return mask & (1 << i); }), covered = [];
+      use.forEach(function (k) { covered = covered.concat(ITEMS[k].apps); });
+      all.push(combo(use.concat(want.filter(function (a) { return covered.indexOf(a) < 0; }))));
+    }
+    return all.reduce(function (b, c) {
+      return (c.cost < b.cost || (c.cost === b.cost && (c.apps.length > b.apps.length || (c.apps.length === b.apps.length && c.items.length < b.items.length)))) ? c : b;
+    });
+  }
   var APPS = [
     { id: 'crm', st: 'sell', name: 'CRM', ico: '<path d="M3 4h5v16H3zM9.5 4h5v10h-5zM16 4h5v13h-5z"/>',
       one: 'Keeps every enquiry, client and follow-up in one pipeline.', old: 'leads in a notebook, a phone and an inbox',
@@ -151,6 +187,7 @@ window.DBHUB = (function () {
   $$('.looks a').forEach(function (el) { el.setAttribute('aria-current', String(el.getAttribute('data-look') === look)); });
 
   return { $: $, $$: $$, reduce: reduce, eur: eur, plural: plural, fillRange: fillRange,
-    STAGES: STAGES, APPS: APPS, PLAN_OF: PLAN_OF, PLAN_NAMES: PLAN_NAMES, byId: byId, stageOf: stageOf,
+    STAGES: STAGES, APPS: APPS, byId: byId, stageOf: stageOf,
+    ITEMS: ITEMS, SINGLES: SINGLES, sellOf: sellOf, bestItems: bestItems, LICENCE: LICENCE, SETUP: SETUP,
     CONTACT_EMAIL: CONTACT_EMAIL, CONTACT_PHONE: CONTACT_PHONE };
 })();

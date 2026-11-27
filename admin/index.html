@@ -100,6 +100,11 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
 .mini div{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:8px 10px}
 .mini b{display:block;font-size:17px}
 .mini span{font-size:12px;color:var(--ink3)}
+.appset{display:flex;flex-wrap:wrap;gap:8px 20px;border:1.5px solid var(--rule2,#bbb);border-radius:12px;padding:10px 14px;margin:0}
+.appset[hidden]{display:none}
+.appset legend{font-size:13px;font-weight:700;padding:0 4px}
+.appset label{flex-direction:row!important;align-items:center;gap:6px;font-weight:500}
+.appset input{width:18px!important;min-height:0!important;height:18px}
 </style>
 </head>
 <body>
@@ -235,9 +240,8 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
           <h2>Data retention</h2>
           <form class="stack" id="bilRet">
             <div class="row">
-              <label>Office, months<input type="number" min="1" max="120" id="rOffice"></label>
-              <label>Workshop, months<input type="number" min="1" max="120" id="rWorkshop"></label>
-              <label>Complete, months<input type="number" min="1" max="120" id="rComplete"></label>
+              <label>Single apps and bundles, months<input type="number" min="1" max="120" id="rApps"></label>
+              <label>Full suite and licence, months<input type="number" min="1" max="120" id="rSuite"></label>
             </div>
             <div class="row">
               <label>ShopFlow parts lists, months<input type="number" min="1" max="60" id="rParts"></label>
@@ -277,9 +281,9 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
         <label>Phone<input name="contact_phone" maxlength="40"></label>
       </div>
       <div class="row">
-        <label>Plan<select name="plan"><option value="trial">Trial</option><option value="office">Office</option><option value="workshop">Workshop</option><option value="complete">Complete</option></select></label>
+        <label>Plan<select name="plan"><option value="trial">Trial</option><option value="apps">Chosen apps</option><option value="suite">Full suite</option><optgroup label="Old plans"><option value="office">Office (old)</option><option value="workshop">Workshop (old)</option><option value="complete">Complete (old)</option></optgroup></select></label>
         <label>Trial days<input name="trial_days" type="number" min="0" max="365" value="5"></label>
-        <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option></select></label>
+        <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option><option value="licence">Licence (Stripe)</option></select></label>
         <label>Price € (excl. VAT)<input name="price_eur" type="number" min="0" step="0.01"></label>
       </div>
       <label>Notes<textarea name="notes" maxlength="2000"></textarea></label>
@@ -302,12 +306,17 @@ dialog::backdrop{background:rgba(27,33,64,.45)}
         <label>Status<select name="status"><option value="active">Active</option><option value="suspended">Suspended (nobody can sign in)</option></select></label>
       </div>
       <div class="row">
-        <label>Plan<select name="plan"><option value="trial">Trial</option><option value="office">Office</option><option value="workshop">Workshop</option><option value="complete">Complete</option></select></label>
+        <label>Plan<select name="plan"><option value="trial">Trial</option><option value="apps">Chosen apps</option><option value="suite">Full suite</option><optgroup label="Old plans"><option value="office">Office (old)</option><option value="workshop">Workshop (old)</option><option value="complete">Complete (old)</option></optgroup></select></label>
         <label>Trial ends<input name="trial_ends_at" type="date"></label>
-        <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option></select></label>
+        <label>Billing<select name="billing"><option value="none">Not billed yet</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="one_time">One-time licence</option><option value="licence">Licence (Stripe)</option></select></label>
         <label>Price € (excl. VAT)<input name="price_eur" type="number" min="0" step="0.01"></label>
         <label>Paid until<input name="paid_until" type="date"></label>
       </div>
+      <fieldset id="wsApps" class="appset"><legend>Apps (for "Chosen apps")</legend>
+        <label><input type="checkbox" name="apps" value="studio"> Cabinet Studio</label><label><input type="checkbox" name="apps" value="shopflow"> ShopFlow (+ Overview, Shopfloor plan)</label>
+        <label><input type="checkbox" name="apps" value="nesting"> Nesting</label><label><input type="checkbox" name="apps" value="offers"> Offers</label>
+        <label><input type="checkbox" name="apps" value="dxf"> DXF Editor</label><label><input type="checkbox" name="apps" value="invoices"> Invoices</label>
+        <label><input type="checkbox" name="apps" value="crm"> CRM</label></fieldset>
       <div class="row">
         <label>Billing email<input name="contact_email" type="email"></label>
         <label>Phone<input name="contact_phone" maxlength="40"></label>
@@ -368,9 +377,23 @@ function ago(t) {
   if (s < 86400 * 45) return Math.round(s / 86400) + ' d ago';
   return day(t);
 }
-const PRICES = { office: { monthly: 39, yearly: 390, one_time: null }, workshop: { monthly: 89, yearly: 890, one_time: null }, complete: { monthly: 149, yearly: 1490, one_time: 2490 } };
-const PLANS = { trial: 'Trial', office: 'Office', workshop: 'Workshop', complete: 'Complete' };
-const BILLING = { none: '—', monthly: '/ month', yearly: '/ year', one_time: 'one-time' };
+// Monthly euro per item (same list as assets/site.js and supabase/functions/_shared/billing.ts); a year is ten months.
+const ITEMS = { studio: [49, ['studio']], shopflow: [39, ['shopflow']], nesting: [29, ['nesting']], offers: [19, ['offers']], dxf: [15, ['dxf']],
+  invoices: [15, ['invoices']], crm: [15, ['crm']], cnc: [69, ['studio', 'nesting', 'dxf']], office: [39, ['crm', 'offers', 'invoices']] };
+function bestMonthly(want) {   // cheapest mix for the chosen apps, capped by the full suite
+  let best = 129;
+  for (const packs of [[], ['cnc'], ['office'], ['cnc', 'office']]) {
+    const cov = packs.flatMap((k) => ITEMS[k][1]);
+    best = Math.min(best, packs.reduce((t, k) => t + ITEMS[k][0], 0) + want.filter((a) => !cov.includes(a)).reduce((t, a) => t + ITEMS[a][0], 0));
+  }
+  return best;
+}
+const km0 = () => ((typeof BIL !== 'undefined' && BIL && BIL.settings) || {}).keep_months || {};
+const PRICES = { suite: { monthly: 129, yearly: 1290, one_time: 2490, licence: 390 },
+  office: { monthly: 39, yearly: 390 }, workshop: { monthly: 89, yearly: 890 }, complete: { monthly: 149, yearly: 1490, one_time: 2490 } };
+const PLANS = { trial: 'Trial', apps: 'Apps', suite: 'Full suite', office: 'Office (old)', workshop: 'Workshop (old)', complete: 'Complete (old)' };
+const APPNAME = { studio: 'Cabinet Studio', shopflow: 'ShopFlow', nesting: 'Nesting', offers: 'Offers', dxf: 'DXF Editor', invoices: 'Invoices', crm: 'CRM' };
+const BILLING = { none: '—', monthly: '/ month', yearly: '/ year', one_time: 'one-time', licence: 'licence' };
 const STATE = { trial: ['Trial', 'b-blue'], paying: ['Paying', 'b-green'], overdue: ['Overdue', 'b-red'], unpaid: ['Not paid', 'b-red'],
   trial_ended: ['Trial ended', 'b-amber'], suspended: ['Suspended', 'b-grey'], free: ['Free', 'b-grey'] };
 const ROLES = { admin: 'Owner', manager: 'Manager', worker: 'Worker', shop: 'Shop screen' };
@@ -445,7 +468,7 @@ function paintBilling() {
   $('bilState').innerHTML = b.key_set
     ? `Key <b>${esc(b.key_hint)}</b> · <span class="b ${b.mode === 'live' ? 'b-green' : 'b-amber'}">${b.mode === 'live' ? 'Live — real payments' : 'Test mode'}</span> · webhook ${b.webhook_set ? '<span class="b b-green">connected</span>' : '<span class="b b-red">not set up</span>'}`
     : 'No Stripe key yet. Paste the secret key from Stripe → Developers → API keys.';
-  $('rOffice').value = km.office ?? 12; $('rWorkshop').value = km.workshop ?? 24; $('rComplete').value = km.complete ?? 36;
+  $('rApps').value = km.apps ?? 24; $('rSuite').value = km.suite ?? 36;
   $('rParts').value = st.parts_months ?? 6; $('rGrace').value = st.grace_days ?? 7;
   $('rTrial').value = st.trial_keep_days ?? 30; $('rClosed').value = st.closed_keep_days ?? 60; $('rEnforce').checked = !!st.enforce;
   const when = (t) => t ? new Date(t).toLocaleString('lt-LT', { dateStyle: 'short', timeStyle: 'short' }) : '';
@@ -484,7 +507,7 @@ $('bilRet').addEventListener('submit', async (e) => {
       !confirm('Switch on real deletion? From tonight, old projects and lapsed workshops are deleted for good, as the terms say. Run the report first to see what that means today.')) return;
   const n = (id) => Number($(id).value);
   const { data, error } = await db.rpc('admin_billing_settings', { p: {
-    keep_months: { office: n('rOffice'), workshop: n('rWorkshop'), complete: n('rComplete'), trial: n('rComplete') },
+    keep_months: { ...km0(), apps: n('rApps'), suite: n('rSuite'), workshop: n('rApps'), complete: n('rSuite'), trial: n('rSuite') },
     parts_months: n('rParts'), grace_days: n('rGrace'), trial_keep_days: n('rTrial'), closed_keep_days: n('rClosed'), enforce } });
   if (error) return say('bilMsg', error.message);
   BIL = data; paintBilling(); say('bilMsg', 'Saved.', true);
@@ -542,7 +565,7 @@ function renderWorkshops() {
     <td><b>${esc(w.name)}</b><small>${esc(w.country || '')} since ${day(w.created_at)}</small></td>
     <td>${w.owner ? esc(w.owner.name) + `<small>${esc(w.owner.email)}</small>` : `<span class="muted">invited</span><small>${esc(w.owner_invite || '—')}</small>`}</td>
     <td>${badge(w.state)}</td>
-    <td>${esc(PLANS[w.plan])}<small>${esc(w.billing === 'none' ? '' : BILLING[w.billing])}</small></td>
+    <td>${esc(PLANS[w.plan])}${w.plan === 'apps' && w.apps ? `<small>${esc(w.apps.map((a) => APPNAME[a] || a).join(', '))}</small>` : ''}<small>${esc(w.billing === 'none' ? '' : BILLING[w.billing])}</small></td>
     <td class="num">${w.price_eur != null ? eur(w.price_eur) : '—'}</td>
     <td>${w.plan === 'trial' ? 'Trial ends ' + day(w.trial_ends_at) : w.paid_until ? day(w.paid_until) : '—'}</td>
     <td class="num">${w.members}${w.invites ? `<small>+${w.invites} invited</small>` : ''}</td>
@@ -623,6 +646,8 @@ function fillWs(id) {
   $('wsQuick').innerHTML = q.join('');
   const f = $('wsForm');
   f.name.value = w.name; f.status.value = w.status; f.plan.value = w.plan; f.billing.value = w.billing;
+  [...f.querySelectorAll('input[name="apps"]')].forEach((c) => { c.checked = (w.apps || []).includes(c.value); });
+  $('wsApps').hidden = w.plan !== 'apps';
   f.trial_ends_at.value = w.trial_ends_at ? iso(w.trial_ends_at) : ''; f.price_eur.value = w.price_eur ?? ''; f.paid_until.value = w.paid_until || '';
   f.contact_email.value = w.contact_email || ''; f.contact_phone.value = w.contact_phone || ''; f.country.value = w.country || ''; f.notes.value = w.notes || '';
   say('wsMsg', '');
@@ -640,11 +665,18 @@ $('wsForm').addEventListener('submit', async (e) => {
   const f = e.target, w = ws(openWs);
   const p = { name: f.name.value, status: f.status.value, plan: f.plan.value, billing: f.billing.value, price_eur: f.price_eur.value,
     paid_until: f.paid_until.value, contact_email: f.contact_email.value, contact_phone: f.contact_phone.value, country: f.country.value, notes: f.notes.value };
+  if (p.plan === 'apps') {
+    p.apps = [...f.querySelectorAll('input[name="apps"]:checked')].map((c) => c.value);
+    if (!p.apps.length) return say('wsMsg', 'Tick at least one app for "Chosen apps".');
+  }
   if (f.trial_ends_at.value && f.trial_ends_at.value !== iso(w.trial_ends_at)) p.trial_ends_at = new Date(f.trial_ends_at.value + 'T23:59:00').toISOString();
   if (p.status === 'suspended' && w.status !== 'suspended' && !confirm('Suspend ' + w.name + '? Nobody in this workshop can use the apps until you reactivate it.')) return;
   await save(p, 'wsMsg');
 });
-$('dWs').addEventListener('change', (e) => { if (['plan', 'billing'].includes(e.target.name)) autoPrice(e.target.form); });
+$('dWs').addEventListener('change', (e) => {
+  if (e.target.name === 'plan') $('wsApps').hidden = e.target.value !== 'apps';
+  if (['plan', 'billing', 'apps'].includes(e.target.name)) autoPrice(e.target.form);
+});
 $('wsQuick').addEventListener('click', async (e) => {
   const b = e.target.closest('[data-quick]'); if (!b) return;
   const w = ws(openWs);
@@ -665,7 +697,12 @@ async function save(p, msgId) {
   await load(); say(msgId, 'Saved.', true);
 }
 function autoPrice(f) {
-  const plan = f.plan.value, bill = f.billing.value, pr = PRICES[plan] && PRICES[plan][bill];
+  const plan = f.plan.value, bill = f.billing.value;
+  let pr = PRICES[plan] && PRICES[plan][bill];
+  if (plan === 'apps' && f.querySelector('input[name="apps"]')) {
+    const m = bestMonthly([...f.querySelectorAll('input[name="apps"]:checked')].map((c) => c.value));
+    pr = bill === 'monthly' ? m : bill === 'yearly' ? m * 10 : null;
+  }
   if (pr != null && (!f.price_eur.value || f.price_eur.dataset.auto === '1')) { f.price_eur.value = pr; f.price_eur.dataset.auto = '1'; }
 }
 
