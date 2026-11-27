@@ -53,6 +53,7 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
   const w = await ownerWorkshop(uid);
   if (!w) return json(req, 403, { error: "Only the workshop owner can choose the plan." });
   if (b.terms !== true) return json(req, 400, { error: "Please accept the terms first." });
+  if (b.start_now !== true) return json(req, 400, { error: "Please tick \"Start right away\" first." });
 
   const plan = String(b.plan ?? ""), interval = String(b.interval ?? "");
   const main = interval === "licence" ? "wx_licence" : `wx_${plan}_${interval === "year" ? "year" : "month"}`;
@@ -77,7 +78,9 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
   }
   await db.from("workshops").update({ terms_accepted_at: new Date().toISOString(), terms_version: String(b.terms_version ?? "").slice(0, 40) || null }).eq("id", w.id);
 
-  const meta = { workshop_id: w.id, plan: byKey(main)!.plan ?? "", billing: byKey(main)!.billing ?? "" };
+  // start_now: the buyer asked for the service to begin within the 14-day withdrawal period (EU consumer law)
+  const meta = { workshop_id: w.id, plan: byKey(main)!.plan ?? "", billing: byKey(main)!.billing ?? "",
+    terms_version: String(b.terms_version ?? "").slice(0, 40), start_now: new Date().toISOString() };
   const base: Stripe.Checkout.SessionCreateParams = {
     mode: "subscription",
     customer,
@@ -92,7 +95,7 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
     tax_id_collection: { enabled: true },
     customer_update: { address: "auto", name: "auto" },
     custom_text: {
-      submit: { message: `By paying you agree to the worxmax Terms (${TERMS_URL}), including how long your data is kept.` },
+      submit: { message: `By paying you agree to the worxmax Terms (${TERMS_URL}) and ask us to start at once. Private buyers can withdraw within 14 days and pay only for the days used.` },
     },
     locale: "auto",
   };

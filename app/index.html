@@ -244,7 +244,7 @@ td select{min-height:36px;padding:4px 8px}
     <form class="stack" id="newForm">
       <label>Workshop name<input id="wsName" maxlength="80" minlength="2" required placeholder="e.g. Baltic Kitchens"></label>
       <label>Your name<input id="myName" maxlength="80" required autocomplete="name"></label>
-      <label class="agree"><input type="checkbox" id="newAgree" required><span>I set this up for a business and agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including that results are checked by us and used <b>at our own risk</b>, and <b>how long data is kept</b>.</span></label>
+      <label class="agree"><input type="checkbox" id="newAgree" required><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including that results are checked by us and used <b>at our own risk</b>, and <b>how long data is kept</b>.</span></label>
       <button class="btn go" type="submit" id="newBtn">Create workshop</button>
       <div class="msg" id="newMsg" role="alert"></div>
       <button class="btn small" type="button" id="out2">Sign out</button>
@@ -591,9 +591,9 @@ function accountHTML() {
 /* ---------------- plan & billing ---------------- */
 // Prices excl. VAT, in euro. Stripe holds the real price list (supabase/functions/_shared/billing.ts).
 const PRICE = { office: { month: 39, year: 390 }, workshop: { month: 89, year: 890 }, complete: { month: 149, year: 1490 } };
-const LICENCE = { once: 2490, care: 390 }, SETUP = 350, TERMS_VERSION = '2026-11-26b';
+const LICENCE = { once: 2490, care: 390 }, SETUP = 350, TERMS_VERSION = '2026-11-27';
 const KEEP = { office: 12, workshop: 24, complete: 36, trial: 36 };
-const B = { interval: 'month', setup: false, agree: false, ready: null, busy: false, msg: '', ok: false, preview: null };
+const B = { interval: 'month', setup: false, agree: false, startNow: false, ready: null, busy: false, msg: '', ok: false, preview: null };
 function isOwner() { return me && me.role === 'admin'; }
 // before the billing update reaches the database, fall back to the trial date
 function access() { return me.access || (trialOver() ? 'read' : 'full'); }
@@ -622,22 +622,25 @@ function statusBox() {
       <p class="muted" style="font-size:13px;margin-top:8px">Change plan or card, download invoices, or cancel. Cancelling stops at the end of the paid period.</p>` : ''}</section>`;
 }
 
+function incl(v) { return '€' + (Math.round(v * 121) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function planCards() {
   const iv = B.interval, cur = me.plan !== 'trial' && me.billing !== 'none' && access() === 'full' ? me.plan : '';
   const card = (pl) => {
     const p = PRICE[pl][iv];
     return `<div class="plan${cur === pl ? ' cur' : ''}"><h3>${esc(PLANS[pl])}</h3>
-      <div class="pr">€${p}<small> / ${iv === 'year' ? 'year' : 'month'} excl. VAT</small></div>
+      <div class="pr">€${p}<small> / ${iv === 'year' ? 'year' : 'month'} + VAT</small></div>
+      <p class="muted" style="font-size:13px;margin:-4px 0 0">${incl(p)} incl. 21% VAT</p>
       <ul>${appsOf(pl).map((n) => `<li>${svg(I.tick)}<span>${esc(n)}</span></li>`).join('')}<li>${svg(I.tick)}<span>Unlimited people</span></li></ul>
       <p class="keep">Projects kept ${KEEP[pl]} months after their last change.</p>
       ${cur === pl ? '<span class="tag dark" style="align-self:flex-start">Your plan</span>'
         : `<button type="button" class="btn go" data-act="checkout" data-plan="${pl}" ${B.busy ? 'disabled' : ''}>Choose ${esc(PLANS[pl])}</button>`}</div>`;
   };
   const licence = `<div class="plan"><h3>Complete licence</h3>
-      <div class="pr">€${LICENCE.once}<small> once</small></div>
+      <div class="pr">€${LICENCE.once.toLocaleString('en-US')}<small> once + VAT</small></div>
+      <p class="muted" style="font-size:13px;margin:-4px 0 0">${incl(LICENCE.once)} incl. 21% VAT</p>
       <ul><li>${svg(I.tick)}<span>All nine apps, for good</span></li><li>${svg(I.tick)}<span>First year of hosting, updates and support included</span></li>
-        <li>${svg(I.tick)}<span>Then €${LICENCE.care} a year for hosting, updates and support</span></li></ul>
-      <p class="keep">Excl. VAT. Projects kept ${KEEP.complete} months after their last change, while the yearly care is paid.</p>
+        <li>${svg(I.tick)}<span>Then €${LICENCE.care} + VAT a year for hosting, updates and support</span></li></ul>
+      <p class="keep">Projects kept ${KEEP.complete} months after their last change, while the yearly care is paid.</p>
       <button type="button" class="btn" data-act="checkout" data-plan="complete" data-licence="1" ${B.busy ? 'disabled' : ''}>Buy the licence</button></div>`;
   return `<div class="plans">${['office', 'workshop', 'complete'].map(card).join('')}${licence}</div>`;
 }
@@ -673,9 +676,10 @@ function billingHTML(cur) {
       <div class="seg2" role="group" aria-label="Pay monthly or yearly"><button type="button" data-act="interval" data-v="month" aria-pressed="${B.interval === 'month'}">Monthly</button><button type="button" data-act="interval" data-v="year" aria-pressed="${B.interval === 'year'}">Yearly<small>2 months free</small></button></div></div>
       ${notReady}
       ${planCards()}
-      <label class="agree"><input type="checkbox" id="bSetup" ${B.setup ? 'checked' : ''}><span><b>Add guided setup — €${SETUP} once.</b> We set up your workshop with you and import your price lists.</span></label>
-      <label class="agree"><input type="checkbox" id="bAgree" ${B.agree ? 'checked' : ''}><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a> for my business, including that results are checked by us and used <b>at our own risk</b>, <b>how long data is kept</b> (below), no refunds, and that the plan renews until I cancel it.</span></label>
-      <p class="muted" style="font-size:13px">VAT is added at checkout; with a valid EU VAT number your company is charged without it. You pay on Stripe's secure page; worxmax never sees the card.</p>
+      <label class="agree"><input type="checkbox" id="bSetup" ${B.setup ? 'checked' : ''}><span><b>Add guided setup — €${SETUP} + VAT (${incl(SETUP)}) once.</b> We set up your workshop with you and import your price lists.</span></label>
+      <label class="agree"><input type="checkbox" id="bAgree" ${B.agree ? 'checked' : ''}><span>I agree to the <a href="https://worxmax.com/terms.html" target="_blank" rel="noopener">terms of service</a>, including that results are checked by us and used <b>at our own risk</b>, <b>how long data is kept</b> (below), and that the plan <b>renews until I cancel it</b>.</span></label>
+      <label class="agree"><input type="checkbox" id="bStart" ${B.startNow ? 'checked' : ''}><span>Start right away. If I buy as a private person (without a registered business), I can still withdraw within 14 days and get back what I paid minus the days used; guided setup that is already finished cannot be withdrawn from. <a href="https://worxmax.com/terms.html#consumer" target="_blank" rel="noopener">Details</a></span></label>
+      <p class="muted" style="font-size:13px">The total with VAT is shown at checkout before you pay. A company in another EU country with a valid VAT number is charged without VAT. You pay on Stripe's secure page; worxmax never sees the card.</p>
       <div class="msg${B.ok ? ' ok' : ''}" id="billMsg" role="alert">${esc(B.msg)}</div></section>`;
   return `<div class="page"><div class="phead"><div><h1>Plan & billing</h1><p class="muted sub">One price for the whole workshop. Extra people cost nothing.</p></div></div>
     ${paidNote}${trialBanner()}
@@ -722,13 +726,14 @@ async function billingAct(act, el) {
   }
   if (act === 'portal' || act === 'checkout') {
     if (act === 'checkout') {
-      B.setup = !!($('bSetup') && $('bSetup').checked); B.agree = !!($('bAgree') && $('bAgree').checked);
+      B.setup = !!($('bSetup') && $('bSetup').checked); B.agree = !!($('bAgree') && $('bAgree').checked); B.startNow = !!($('bStart') && $('bStart').checked);
       if (!B.agree) { B.msg = 'Please tick that you agree to the terms first.'; B.ok = false; route(); $('bAgree') && $('bAgree').focus(); return; }
+      if (!B.startNow) { B.msg = 'Please tick "Start right away" so your plan can begin as soon as you pay.'; B.ok = false; route(); $('bStart') && $('bStart').focus(); return; }
     }
     B.busy = true; B.msg = act === 'checkout' ? 'Opening the secure payment page…' : 'Opening billing…'; B.ok = true; if (current().v === 'billing') route();
     const body = act === 'portal' ? { action: 'portal' } : {
       action: 'checkout', plan: el.dataset.plan, interval: el.dataset.licence ? 'licence' : B.interval,
-      setup: B.setup, terms: true, terms_version: TERMS_VERSION };
+      setup: B.setup, terms: true, terms_version: TERMS_VERSION, start_now: true };
     const { data, error } = await db.functions.invoke('billing', { body });
     B.busy = false;
     if (data && data.url) { location.href = data.url; return; }

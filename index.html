@@ -219,7 +219,7 @@
 </section>
 
 <section id="pricing">
-  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>5-day free trial on every plan. Prices excl. VAT. Pay by card through Stripe; cancel any time. <a href="terms.html#data">How long data is kept</a>.</p></div></header>
+  <header class="ch"><div class="wrap"><h2>One price per workshop. Unlimited people.</h2><p>5-day free trial on every plan. For companies and one-person workshops alike. Prices shown without VAT, with the price including 21% VAT below. Pay by card through Stripe; cancel any time. <a href="terms.html#data">How long data is kept</a>.</p></div></header>
   <div class="wrap sec">
     <div class="controls">
       <div class="seg big" role="group" aria-label="Billing period">
@@ -229,10 +229,10 @@
     </div>
     <div class="plans" id="plans"></div>
     <div class="once">
-      <div><h3>Prefer to pay once?</h3>Complete for €2,490 one-time, first year included. Then €390 a year.</div>
+      <div><h3>Prefer to pay once?</h3>Complete for €2,490 + VAT (€3,012.90 incl. VAT) one-time, first year included. Then €390 + VAT (€471.90) a year.</div>
       <a class="cta line sm" href="#start" data-plan="Complete — one-time licence">Ask about it</a>
     </div>
-    <p class="small" style="margin-top:14px">Guided setup with import of your price lists: €350 one-time.</p>
+    <p class="small" style="margin-top:14px">Guided setup with import of your price lists: €350 + VAT (€423.50) one-time.</p>
   </div>
 </section>
 
@@ -246,6 +246,7 @@
       <details><summary>Which languages?</summary><p>English and Lithuanian, switchable per person. Need another? Tell us.</p></details>
       <details><summary>Where is our data kept?</summary><p>On EU servers (Ireland), separate from every other workshop. Export it any time.</p></details>
       <details><summary>Who checks the cut lists and CNC programs?</summary><p>You do. worxmax does the calculating, but every price, cut list, layout and program depends on your settings and machines, so check it before you cut or send it. worxmax is used at your own risk and we are not responsible for mistakes in its results. <a href="terms.html#risk">Details</a>.</p></details>
+      <details><summary>Can I buy without a registered company?</summary><p>Yes. One-person workshops and private buyers are welcome. You pay the price including VAT, and as a private buyer you have 14 days to change your mind: we refund what you paid minus the days you used. <a href="terms.html#consumer">Details</a>.</p></details>
       <details><summary>How long are our projects kept?</summary><p>As long as you use them. A project nobody has changed for 12 months (Office), 24 months (Workshop) or 36 months (Complete) is removed, and you see it coming 30 days ahead. Invoices and clients stay while your plan is active. If you stop, everything stays readable for 60 days to download, then it is deleted. <a href="terms.html#data">Details</a>.</p></details>
     </div>
   </div>
@@ -1027,6 +1028,7 @@
       has: ['Cabinet Studio', 'CNC program export', 'Priority support'] }
   ];
   var yearly = false;
+  function incl(v) { return '€' + (Math.round(v * 121) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function renderPlans() {
     $('billM').setAttribute('aria-pressed', String(!yearly));
     $('billY').setAttribute('aria-pressed', String(yearly));
@@ -1034,7 +1036,8 @@
       return '<div class="plan' + (p.feat ? ' feat' : '') + '">' +
         '<div><div class="plan-top"><span class="plan-name">' + p.name + '</span>' + (p.feat ? '<span class="tag">Includes the shop floor</span>' : '') + '</div><div class="muted">' + p.tag + '</div></div>' +
         '<div><div class="price"><b>€' + (yearly ? p.y.toLocaleString('en-US') : p.m) + '</b><span class="muted">' + (yearly ? '/ year' : '/ month') + '</span></div>' +
-        '<div class="muted" style="font-size:13px;margin-top:6px">' + (yearly ? 'Two months free' : 'Cancel any time') + '</div></div>' +
+        '<div class="muted" style="font-size:13px;margin-top:6px">+ VAT · ' + incl(yearly ? p.y : p.m) + ' incl. VAT</div>' +
+        '<div class="muted" style="font-size:13px;margin-top:2px">' + (yearly ? 'Two months free' : 'Cancel any time') + '</div></div>' +
         '<div><p class="also">' + p.also + '</p><ul class="plan-apps">' + p.has.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>' +
         '<p class="muted" style="font-size:13px;margin-top:10px">Projects kept ' + p.keep + ' months after their last change.</p></div>' +
         '<a class="cta ' + (p.feat ? 'primary' : 'line') + '" href="#start" data-plan="' + p.name + '">' + p.cta + '</a></div>';
