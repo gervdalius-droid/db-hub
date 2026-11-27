@@ -54,7 +54,7 @@ async function applySubscription(sub: Stripe.Subscription) {
 
 async function recordInvoice(inv: Stripe.Invoice) {
   const customer = typeof inv.customer === "string" ? inv.customer : inv.customer?.id ?? null;
-  const wid = await workshopFor(customer, (inv as any).subscription_details?.metadata?.workshop_id ?? inv.metadata?.workshop_id);
+  const wid = await workshopFor(customer, (inv as any).parent?.subscription_details?.metadata?.workshop_id ?? (inv as any).subscription_details?.metadata?.workshop_id ?? inv.metadata?.workshop_id);
   if (!wid || !inv.amount_paid) return wid;
   const ref = inv.number ?? inv.id;
   const { data: dup } = await db.from("payments").select("id").eq("workshop_id", wid).eq("reference", ref).maybeSingle();

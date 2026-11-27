@@ -52,7 +52,8 @@ export async function stripeClient(): Promise<Stripe | null> {
   const key = await secret("stripe_secret_key");
   if (!key) return null;
   if (cached && cached.key === key) return cached.stripe;
-  const stripe = new Stripe(key, { httpClient: Stripe.createFetchHttpClient() });
+  // pinned: this version knows checkout's managed_payments switch (worxmax keeps it off)
+  const stripe = new Stripe(key, { httpClient: Stripe.createFetchHttpClient(), apiVersion: "2025-03-31.basil" as Stripe.LatestApiVersion });
   cached = { key, stripe };
   return stripe;
 }

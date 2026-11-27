@@ -91,8 +91,13 @@ async function checkout(req: Request, uid: string, email: string, b: Record<stri
     billing_address_collection: "required",
     tax_id_collection: { enabled: true },
     customer_update: { address: "auto", name: "auto" },
+    custom_text: {
+      submit: { message: `By paying you agree to the worxmax Terms (${TERMS_URL}), including how long your data is kept.` },
+    },
     locale: "auto",
   };
+  // worxmax is the seller: Stripe's Managed Payments (Stripe as merchant of record, +3.5%) stays off.
+  (base as Record<string, unknown>).managed_payments = { enabled: false };
   let session: Stripe.Checkout.Session;
   try {
     session = await stripe.checkout.sessions.create({ ...base, automatic_tax: { enabled: true } });
